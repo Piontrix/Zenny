@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function HeroFormSection() {
+const HeroFormSection = () => {
 	const [role, setRole] = useState("Editor");
 
 	return (
@@ -10,20 +10,22 @@ export default function HeroFormSection() {
 			<div className="absolute bottom-[-80px] right-[-80px] w-[350px] h-[450px] bg-violet-400 rounded-full blur-2xl animate-bounce z-0"></div>
 
 			{/* Left: Text */}
-			<div className="md:w-1/2 space-y-6 z-10">
-				<h1 className="text-4xl md:text-5xl font-bold text-pink-700">Connect. Collaborate. Create.</h1>
-				<p className="text-lg text-gray-700 max-w-md">
-					At <span className="font-semibold text-pink-600">Zenny</span>, creators & editors connect anonymously to get
-					real work done — no more chasing DMs or unclear edits.
+			<div className="md:w-1/2 space-y-6 z-10 text-gray-900">
+				<h1 className="text-4xl md:text-5xl font-extrabold text-zenny-dark drop-shadow-md">
+					Connect. Collaborate. Create.
+				</h1>
+				<p className="text-lg font-medium text-gray-800 max-w-md leading-relaxed drop-shadow-sm">
+					At <span className="font-semibold text-zenny-accent">Zenny</span>, creators & editors connect anonymously to
+					get real work done — no more chasing DMs or unclear edits.
 				</p>
-				<button className="px-5 py-2 bg-pink-600 text-white rounded-full hover:bg-pink-700 transition">
+				<button className="px-5 py-2 bg-zenny-accent text-white rounded-full hover:bg-zenny-dark transition font-semibold shadow-md cursor-pointer">
 					Learn More
 				</button>
 			</div>
 
 			{/* Right: Form */}
 			<div className="md:w-1/2 w-full max-w-md z-10 mt-12 md:mt-0">
-				<div className="absolute -inset-[2px] z-0 rounded-2xl bg-gradient-to-br from-pink-300 to-purple-300 blur-xl opacity-40"></div>
+				<div className="absolute inset-0 z-0 rounded-2xl bg-gradient-to-br from-pink-300 to-purple-300 blur-xl opacity-30 pointer-events-none"></div>
 
 				<form className="relative bg-white/30 border border-white/20 shadow-2xl rounded-2xl p-6 space-y-4 backdrop-blur-lg z-10">
 					<div>
@@ -82,4 +84,6 @@ export default function HeroFormSection() {
 			</div>
 		</section>
 	);
-}
+};
+
+export default HeroFormSection;
