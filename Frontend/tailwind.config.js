@@ -9,7 +9,7 @@ export default {
 					primary: "#fce5ec", // very light pink
 					accent: "#e94b7b", // hot pink
 					dark: "#b03060", // deep rose
-					highlight: "#fdd835", // yellow pop
+					highlight: "#f59e0b",
 					text: "#3e3e3e", // dark text
 					border: "#f7cad0", // light pink border
 				},
