@@ -4,19 +4,19 @@ export default {
 	theme: {
 		extend: {
 			colors: {
-				zenny: {
-					light: "#fff0f3", // soft peach background
-					primary: "#fce5ec", // very light pink
-					accent: "#e94b7b", // hot pink
-					dark: "#b03060", // deep rose
-					highlight: "#f59e0b",
-					text: "#3e3e3e", // dark text
-					border: "#f7cad0", // light pink border
+				roseclub: {
+					bg: "#f8dada",
+					light: "#f4b6b6",
+					medium: "#d76767",
+					dark: "#9e2a2b",
+					accent: "#e63946",
+					paper: "#fff8f7",
 				},
 			},
 			fontFamily: {
 				sans: ["Inter", "sans-serif"],
-				heading: ['"Playfair Display"', "serif"], // Optional fancy font
+				serif: ['"Playfair Display"', "serif"],
+				romantic: ['"Dancing Script"', "cursive"],
 			},
 		},
 	},

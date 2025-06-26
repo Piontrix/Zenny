@@ -7,7 +7,6 @@ const HeroFormSection = () => {
 		name: "",
 		email: "",
 		phone: "",
-		message: "",
 		followerCount: "",
 	});
 
@@ -26,29 +25,28 @@ const HeroFormSection = () => {
 			name: "",
 			email: "",
 			phone: "",
-			message: "",
 			followerCount: "",
 		});
 		setRole("Editor");
 	};
 
 	return (
-		<section className="relative min-h-screen flex flex-col md:flex-row items-center justify-between px-6 md:px-20 py-16 bg-gradient-to-br from-pink-100 via-rose-200 to-pink-50 overflow-hidden">
-			{/* 🎨 Background Animation */}
-			<div className="absolute top-[-100px] left-[-100px] w-[350px] h-[350px] bg-pink-400 rounded-full blur-3xl animate-pulse z-0"></div>
-			<div className="absolute bottom-[-80px] right-[-80px] w-[350px] h-[450px] bg-violet-400 rounded-full blur-2xl animate-bounce z-0"></div>
+		<section className="relative min-h-screen flex flex-col md:flex-row items-center justify-between px-6 md:px-20 py-16 bg-roseclub-light overflow-hidden font-romantic">
+			{/* 🎨 Background Blobs */}
+			<div className="absolute top-[-100px] left-[-100px] w-[350px] h-[350px] bg-roseclub-accent rounded-full blur-3xl opacity-30 z-0 animate-pulse"></div>
+			<div className="absolute bottom-[-80px] right-[-80px] w-[350px] h-[450px] bg-roseclub-dark rounded-full blur-2xl opacity-40 animate-bounce z-0"></div>
 
 			{/* Left: Text */}
-			<div className="md:w-1/2 space-y-6 z-10 text-gray-900">
-				<h1 className="text-4xl md:text-5xl font-extrabold text-zenny-dark drop-shadow-md">
-					Connect. Collaborate. Create.
+			<div className="md:w-1/2 space-y-6 z-10 text-roseclub-dark">
+				<h1 className="text-4xl md:text-5xl font-extrabold drop-shadow-sm leading-snug">
+					Where Creators & Editors Meet 💌
 				</h1>
-				<p className="text-lg font-medium text-gray-800 max-w-md leading-relaxed drop-shadow-sm">
-					At <span className="font-semibold text-zenny-accent">Zenny</span>, creators & editors connect anonymously to
-					get real work done — no more chasing DMs or unclear edits.
+				<p className="text-2xl font-bold text-roseclub-medium max-w-md leading-relaxed drop-shadow-sm">
+					At <span className="font-extrabold text-roseclub-accent">Zenny</span>, we help you turn imagination into
+					reality — without revealing your identity.
 				</p>
 				<Link to="/about">
-					<button className="px-5 py-2 bg-zenny-accent text-white rounded-full hover:bg-zenny-dark transition font-semibold shadow-md cursor-pointer">
+					<button className="px-6 py-2 bg-roseclub-accent text-white rounded-full hover:bg-roseclub-dark transition font-semibold shadow-md">
 						Learn More
 					</button>
 				</Link>
@@ -56,21 +54,23 @@ const HeroFormSection = () => {
 
 			{/* Right: Form */}
 			<div className="md:w-1/2 w-full max-w-md z-10 mt-12 md:mt-0 relative">
-				<div className="absolute inset-0 z-0 rounded-2xl bg-gradient-to-br from-pink-300 to-purple-300 blur-xl opacity-30 pointer-events-none"></div>
+				<div className="absolute inset-0 z-0 rounded-2xl bg-gradient-to-br from-roseclub-accent/30 to-roseclub-dark/20 blur-xl pointer-events-none"></div>
 
 				<form
-					className="relative bg-white/30 border border-white/20 shadow-2xl rounded-2xl p-6 space-y-4 backdrop-blur-lg z-10"
+					className="relative bg-roseclub-paper/50 border border-roseclub-light shadow-2xl rounded-2xl p-6 space-y-4 backdrop-blur-lg z-10"
 					onSubmit={handleSubmit}
 				>
+					{/* Name */}
 					<div>
-						<label className="block text-gray-700 font-medium mb-1">
+						<label className="block text-roseclub-dark font-medium mb-1">
 							Name <span className="text-red-500">*</span>
 						</label>
 						<input name="name" value={formData.name} onChange={handleChange} required className="inputStyle" />
 					</div>
 
+					{/* Email */}
 					<div>
-						<label className="block text-gray-700 font-medium mb-1">
+						<label className="block text-roseclub-dark font-medium mb-1">
 							Email <span className="text-red-500">*</span>
 						</label>
 						<input
@@ -83,8 +83,9 @@ const HeroFormSection = () => {
 						/>
 					</div>
 
+					{/* Phone */}
 					<div>
-						<label className="block text-gray-700 font-medium mb-1">
+						<label className="block text-roseclub-dark font-medium mb-1">
 							Phone Number <span className="text-red-500">*</span>
 						</label>
 						<input
@@ -97,8 +98,9 @@ const HeroFormSection = () => {
 						/>
 					</div>
 
+					{/* Role */}
 					<div>
-						<label className="block text-gray-700 font-medium mb-1">
+						<label className="block text-roseclub-dark font-medium mb-1">
 							Role <span className="text-red-500">*</span>
 						</label>
 						<select value={role} onChange={(e) => setRole(e.target.value)} required className="inputStyle">
@@ -107,14 +109,10 @@ const HeroFormSection = () => {
 						</select>
 					</div>
 
-					<div>
-						<label className="block text-gray-700 font-medium mb-1">Message</label>
-						<textarea name="message" value={formData.message} onChange={handleChange} className="inputStyle" rows={2} />
-					</div>
-
+					{/* Follower Count (conditional) */}
 					{role === "Creator" && (
 						<div className="transition-all duration-300">
-							<label className="block text-gray-700 font-medium mb-1">Follower Count</label>
+							<label className="block text-roseclub-dark font-medium mb-1">Follower Count</label>
 							<input
 								type="number"
 								name="followerCount"
@@ -125,9 +123,10 @@ const HeroFormSection = () => {
 						</div>
 					)}
 
+					{/* Submit Button */}
 					<button
 						type="submit"
-						className="w-full bg-pink-600 text-white py-3 rounded-full font-semibold hover:bg-pink-700 transition"
+						className="w-full bg-roseclub-accent text-white py-3 rounded-full font-semibold hover:bg-roseclub-dark transition"
 					>
 						Get Started 🚀
 					</button>

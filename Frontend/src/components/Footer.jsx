@@ -1,7 +1,11 @@
 const Footer = () => {
 	return (
-		<footer className="bg-zenny-light text-gray-700 py-6 mt-12 text-center">
-			<p>&copy; {new Date().getFullYear()} Zenny. All rights reserved.</p>
+		<footer className="bg-roseclub-paper text-roseclub-medium py-8  border-t border-roseclub-light text-center font-romantic">
+			<p className="text-sm sm:text-base">
+				&copy; {new Date().getFullYear()} <span className="font-semibold text-roseclub-accent">Zenny</span>. All rights
+				reserved.
+			</p>
+			<p className="text-xs text-roseclub-dark mt-1 italic">Crafted with love & creativity 💌</p>
 		</footer>
 	);
 };
