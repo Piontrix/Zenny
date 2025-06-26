@@ -1,10 +1,9 @@
-import HeroFormSection from "../components/HeroFormSection";
+import HeroFormSection from "../components/Home/HeroFormSection";
 
 const Home = () => {
 	return (
 		<>
 			<HeroFormSection />
-			{/* You can add more homepage sections below */}
 		</>
 	);
 };

@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+	scroll-behavior: smooth;
+}
+
+.inputStyle {
+	@apply w-full px-4 py-2 rounded-lg border border-roseclub-light bg-white/60 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-roseclub-accent focus:border-transparent transition;
+}
+
 @layer base {
 	body {
 		@apply bg-roseclub-bg font-sans text-roseclub-dark;

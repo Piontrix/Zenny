@@ -46,12 +46,12 @@ const Footer = () => {
 					<h3 className="text-roseclub-accent text-lg font-extrabold font-romantic mb-3">Contact</h3>
 					<ul className="space-y-2">
 						<li>
-							<a href="mailto:support@zenny.com" className="hover:text-roseclub-accent transition">
+							<a href="#" className="hover:text-roseclub-accent transition">
 								support@zenny.com
 							</a>
 						</li>
 						<li>
-							<a href="tel:+919999999999" className="hover:text-roseclub-accent transition">
+							<a href="#" className="hover:text-roseclub-accent transition">
 								+91 99999 99999
 							</a>
 						</li>
@@ -63,7 +63,7 @@ const Footer = () => {
 					<h3 className="text-roseclub-accent text-lg font-extrabold font-romantic mb-3">Social Media</h3>
 					<div className="flex space-x-4 mt-2 justify-center md:justify-start">
 						<a
-							href="https://instagram.com/zenny"
+							href="#"
 							target="_blank"
 							rel="noreferrer"
 							className="text-roseclub-dark hover:text-roseclub-accent transition text-xl"
@@ -71,7 +71,7 @@ const Footer = () => {
 							<FaInstagram />
 						</a>
 						<a
-							href="https://twitter.com/zenny"
+							href="#"
 							target="_blank"
 							rel="noreferrer"
 							className="text-roseclub-dark hover:text-roseclub-accent transition text-xl"
