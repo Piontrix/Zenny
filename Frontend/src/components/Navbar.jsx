@@ -12,7 +12,7 @@ const Navbar = ({ isLoggedIn = false }) => {
 		{ label: "Contact Us", to: "/contact" },
 	];
 
-	const activeLinkClass = "text-roseclub-accent font-semibold";
+	const activeLinkClass = "text-roseclub-accent font-extrabold";
 
 	return (
 		<nav className="sticky top-0 z-50 bg-roseclub-paper/70 backdrop-blur-md shadow-md font-romantic">
