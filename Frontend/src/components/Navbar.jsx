@@ -24,7 +24,7 @@ const Navbar = ({ isLoggedIn = false }) => {
 					</Link>
 
 					{/* Desktop Nav */}
-					<div className="hidden md:flex space-x-8 text-roseclub-medium font-medium">
+					<div className="hidden md:flex space-x-8 text-xl text-roseclub-medium font-medium">
 						{navLinks.map((link) => (
 							<NavLink
 								key={link.to}
@@ -44,7 +44,7 @@ const Navbar = ({ isLoggedIn = false }) => {
 							</Link>
 						) : (
 							<Link to="/login">
-								<button className="px-4 py-2 bg-roseclub-accent text-white rounded-full hover:bg-roseclub-dark transition font-semibold shadow-md">
+								<button className="px-4 py-2 text-xl bg-roseclub-accent text-white rounded-full hover:bg-roseclub-dark transition font-semibold shadow-md">
 									Login
 								</button>
 							</Link>
