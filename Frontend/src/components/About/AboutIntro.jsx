@@ -1,5 +1,6 @@
 import React from "react";
 import aboutImg from "../../assets/aboutUsZenny.jpg";
+import ImageWithLoader from "../common/ImageWithLoader";
 
 const AboutIntro = () => {
 	return (
@@ -29,9 +30,9 @@ const AboutIntro = () => {
 
 			{/* Image */}
 			<div className="md:w-1/2 flex justify-center">
-				<img
+				<ImageWithLoader
 					src={aboutImg}
-					alt="About Zenny"
+					alt="Creators and Editors Collaboration"
 					className="w-full max-w-md rounded-2xl shadow-xl hover:scale-105 transition duration-300 ease-in-out"
 				/>
 			</div>
