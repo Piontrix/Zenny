@@ -4,19 +4,26 @@ import { FaInstagram, FaTwitter } from "react-icons/fa";
 const Footer = () => {
 	return (
 		<footer className="bg-roseclub-paper text-roseclub-medium border-t border-roseclub-light pt-12 pb-6 font-sans">
-			<div className="max-w-7xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 text-sm sm:text-base text-center md:text-left">
+			<div className="max-w-7xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-8 text-sm sm:text-base text-center md:text-left">
 				{/* Zenny */}
 				<div>
 					<h3 className="text-roseclub-accent font-extrabold text-lg font-romantic mb-3">Zenny</h3>
-					<p className="text-roseclub-dark text-sm leading-relaxed">
+
+					{/* Full text only on md+ */}
+					<p className="text-roseclub-dark text-sm leading-relaxed hidden md:block">
 						Zenny is a cozy space for creators and editors to connect, collaborate, and craft beautiful content —
 						anonymously, yet meaningfully.
 					</p>
+
+					{/* Short tagline on small screens */}
+					<p className="text-roseclub-dark text-sm leading-relaxed md:hidden">
+						Creator–Editor collabs, made easy and anonymous.
+					</p>
 				</div>
 
-				{/* Services / What We Offer */}
+				{/* Quick Links */}
 				<div>
-					<h3 className="text-roseclub-accent text-lg font-romantic font-extrabold mb-3">What We Offer</h3>
+					<h3 className="text-roseclub-accent text-lg font-romantic font-extrabold mb-3">Quick Links</h3>
 					<ul className="space-y-2">
 						<li>
 							<Link to="/" className="hover:text-roseclub-accent transition">

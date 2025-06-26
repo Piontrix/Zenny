@@ -1,10 +1,14 @@
 import React from "react";
 
-const ValueCard = ({ title, description }) => {
+const ValueCard = ({ title, description, dark = false }) => {
 	return (
-		<div className="p-6 bg-white/60 backdrop-blur-lg rounded-xl shadow-md hover:shadow-lg transition text-center">
-			<h3 className="text-xl font-semibold text-roseclub-dark mb-2">{title}</h3>
-			<p className="text-sm text-roseclub-medium">{description}</p>
+		<div
+			className={`rounded-xl p-6 shadow-md border-l-4 ${
+				dark ? "bg-white/10 text-white border-white" : "bg-white/60 text-roseclub-dark border-roseclub-accent"
+			}`}
+		>
+			<h3 className="font-semibold mb-1">{title}</h3>
+			<p className="text-sm">{description}</p>
 		</div>
 	);
 };

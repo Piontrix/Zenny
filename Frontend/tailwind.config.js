@@ -16,7 +16,7 @@ export default {
 			fontFamily: {
 				sans: ["Inter", "sans-serif"],
 				serif: ['"Playfair Display"', "serif"],
-				romantic: ['"Dancing Script"', "cursive"],
+				romantic: ['"Nothing You Could Do"', "cursive"],
 			},
 		},
 	},

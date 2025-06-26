@@ -15,16 +15,16 @@ const OurMission = () => {
 				<p className="text-base sm:text-lg text-roseclub-medium leading-relaxed">
 					At <span className="font-semibold text-roseclub-dark">Zenny</span>, our mission is simple:
 					<br className="hidden sm:block" />
-					to make collaboration between content creators and editors{" "}
-					<span className="italic font-medium text-roseclub-dark">effortless, secure, and genuinely rewarding</span>.
+					to make collaboration between content creators and editors effortless, secure, and genuinely rewarding.
 				</p>
 
 				<p className="mt-4 text-base sm:text-lg text-roseclub-medium leading-relaxed">
-					We believe in **letting work shine** — not followers or filters. That’s why we built a space where creative
-					minds connect anonymously, share clear project expectations, and create magic without drama or distractions.
+					We believe in <span className="font-semibold text-roseclub-dark">letting work shine</span> — not followers or
+					filters. That’s why we built a space where creative minds connect anonymously, share clear project
+					expectations, and create magic without drama or distractions.
 				</p>
 
-				<p className="mt-6 text-roseclub-dark font-semibold text-lg">
+				<p className="mt-6 text-roseclub-medium text-lg">
 					Zenny is where talent meets zero-stress collaboration. Let’s build better content, together. ✨
 				</p>
 			</div>
