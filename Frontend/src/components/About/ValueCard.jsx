@@ -1,3 +1,5 @@
+import React from "react";
+
 const ValueCard = ({ title, description }) => {
 	return (
 		<div className="p-6 bg-white/60 backdrop-blur-lg rounded-xl shadow-md hover:shadow-lg transition text-center">
