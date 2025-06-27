@@ -98,9 +98,9 @@ const Footer = () => {
 					<Link to="/faqs" className="hover:text-roseclub-accent transition">
 						FAQs
 					</Link>
-					<Link to="/refund-policy" className="hover:text-roseclub-accent transition">
+					{/* <Link to="/refund-policy" className="hover:text-roseclub-accent transition">
 						Refund Policy
-					</Link>
+					</Link> */}
 				</div>
 
 				<p className="mt-2 text-roseclub-dark italic font-romantic">

@@ -7,6 +7,7 @@ import Contact from "./pages/Contact";
 import Portfolio from "./pages/Portfolio";
 import Profile from "./pages/Profile";
 import ScrollToTop from "./components/ScrollToTop";
+import FAQSection from "./components/Home/FAQSection";
 
 const App = () => {
 	return (
@@ -19,6 +20,7 @@ const App = () => {
 					<Route path="/contact" element={<Contact />} />
 					<Route path="/portfolio" element={<Portfolio />} />
 					<Route path="/profile" element={<Profile />} />
+					<Route path="/faqs" element={<FAQSection />} />
 					<Route path="*" element={<PageNotFound />} />
 				</Routes>
 			</Layout>
