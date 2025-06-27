@@ -34,7 +34,7 @@ const WhyZenny = () => {
 			<div className="text-center mb-14">
 				<h2 className="text-4xl sm:text-5xl font-romantic text-roseclub-accent drop-shadow-sm">Why Zenny? 🚀</h2>
 				<p className="mt-3 text-base sm:text-lg text-roseclub-medium max-w-2xl mx-auto">
-					We built Zenny for the next-gen creatives who want **real work**, not messy inboxes. Here’s why creators and
+					We built Zenny for the next-gen creatives who want real work, not messy inboxes. Here’s why creators and
 					editors trust us:
 				</p>
 			</div>

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { FaInstagram, FaTwitter } from "react-icons/fa";
+import { FaInstagram, FaTwitter, FaYoutube } from "react-icons/fa";
 
 const Footer = () => {
 	return (
@@ -53,13 +53,13 @@ const Footer = () => {
 					<h3 className="text-roseclub-accent text-lg font-extrabold font-romantic mb-3">Contact</h3>
 					<ul className="space-y-2">
 						<li>
-							<a href="#" className="hover:text-roseclub-accent transition">
-								support@zenny.com
+							<a href="mailto:riddhi@zenny.in" className="hover:text-roseclub-accent transition">
+								riddhi@zenny.in
 							</a>
 						</li>
 						<li>
-							<a href="#" className="hover:text-roseclub-accent transition">
-								+91 99999 99999
+							<a href="tel:+919643084065" className="hover:text-roseclub-accent transition">
+								+91 9643084065
 							</a>
 						</li>
 					</ul>
@@ -70,7 +70,7 @@ const Footer = () => {
 					<h3 className="text-roseclub-accent text-lg font-extrabold font-romantic mb-3">Social Media</h3>
 					<div className="flex space-x-4 mt-2 justify-center md:justify-start">
 						<a
-							href="#"
+							href="https://www.instagram.com/getzenny_/"
 							target="_blank"
 							rel="noreferrer"
 							className="text-roseclub-dark hover:text-roseclub-accent transition text-xl"
@@ -78,12 +78,12 @@ const Footer = () => {
 							<FaInstagram />
 						</a>
 						<a
-							href="#"
+							href="https://www.youtube.com/@getzennyy"
 							target="_blank"
 							rel="noreferrer"
 							className="text-roseclub-dark hover:text-roseclub-accent transition text-xl"
 						>
-							<FaTwitter />
+							<FaYoutube />
 						</a>
 					</div>
 				</div>

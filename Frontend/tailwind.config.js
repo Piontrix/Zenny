@@ -18,6 +18,10 @@ export default {
 				serif: ['"Playfair Display"', "serif"],
 				romantic: ['"Nothing You Could Do"', "cursive"],
 			},
+			transitionProperty: {
+				height: "height",
+				spacing: "margin, padding",
+			},
 		},
 	},
 	plugins: [],
