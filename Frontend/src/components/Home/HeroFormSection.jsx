@@ -23,7 +23,7 @@ const HeroFormSection = () => {
 	};
 
 	return (
-		<section className="relative min-h-screen flex items-center justify-center px-6 md:px-20 py-20 bg-roseclub-light overflow-hidden font-romantic">
+		<section className="relative min-h-screen flex items-center justify-center px-6 md:px-20 py-20 bg-roseclub-light overflow-hidden font-serif">
 			{/* Pattern Icons Layer */}
 			{/* <div className="absolute inset-0 z-0 pointer-events-none hidden lg:block">
 				<img src="/homeSvgs/video.svg" alt="Video" className="absolute top-12 left-20 w-20 rotate-12 " />

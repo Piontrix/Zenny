@@ -57,9 +57,9 @@ const FAQSection = () => {
 	};
 
 	return (
-		<section className="bg-[#731a17] py-20 px-6 sm:px-10 text-white">
+		<section className="bg-roseclub-dark py-20 px-6 sm:px-10 text-white">
 			<div className="max-w-4xl mx-auto">
-				<h2 className="text-3xl sm:text-4xl font-romantic font-bold mb-10 text-center text-roseclub-accent">
+				<h2 className="text-3xl sm:text-4xl font-romantic font-bold mb-10 text-center text-roseclub-bg">
 					Frequently Asked Questions 💬
 				</h2>
 

@@ -3,13 +3,11 @@ import { Link } from "react-router-dom";
 const HeroMainText = ({ onOpenModal }) => {
 	return (
 		<div className="z-10 max-w-2xl space-y-6 text-roseclub-dark text-center">
-			<h1 className="text-4xl sm:text-5xl font-extrabold drop-shadow-sm leading-snug">
-				Where Creators & Editors Meet 💌
-			</h1>
+			<h1 className="text-4xl sm:text-5xl font-medium drop-shadow-sm leading-snug">Where Creators & Editors Meet 💌</h1>
 
-			<p className="text-xl sm:text-2xl font-bold text-roseclub-dark leading-relaxed drop-shadow-sm">
-				At <span className="font-extrabold text-roseclub-accent">Zenny</span>, we help you turn imagination into reality
-				— without revealing your identity. Anonymous. Seamless. Real work.
+			<p className="text-xl sm:text-2xl font-medium text-roseclub-dark leading-relaxed drop-shadow-sm">
+				At <span className=" text-roseclub-accent">Zenny</span>, we help you turn imagination into reality — without
+				revealing your identity. Anonymous. Seamless. Real work.
 			</p>
 
 			<div className="flex justify-center gap-4 flex-wrap">

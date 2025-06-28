@@ -57,11 +57,11 @@ const Footer = () => {
 								riddhi@zenny.in
 							</a>
 						</li>
-						<li>
+						{/* <li>
 							<a href="tel:+919643084065" className="hover:text-roseclub-accent transition">
 								+91 9643084065
 							</a>
-						</li>
+						</li> */}
 					</ul>
 				</div>
 

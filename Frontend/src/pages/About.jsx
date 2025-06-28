@@ -14,7 +14,7 @@ const About = () => {
 				<AboutFounder />
 			</section>
 
-			<section className="bg-[#731a17] text-white py-20 px-6 sm:px-10">
+			<section className="bg-roseclub-dark text-white py-20 px-6 sm:px-10">
 				<CoreValuesSection />
 			</section>
 		</div>
