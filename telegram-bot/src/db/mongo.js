@@ -1,4 +1,3 @@
-// src/db/mongo.js
 import mongoose from "mongoose";
 import { MONGO_URI } from "../config.js";
 

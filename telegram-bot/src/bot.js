@@ -1,17 +1,15 @@
-// src/bot.js
 import { Telegraf } from "telegraf";
 import dotenv from "dotenv";
 import { TELEGRAM_BOT_TOKEN } from "./config.js";
-import redisClient from "./redis/redisClient.js";
+// import redisClient from "./redis/redisClient.js";
 import connectMongo from "./db/mongo.js";
 import { setupMessageHandler } from "./handlers/messageHandler.js";
-// import setupMessageHandlers from './handlers/messageHandler.js'; // Uncomment when ready
 dotenv.config();
 
 const bot = new Telegraf(TELEGRAM_BOT_TOKEN);
 
 await connectMongo();
-await redisClient.connect();
+// await redisClient.connect();
 
 console.log("✅ Redis connected");
 console.log("✅ Bot is setting up...");
