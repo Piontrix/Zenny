@@ -1,0 +1,21 @@
+{
+    "name": "shared-utils",
+    "version": "1.0.0",
+    "description": "Shared utilities, constants, and types for Creator-Editor Platform",
+    "type": "module",
+    "main": "index.js",
+    "exports": {
+        "./constants": "./constants.js",
+        "./types": "./types.js",
+        "./validations": "./validations.js",
+        "./telegramUtils": "./telegramUtils.js"
+    },
+    "keywords": [
+        "shared",
+        "utils",
+        "constants",
+        "types"
+    ],
+    "author": "",
+    "license": "ISC"
+}

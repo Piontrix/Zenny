@@ -1,13 +1,40 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Admin panel and API server for Creator-Editor Collaboration Platform",
+  "main": "src/index.js",
+  "type": "module",
   "scripts": {
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": [
+    "admin",
+    "api",
+    "creator-editor",
+    "collaboration"
+  ],
   "author": "",
   "license": "ISC",
-  "type": "commonjs"
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "express-rate-limit": "^7.1.5",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.16.1",
+    "dotenv": "^17.0.0",
+    "multer": "^1.4.5-lts.1",
+    "cloudinary": "^1.41.0",
+    "razorpay": "^2.9.2",
+    "nodemailer": "^6.9.7",
+    "express-validator": "^7.0.1",
+    "compression": "^1.7.4",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
 }
