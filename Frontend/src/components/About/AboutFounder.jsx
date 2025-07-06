@@ -1,5 +1,5 @@
 import ImageWithLoader from "../common/ImageWithLoader";
-import founderImg from "../../assets/aboutUsZenny.jpg"; // Make sure this path is correct
+import founderImg from "../../assets/aboutFounder.png"; // Make sure this path is correct
 
 const AboutFounder = () => {
 	return (
