@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon src/bot.js"
+    "dev": "nodemon src/bot.js",
+    "add-test-editors": "node src/scripts/addTestEditors.js",
+    "test": "node src/scripts/testBot.js"
   },
   "keywords": [],
   "author": "",
