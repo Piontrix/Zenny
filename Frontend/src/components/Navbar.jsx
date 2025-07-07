@@ -10,6 +10,7 @@ const Navbar = ({ isLoggedIn = false }) => {
 		{ label: "Portfolio", to: "/portfolio" },
 		{ label: "About Us", to: "/about" },
 		{ label: "Contact Us", to: "/contact" },
+		{ label: "Zenny Perks", to: "/zenny-perks" },
 	];
 
 	const activeLinkClass = "text-roseclub-accent font-extrabold";
