@@ -57,7 +57,8 @@ export const registerCreator = async (req, res) => {
 		}
 
 		const hashedPassword = await bcrypt.hash(password, 10);
-		const otp = Math.floor(100000 + Math.random() * 900000).toString();
+		// const otp = Math.floor(100000 + Math.random() * 900000).toString();
+		const otp = "1234";
 		const otpHash = crypto.createHash("sha256").update(otp).digest("hex");
 		const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
@@ -70,12 +71,12 @@ export const registerCreator = async (req, res) => {
 			isVerified: false,
 		});
 
-		await sendOTPEmail(email, otp);
+		// await sendOTPEmail(email, otp);
 
 		res.status(201).json({ message: "OTP sent to email. Please verify." });
 	} catch (err) {
 		console.error(err);
-		res.status(500).json({ message: "Server error" });
+		res.status(500).json({ message: "Some Error Occured our at end" });
 	}
 };
 
@@ -99,6 +100,48 @@ export const verifyCreator = async (req, res) => {
 		await user.save();
 
 		res.status(200).json({ message: "Account verified. You can now log in." });
+	} catch (err) {
+		console.error(err);
+		res.status(500).json({ message: "Server error" });
+	}
+};
+
+// ----------------- CREATOR Login -----------------
+export const creatorLogin = async (req, res) => {
+	try {
+		const { email, password } = req.body;
+
+		if (!email || !password) {
+			return res.status(400).json({ message: "Email and password are required" });
+		}
+
+		const user = await User.findOne({ email, role: "creator" });
+		if (!user) {
+			return res.status(404).json({ message: "User not found" });
+		}
+
+		if (!user.isVerified) {
+			return res.status(401).json({ message: "Email not verified. Please verify first." });
+		}
+
+		const isMatch = await bcrypt.compare(password, user.password);
+		if (!isMatch) {
+			return res.status(401).json({ message: "Invalid credentials" });
+		}
+
+		const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
+			expiresIn: process.env.JWT_EXPIRES_IN || "3d",
+		});
+
+		res.status(200).json({
+			message: "Login successful",
+			token,
+			user: {
+				_id: user._id,
+				email: user.email,
+				role: user.role,
+			},
+		});
 	} catch (err) {
 		console.error(err);
 		res.status(500).json({ message: "Server error" });

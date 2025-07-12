@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import connectDB from "./src/config/db.js";
 import testRoutes from "./src/routes/test.routes.js";
 import authRoutes from "./src/routes/auth.routes.js";
+import { protect } from "./src/middleware/auth.middleware.js";
 
 // Load env variables
 dotenv.config();
@@ -23,6 +24,10 @@ app.use("/api/auth", authRoutes);
 
 app.get("/", (req, res) => {
 	res.send("Zenny Backend is running 🚀");
+});
+
+app.get("/me", protect, (req, res) => {
+	res.json({ message: "You are authenticated!", user: req.user });
 });
 
 app.listen(PORT, () => {
