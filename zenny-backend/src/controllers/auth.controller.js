@@ -1,0 +1,106 @@
+import User from "../models/User.model.js";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import crypto from "crypto";
+import { sendOTPEmail } from "../utils/sendEmail.js";
+
+// ----------------- ADMIN LOGIN -----------------
+export const adminLogin = async (req, res) => {
+	try {
+		const { username, password } = req.body;
+
+		if (!username || !password) {
+			return res.status(400).json({ message: "Username and password are required" });
+		}
+
+		const user = await User.findOne({ username, role: "admin" });
+		if (!user) {
+			return res.status(401).json({ message: "Invalid credentials" });
+		}
+
+		const isMatch = await bcrypt.compare(password, user.password);
+		if (!isMatch) {
+			return res.status(401).json({ message: "Invalid credentials" });
+		}
+
+		const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
+			expiresIn: process.env.JWT_EXPIRES_IN || "3d",
+		});
+
+		res.status(200).json({
+			message: "Login successful",
+			token,
+			user: {
+				_id: user._id,
+				username: user.username,
+				role: user.role,
+			},
+		});
+	} catch (err) {
+		console.error(err);
+		res.status(500).json({ message: "Server error" });
+	}
+};
+
+// ----------------- CREATOR REGISTRATION -----------------
+export const registerCreator = async (req, res) => {
+	try {
+		const { email, password } = req.body;
+
+		if (!email || !password) {
+			return res.status(400).json({ message: "Email and password are required" });
+		}
+
+		const existing = await User.findOne({ email });
+		if (existing) {
+			return res.status(409).json({ message: "Email already in use" });
+		}
+
+		const hashedPassword = await bcrypt.hash(password, 10);
+		const otp = Math.floor(100000 + Math.random() * 900000).toString();
+		const otpHash = crypto.createHash("sha256").update(otp).digest("hex");
+		const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+		await User.create({
+			role: "creator",
+			email,
+			password: hashedPassword,
+			otp: otpHash,
+			otpExpires,
+			isVerified: false,
+		});
+
+		await sendOTPEmail(email, otp);
+
+		res.status(201).json({ message: "OTP sent to email. Please verify." });
+	} catch (err) {
+		console.error(err);
+		res.status(500).json({ message: "Server error" });
+	}
+};
+
+// ----------------- CREATOR OTP VERIFY -----------------
+export const verifyCreator = async (req, res) => {
+	try {
+		const { email, otp } = req.body;
+
+		const user = await User.findOne({ email, role: "creator" });
+		if (!user) return res.status(404).json({ message: "User not found" });
+
+		const hashedOTP = crypto.createHash("sha256").update(otp).digest("hex");
+
+		if (user.otp !== hashedOTP || user.otpExpires < Date.now()) {
+			return res.status(400).json({ message: "Invalid or expired OTP" });
+		}
+
+		user.isVerified = true;
+		user.otp = null;
+		user.otpExpires = null;
+		await user.save();
+
+		res.status(200).json({ message: "Account verified. You can now log in." });
+	} catch (err) {
+		console.error(err);
+		res.status(500).json({ message: "Server error" });
+	}
+};
