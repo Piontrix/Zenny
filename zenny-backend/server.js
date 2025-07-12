@@ -4,6 +4,8 @@ import dotenv from "dotenv";
 import connectDB from "./src/config/db.js";
 import testRoutes from "./src/routes/test.routes.js";
 import authRoutes from "./src/routes/auth.routes.js";
+import chatRoutes from "./src/routes/chat.routes.js";
+import adminRoutes from "./src/routes/admin.routes.js";
 import { protect } from "./src/middleware/auth.middleware.js";
 
 // Load env variables
@@ -21,6 +23,8 @@ app.use(express.json());
 // Routes
 app.use("/api/test", testRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/chat", chatRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.get("/", (req, res) => {
 	res.send("Zenny Backend is running 🚀");
