@@ -9,6 +9,7 @@ import Profile from "./pages/Profile";
 import ScrollToTop from "./components/ScrollToTop";
 import FAQSection from "./components/Home/FAQSection";
 import ZennyPerks from "./pages/ZennyPerks";
+import ChatPage from "./pages/ChatPage";
 
 const App = () => {
 	return (
@@ -23,6 +24,7 @@ const App = () => {
 					<Route path="/profile" element={<Profile />} />
 					<Route path="/faqs" element={<FAQSection />} />
 					<Route path="/zenny-perks" element={<ZennyPerks />} />
+					<Route path="/chat" element={<ChatPage />} />
 					<Route path="*" element={<PageNotFound />} />
 				</Routes>
 			</Layout>
