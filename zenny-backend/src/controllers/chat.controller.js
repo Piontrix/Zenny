@@ -135,3 +135,28 @@ export const getMessagesByRoom = async (req, res) => {
 		res.status(500).json({ message: "Server error" });
 	}
 };
+
+export const getMyChatRooms = async (req, res) => {
+	try {
+		const userId = req.user._id;
+		const userRole = req.user.role;
+
+		let chatRooms;
+
+		if (userRole === "creator") {
+			chatRooms = await ChatRoom.find({ creator: userId }).populate("editor", "username email").sort({ updatedAt: -1 });
+		} else if (userRole === "editor") {
+			chatRooms = await ChatRoom.find({ editor: userId }).populate("creator", "username email").sort({ updatedAt: -1 });
+		} else {
+			return res.status(403).json({ message: "Invalid role" });
+		}
+
+		res.status(200).json({
+			message: "Chat rooms fetched",
+			data: chatRooms,
+		});
+	} catch (err) {
+		console.error("Get my chat rooms error:", err);
+		res.status(500).json({ message: "Server error" });
+	}
+};
