@@ -1,31 +1,32 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import http from "http";
+
 import connectDB from "./src/config/db.js";
-import testRoutes from "./src/routes/test.routes.js";
-import authRoutes from "./src/routes/auth.routes.js";
-import chatRoutes from "./src/routes/chat.routes.js";
-import adminRoutes from "./src/routes/admin.routes.js";
+import routes from "./src/routes/index.routes.js";
 import { protect } from "./src/middleware/auth.middleware.js";
+import { setupSocket } from "./socket.js"; // ✅ Import socket setup
 
-// Load env variables
+// Env + DB
 dotenv.config();
-
-// Connect to MongoDB
 connectDB();
 
 const app = express();
+const server = http.createServer(app); // for Socket.io
 const PORT = process.env.PORT || 4000;
 
+// WebSocket
+setupSocket(server); // ✅ plug in socket logic
+
+// Middleware
 app.use(cors());
 app.use(express.json());
 
 // Routes
-app.use("/api/test", testRoutes);
-app.use("/api/auth", authRoutes);
-app.use("/api/chat", chatRoutes);
-app.use("/api/admin", adminRoutes);
+app.use("/api", routes);
 
+// Health check
 app.get("/", (req, res) => {
 	res.send("Zenny Backend is running 🚀");
 });
@@ -34,6 +35,7 @@ app.get("/me", protect, (req, res) => {
 	res.json({ message: "You are authenticated!", user: req.user });
 });
 
-app.listen(PORT, () => {
-	console.log(`✅ Server running on http://localhost:${PORT}`);
+// Start server
+server.listen(PORT, () => {
+	console.log(`✅ Server + WebSocket running at http://localhost:${PORT}`);
 });
