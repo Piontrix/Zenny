@@ -2,12 +2,14 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 const AdminLogin = () => {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState("");
 	const navigate = useNavigate();
+	const { login } = useAuth();
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
@@ -16,8 +18,7 @@ const AdminLogin = () => {
 				username,
 				password,
 			});
-			localStorage.setItem("token", res.data.token);
-			localStorage.setItem("user", JSON.stringify(res.data.user));
+			login(res.data.user, res.data.token);
 			navigate("/admin/dashboard");
 		} catch (err) {
 			setError(err.response?.data?.message || "Login failed");

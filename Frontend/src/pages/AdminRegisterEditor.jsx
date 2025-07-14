@@ -1,34 +1,40 @@
-// src/pages/auth/EditorLogin.jsx
 import { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../context/AuthContext";
 
-const EditorLogin = () => {
+const AdminRegisterEditor = () => {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
+	const [message, setMessage] = useState("");
 	const [error, setError] = useState("");
-	const navigate = useNavigate();
-	const { login } = useAuth();
+	const { token } = useAuth();
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-		try {
-			const res = await axios.post("http://localhost:4000/api/auth/editor/login", {
-				username,
-				password,
-			});
-			login(res.data.user, res.data.token);
+		setMessage("");
+		setError("");
 
-			navigate("/chat");
+		try {
+			const res = await axios.post(
+				"http://localhost:4000/api/auth/admin/register-editor",
+				{ username, password },
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				}
+			);
+			setMessage(res.data.message);
+			setUsername("");
+			setPassword("");
 		} catch (err) {
-			setError(err.response?.data?.message || "Login failed");
+			setError(err.response?.data?.message || "Registration failed");
 		}
 	};
 
 	return (
 		<div className="max-w-md mx-auto mt-12 bg-white p-6 shadow-md rounded-md">
-			<h2 className="text-2xl font-bold mb-4 text-center">Editor Login</h2>
+			<h2 className="text-2xl font-bold mb-4 text-center">Register New Editor</h2>
 			<form onSubmit={handleSubmit} className="space-y-4">
 				<input
 					type="text"
@@ -36,6 +42,7 @@ const EditorLogin = () => {
 					onChange={(e) => setUsername(e.target.value)}
 					placeholder="Username"
 					className="w-full px-4 py-2 border rounded-md"
+					required
 				/>
 				<input
 					type="password"
@@ -43,14 +50,16 @@ const EditorLogin = () => {
 					onChange={(e) => setPassword(e.target.value)}
 					placeholder="Password"
 					className="w-full px-4 py-2 border rounded-md"
+					required
 				/>
-				{error && <p className="text-red-500 text-sm">{error}</p>}
 				<button type="submit" className="w-full bg-roseclub-accent text-white py-2 rounded-md">
-					Login
+					Register Editor
 				</button>
+				{message && <p className="text-green-600 text-sm">{message}</p>}
+				{error && <p className="text-red-500 text-sm">{error}</p>}
 			</form>
 		</div>
 	);
 };
 
-export default EditorLogin;
+export default AdminRegisterEditor;

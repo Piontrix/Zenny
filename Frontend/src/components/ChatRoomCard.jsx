@@ -40,7 +40,7 @@ const ChatRoomCard = ({ room, onFreeze, onEnd }) => {
 				>
 					End
 				</button>
-				<Link to={`/admin/chat-rooms/${room._id}`}>
+				<Link to={`/admin/dashboard/chat-rooms/${room._id}`}>
 					<button className="bg-blue-600 text-white px-3 py-1 rounded">View</button>
 				</Link>
 			</div>

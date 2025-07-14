@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useAuth } from "../../context/AuthContext";
 
 const CreatorLogin = () => {
 	const [email, setEmail] = useState("");
@@ -8,6 +9,7 @@ const CreatorLogin = () => {
 	const [error, setError] = useState("");
 	const [loading, setLoading] = useState(false);
 	const navigate = useNavigate();
+	const { login } = useAuth();
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
@@ -20,8 +22,7 @@ const CreatorLogin = () => {
 				password,
 			});
 
-			localStorage.setItem("token", res.data.token);
-			localStorage.setItem("user", JSON.stringify(res.data.user));
+			login(res.data.user, res.data.token);
 
 			alert("🎉 Login Successful!");
 			navigate("/chat");
