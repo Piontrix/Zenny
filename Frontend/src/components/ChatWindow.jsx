@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useSocket } from "../context/SocketContext";
+import { useAuth } from "../context/AuthContext";
+import axios from "axios";
 
-// Utility to format time
+// Format timestamp nicely
 const formatTime = (dateString) => {
 	const date = new Date(dateString);
 	return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
@@ -9,22 +11,22 @@ const formatTime = (dateString) => {
 
 const ChatWindow = ({ selectedChat }) => {
 	const { socket } = useSocket();
+	const { user, token } = useAuth();
 
-	const [roomId, setRoomId] = useState("example-room-1"); // Replace later with dynamic
-	const [user, setUser] = useState({ _id: "creator123", role: "creator", username: "CreatorX" });
 	const [messages, setMessages] = useState([]);
 	const [newMessage, setNewMessage] = useState("");
 
 	const messagesEndRef = useRef(null);
+	const roomId = selectedChat?._id;
 
-	// Auto-scroll on new message
+	// Auto-scroll to bottom
 	useEffect(() => {
 		if (messagesEndRef.current) {
 			messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
 		}
 	}, [messages]);
 
-	// Join room on mount
+	// Join room
 	useEffect(() => {
 		if (socket && roomId && user) {
 			socket.emit("joinRoom", {
@@ -34,22 +36,39 @@ const ChatWindow = ({ selectedChat }) => {
 		}
 	}, [socket, roomId, user]);
 
-	// Listen for incoming messages
+	// Fetch past messages from API
+	useEffect(() => {
+		const fetchMessages = async () => {
+			if (!token || !roomId) return;
+
+			try {
+				const res = await axios.get(`http://localhost:4000/api/chat/${roomId}/messages`, {
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				});
+				setMessages(res.data.data || []);
+			} catch (err) {
+				console.error("❌ Error fetching messages", err);
+			}
+		};
+
+		fetchMessages();
+	}, [roomId, token]);
+
+	// Incoming message from socket
 	useEffect(() => {
 		if (!socket) return;
 
 		const handleNewMessage = (msg) => {
 			setMessages((prev) => [...prev, msg]);
 
-			// 🧠 Notify backend/sender it's seen
-			if (socket) {
-				socket.emit("messageSeen", {
-					roomId: msg.roomId,
-					messageId: msg._id, // if you plan to add MongoDB later
-					sender: msg.sender,
-					receiver: user._id,
-				});
-			}
+			socket.emit("messageSeen", {
+				roomId: msg.chatRoom,
+				messageId: msg._id,
+				sender: msg.sender._id,
+				receiver: user._id,
+			});
 		};
 
 		socket.on("newMessage", handleNewMessage);
@@ -57,13 +76,14 @@ const ChatWindow = ({ selectedChat }) => {
 		return () => {
 			socket.off("newMessage", handleNewMessage);
 		};
-	}, [socket]);
+	}, [socket, user, roomId]);
 
+	// When message is seen
 	useEffect(() => {
 		if (!socket) return;
 
 		const handleMessageSeen = ({ messageId }) => {
-			setMessages((prevMessages) => prevMessages.map((msg) => (msg._id === messageId ? { ...msg, seen: true } : msg)));
+			setMessages((prevMessages) => prevMessages.map((msg) => (msg._id === messageId ? { ...msg, read: true } : msg)));
 		};
 
 		socket.on("messageSeen", handleMessageSeen);
@@ -73,45 +93,70 @@ const ChatWindow = ({ selectedChat }) => {
 		};
 	}, [socket]);
 
-	// Send a message
-	const handleSend = () => {
-		if (socket && newMessage.trim()) {
-			const messageObj = {
-				roomId,
-				message: newMessage,
-				sender: user._id,
-				sentAt: new Date(),
-				seen: false,
-			};
+	// Send a new message
+	const handleSend = async () => {
+		if (!newMessage.trim() || !roomId || !token) return;
 
-			socket.emit("sendMessage", messageObj);
+		try {
+			// 1️⃣ Send message via API to persist
+			const res = await axios.post(
+				"http://localhost:4000/api/chat/message",
+				{
+					chatRoomId: roomId,
+					content: newMessage,
+				},
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				}
+			);
 
-			setMessages((prev) => [...prev, messageObj]);
+			const savedMessage = res.data.data;
+
+			// 2️⃣ Emit via socket for real-time
+			socket.emit("sendMessage", {
+				...savedMessage,
+				chatRoom: roomId,
+				sender: { _id: user._id },
+			});
+
+			setMessages((prev) => [...prev, { ...savedMessage, sender: { _id: user._id } }]);
 			setNewMessage("");
+		} catch (err) {
+			console.error("❌ Failed to send message:", err);
 		}
 	};
+
+	if (!selectedChat) {
+		return (
+			<div className="flex-1 flex items-center justify-center text-gray-500">Select a chat to start messaging</div>
+		);
+	}
 
 	return (
 		<div className="flex-1 flex flex-col justify-between p-4 bg-white shadow-sm">
 			{/* Chat Messages */}
 			<div className="flex-1 overflow-y-auto space-y-2 mb-4">
-				{messages.map((msg, idx) => (
-					<div
-						key={idx}
-						className={`max-w-xs px-3 py-2 rounded-lg text-sm shadow ${
-							msg.sender === user._id
-								? "bg-roseclub-light text-white self-end ml-auto"
-								: "bg-gray-100 text-gray-800 self-start mr-auto"
-						}`}
-					>
-						<p>{msg.message}</p>
-						<p className="text-[10px] mt-1 text-right opacity-70">
-							{formatTime(msg.sentAt || new Date())}
-							{msg.sender === user._id && msg.seen && <span className="ml-1">✅</span>}
-						</p>
-					</div>
-				))}
-
+				{messages.map((msg, idx) => {
+					const isSelf = msg.sender._id === user._id;
+					return (
+						<div
+							key={msg._id || idx}
+							className={`max-w-xs px-3 py-2 rounded-lg text-sm shadow ${
+								isSelf
+									? "bg-roseclub-light text-white self-end ml-auto"
+									: "bg-gray-100 text-gray-800 self-start mr-auto"
+							}`}
+						>
+							<p>{msg.content}</p>
+							<p className="text-[10px] mt-1 text-right opacity-70">
+								{formatTime(msg.sentAt || new Date())}
+								{isSelf && msg.read && <span className="ml-1">✅</span>}
+							</p>
+						</div>
+					);
+				})}
 				<div ref={messagesEndRef} />
 			</div>
 

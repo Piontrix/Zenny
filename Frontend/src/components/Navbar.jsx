@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { FaUserCircle } from "react-icons/fa";
 import { Link, NavLink } from "react-router-dom";
+import { useAuth } from "../context/AuthContext"; // ✅ Import auth
 
-const Navbar = ({ isLoggedIn = false }) => {
+const Navbar = () => {
 	const [menuOpen, setMenuOpen] = useState(false);
+	const { user, logout } = useAuth(); // ✅ Get user + logout from context
 
 	const navLinks = [
 		{ label: "Home", to: "/" },
@@ -39,16 +41,31 @@ const Navbar = ({ isLoggedIn = false }) => {
 
 					{/* Right Section */}
 					<div className="hidden md:flex items-center space-x-4">
-						{isLoggedIn ? (
-							<Link to="/profile">
-								<FaUserCircle className="text-2xl text-roseclub-accent cursor-pointer" />
-							</Link>
-						) : (
-							<Link to="/login">
-								<button className="px-4 py-2 text-xl bg-roseclub-accent text-white rounded-full hover:bg-roseclub-dark transition font-semibold shadow-md">
-									Login
+						{user ? (
+							<>
+								<Link to="/profile">
+									<FaUserCircle className="text-2xl text-roseclub-accent cursor-pointer" />
+								</Link>
+								<button
+									onClick={logout}
+									className="px-4 py-2 text-xl bg-roseclub-dark text-white rounded-full hover:bg-roseclub-medium transition font-semibold shadow"
+								>
+									Logout
 								</button>
-							</Link>
+							</>
+						) : (
+							<>
+								<Link to="/login">
+									<button className="px-4 py-2 text-xl bg-roseclub-accent text-white rounded-full hover:bg-roseclub-dark transition font-semibold shadow-md">
+										Login
+									</button>
+								</Link>
+								<Link to="/register">
+									<button className="px-4 py-2 text-xl bg-roseclub-accent text-white rounded-full hover:bg-roseclub-dark transition font-semibold shadow-md">
+										Register
+									</button>
+								</Link>
+							</>
 						)}
 					</div>
 
@@ -97,16 +114,34 @@ const Navbar = ({ isLoggedIn = false }) => {
 						</NavLink>
 					))}
 
-					{isLoggedIn ? (
-						<Link to="/profile" onClick={() => setMenuOpen(false)}>
-							<FaUserCircle className="text-2xl text-roseclub-accent mt-2" />
-						</Link>
-					) : (
-						<Link to="/login" onClick={() => setMenuOpen(false)}>
-							<button className="w-full bg-roseclub-accent text-white py-2 rounded-full hover:bg-roseclub-dark transition mt-2">
-								Login
+					{user ? (
+						<>
+							<Link to="/profile" onClick={() => setMenuOpen(false)}>
+								<FaUserCircle className="text-2xl text-roseclub-accent mt-2" />
+							</Link>
+							<button
+								onClick={() => {
+									logout();
+									setMenuOpen(false);
+								}}
+								className="w-full bg-roseclub-dark text-white py-2 rounded-full hover:bg-roseclub-medium transition mt-2"
+							>
+								Logout
 							</button>
-						</Link>
+						</>
+					) : (
+						<>
+							<Link to="/login" onClick={() => setMenuOpen(false)}>
+								<button className="w-full bg-roseclub-accent text-white py-2 rounded-full hover:bg-roseclub-dark transition mt-2">
+									Login
+								</button>
+							</Link>
+							<Link to="/register" onClick={() => setMenuOpen(false)}>
+								<button className="w-full bg-roseclub-accent text-white py-2 rounded-full hover:bg-roseclub-dark transition mt-2">
+									Register
+								</button>
+							</Link>
+						</>
 					)}
 				</div>
 			</div>

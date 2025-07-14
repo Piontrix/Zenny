@@ -10,6 +10,11 @@ import ScrollToTop from "./components/ScrollToTop";
 import FAQSection from "./components/Home/FAQSection";
 import ZennyPerks from "./pages/ZennyPerks";
 import ChatPage from "./pages/ChatPage";
+import CreatorLogin from "./pages/auth/CreatorLogin";
+import EditorLogin from "./pages/auth/EditorLogin";
+import AdminLogin from "./pages/auth/AdminLogin";
+import CreatorRegister from "./pages/CreatorRegister";
+import VerifyOtp from "./pages/VerifyOtp";
 
 const App = () => {
 	return (
@@ -26,6 +31,11 @@ const App = () => {
 					<Route path="/zenny-perks" element={<ZennyPerks />} />
 					<Route path="/chat" element={<ChatPage />} />
 					<Route path="*" element={<PageNotFound />} />
+					<Route path="/login" element={<CreatorLogin />} />
+					<Route path="/editor-login" element={<EditorLogin />} />
+					<Route path="/admin-login" element={<AdminLogin />} />
+					<Route path="/register" element={<CreatorRegister />} />
+					<Route path="/verify-otp" element={<VerifyOtp />} />
 				</Routes>
 			</Layout>
 		</Router>

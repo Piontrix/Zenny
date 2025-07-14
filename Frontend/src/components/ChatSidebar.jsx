@@ -1,22 +1,24 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { getMockUser } from "../helpers/mockAuth"; // Adjust path if needed
+import { useAuth } from "../context/AuthContext";
 
 const ChatSidebar = ({ onSelectChat }) => {
-	const user = getMockUser();
-
+	const { user, token } = useAuth();
 	const [chats, setChats] = useState([]);
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
 		const fetchChats = async () => {
+			if (!token) return;
+
 			try {
 				const res = await axios.get("http://localhost:4000/api/chat/my-rooms", {
 					headers: {
-						Authorization: `Bearer ${user.token}`,
+						Authorization: `Bearer ${token}`,
 					},
 				});
-				setChats(res.data || []);
+				console.log(res.data.data);
+				setChats(res.data.data || []);
 			} catch (err) {
 				console.error("❌ Failed to fetch chats", err);
 			} finally {
@@ -25,10 +27,16 @@ const ChatSidebar = ({ onSelectChat }) => {
 		};
 
 		fetchChats();
-	}, [user]);
+	}, [token]);
 
 	const getOtherUser = (chat) => {
-		return chat.participants.find((p) => p._id !== user._id);
+		if (user.role === "creator") {
+			return chat.editor;
+		}
+		if (user.role === "editor") {
+			return chat.creator;
+		}
+		return null;
 	};
 
 	return (
@@ -43,14 +51,13 @@ const ChatSidebar = ({ onSelectChat }) => {
 				) : (
 					chats.map((chat) => {
 						const other = getOtherUser(chat);
-
 						return (
 							<div
 								key={chat._id}
 								onClick={() => onSelectChat(chat)}
 								className="p-3 hover:bg-roseclub-medium cursor-pointer transition-all border-b border-white/10"
 							>
-								<p className="font-semibold text-sm">{other?.username || "Unknown User"}</p>
+								<p className="font-semibold text-sm">{other?.username || other?.email || "Unknown User"}</p>
 								<p className="text-xs opacity-80 truncate">{chat.lastMessage?.message || "No messages yet"}</p>
 							</div>
 						);
