@@ -19,13 +19,13 @@ export const setupSocket = (server) => {
 			console.log(`User ${userId} joined room ${roomId}`);
 		});
 
-		socket.on("sendMessage", ({ roomId, message, sender }) => {
-			io.to(roomId).emit("newMessage", {
-				roomId,
-				message,
-				sender,
-				sentAt: new Date(),
-			});
+		socket.on("sendMessage", (msg) => {
+			const { chatRoom } = msg;
+			io.to(chatRoom).emit("newMessage", msg);
+		});
+
+		socket.on("messageSeen", ({ roomId, messageId, sender, receiver }) => {
+			io.to(roomId).emit("messageSeen", { messageId, sender, receiver });
 		});
 
 		socket.on("disconnect", () => {
