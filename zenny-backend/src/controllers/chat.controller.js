@@ -113,12 +113,10 @@ export const getMessagesByRoom = async (req, res) => {
 		if (!chatRoom) {
 			return res.status(404).json({ message: "Chat room not found" });
 		}
-
-		// Only creator or editor in the room can fetch messages
-		if (
-			chatRoom.creator.toString() !== req.user._id.toString() &&
-			chatRoom.editor.toString() !== req.user._id.toString()
-		) {
+		const isCreator = chatRoom.creator.toString() === req.user._id.toString();
+		const isEditor = chatRoom.editor.toString() === req.user._id.toString();
+		const isAdmin = req.user.role === "admin";
+		if (!isCreator && !isEditor && !isAdmin) {
 			return res.status(403).json({ message: "Access denied to this chat" });
 		}
 

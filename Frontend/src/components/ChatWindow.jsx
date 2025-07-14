@@ -14,8 +14,11 @@ const ChatWindow = ({ selectedChat }) => {
 
 	const [messages, setMessages] = useState([]);
 	const [newMessage, setNewMessage] = useState("");
+	const [isOtherUserTyping, setIsOtherUserTyping] = useState(false);
 
 	const messagesEndRef = useRef(null);
+	const typingTimeoutRef = useRef(null);
+
 	const roomId = selectedChat?._id;
 	const isFrozen = selectedChat?.isFrozen;
 	const isEnded = selectedChat?.isEnded;
@@ -79,6 +82,31 @@ const ChatWindow = ({ selectedChat }) => {
 		};
 	}, [socket, user, roomId]);
 
+	// Listen for typing events
+	useEffect(() => {
+		if (!socket || !selectedChat) return;
+
+		const handleTyping = ({ user: typingUser }) => {
+			if (typingUser._id !== user._id && typingUser.role !== user.role) {
+				setIsOtherUserTyping(true);
+			}
+		};
+
+		const handleStopTyping = ({ user: typingUser }) => {
+			if (typingUser._id !== user._id && typingUser.role !== user.role) {
+				setIsOtherUserTyping(false);
+			}
+		};
+
+		socket.on("typing", handleTyping);
+		socket.on("stopTyping", handleStopTyping);
+
+		return () => {
+			socket.off("typing", handleTyping);
+			socket.off("stopTyping", handleStopTyping);
+		};
+	}, [socket, user, selectedChat]);
+
 	// Handle message seen updates
 	useEffect(() => {
 		if (!socket) return;
@@ -93,6 +121,37 @@ const ChatWindow = ({ selectedChat }) => {
 			socket.off("messageSeen", handleMessageSeen);
 		};
 	}, [socket]);
+
+	// Handle input change (typing logic)
+	const handleInputChange = (e) => {
+		setNewMessage(e.target.value);
+
+		if (socket && roomId) {
+			socket.emit("typing", {
+				roomId,
+				user: {
+					_id: user._id,
+					username: user.username,
+					role: user.role,
+				},
+			});
+
+			if (typingTimeoutRef.current) {
+				clearTimeout(typingTimeoutRef.current);
+			}
+
+			typingTimeoutRef.current = setTimeout(() => {
+				socket.emit("stopTyping", {
+					roomId,
+					user: {
+						_id: user._id,
+						username: user.username,
+						role: user.role,
+					},
+				});
+			}, 2000);
+		}
+	};
 
 	// Send a message
 	const handleSend = async () => {
@@ -136,6 +195,7 @@ const ChatWindow = ({ selectedChat }) => {
 					<p className="text-xs text-gray-500 capitalize">{user.role === "creator" ? "Editor" : "Creator"}</p>
 				</div>
 			</div>
+
 			{/* Freeze / Ended Banner */}
 			{isEnded && (
 				<div className="text-sm text-white text-center bg-gray-800 py-1 rounded mb-2">
@@ -169,6 +229,14 @@ const ChatWindow = ({ selectedChat }) => {
 						</div>
 					);
 				})}
+
+				{/* Typing Indicator */}
+				{isOtherUserTyping && (
+					<div className="text-xs text-gray-500 italic ml-2">
+						✍️ {user.role === "creator" ? "Editor" : "Creator"} is typing...
+					</div>
+				)}
+
 				<div ref={messagesEndRef} />
 			</div>
 
@@ -176,7 +244,7 @@ const ChatWindow = ({ selectedChat }) => {
 			<div className="flex gap-2">
 				<input
 					value={newMessage}
-					onChange={(e) => setNewMessage(e.target.value)}
+					onChange={handleInputChange}
 					type="text"
 					placeholder={isFrozen || isEnded ? "Chat is disabled" : "Type a message..."}
 					disabled={isFrozen || isEnded}

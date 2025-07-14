@@ -15,6 +15,8 @@ import EditorLogin from "./pages/auth/EditorLogin";
 import AdminLogin from "./pages/auth/AdminLogin";
 import CreatorRegister from "./pages/CreatorRegister";
 import VerifyOtp from "./pages/VerifyOtp";
+import AdminChatRooms from "./pages/AdminChatRooms";
+import AdminChatView from "./pages/AdminChatView";
 
 const App = () => {
 	return (
@@ -36,6 +38,8 @@ const App = () => {
 					<Route path="/admin-login" element={<AdminLogin />} />
 					<Route path="/register" element={<CreatorRegister />} />
 					<Route path="/verify-otp" element={<VerifyOtp />} />
+					<Route path="/admin/chat-rooms" element={<AdminChatRooms />} />
+					<Route path="/admin/chat-rooms/:roomId" element={<AdminChatView />} />
 				</Routes>
 			</Layout>
 		</Router>

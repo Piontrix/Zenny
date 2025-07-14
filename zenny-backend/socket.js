@@ -28,6 +28,24 @@ export const setupSocket = (server) => {
 			io.to(roomId).emit("messageSeen", { messageId, sender, receiver });
 		});
 
+		socket.on("typing", ({ roomId, user }) => {
+			io.to(roomId).emit("typing", { user });
+		});
+
+		socket.on("stopTyping", ({ roomId, user }) => {
+			io.to(roomId).emit("stopTyping", { user });
+		});
+
+		// 🔴 Freeze notification
+		socket.on("freezeChatRoom", ({ roomId }) => {
+			io.to(roomId).emit("chatFrozen");
+		});
+
+		// 🔴 End notification
+		socket.on("endChatRoom", ({ roomId }) => {
+			io.to(roomId).emit("chatEnded");
+		});
+
 		socket.on("disconnect", () => {
 			const info = socketUserMap.get(socket.id);
 			if (info) {
