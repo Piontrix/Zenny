@@ -1,7 +1,8 @@
 import { useState } from "react";
+
+import ChatSidebar from "../components/Chat/ChatSidebar";
+import ChatWindow from "../components/Chat/ChatWindow";
 import { useSocket } from "../context/SocketContext";
-import ChatSidebar from "../components/ChatSidebar";
-import ChatWindow from "../components/ChatWindow";
 
 const ChatPage = () => {
 	const { isConnected } = useSocket();

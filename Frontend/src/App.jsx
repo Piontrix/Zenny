@@ -13,13 +13,13 @@ import ChatPage from "./pages/ChatPage";
 import CreatorLogin from "./pages/auth/CreatorLogin";
 import EditorLogin from "./pages/auth/EditorLogin";
 import AdminLogin from "./pages/auth/AdminLogin";
-import CreatorRegister from "./pages/CreatorRegister";
 import VerifyOtp from "./pages/VerifyOtp";
-import AdminChatRooms from "./pages/AdminChatRooms";
-import AdminChatView from "./pages/AdminChatView";
+import AdminChatView from "./pages/Admin/AdminChatView";
 import ProtectedRoute from "./routes/ProtectedRoute";
-import AdminRegisterEditor from "./pages/AdminRegisterEditor";
-import AdminDashboard from "./pages/AdminDashboard";
+import AdminRegisterEditor from "./pages/Admin/AdminRegisterEditor";
+import CreatorRegister from "./pages/CreatorRegister";
+import AdminChatRooms from "./pages/Admin/AdminChatRooms";
+import AdminDashboard from "./pages/Admin/AdminDashboard";
 
 const App = () => {
 	return (

@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import ChatRoomCard from "../components/ChatRoomCard";
-import { useAuth } from "../context/AuthContext";
-import { useSocket } from "../context/SocketContext";
+import { useSocket } from "../../context/SocketContext";
+import ChatRoomCard from "../../components/Chat/ChatRoomCard";
+import { useAuth } from "../../context/AuthContext";
 
 const AdminChatRooms = () => {
 	const [chatRooms, setChatRooms] = useState([]);

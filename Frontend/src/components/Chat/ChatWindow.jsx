@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { useSocket } from "../context/SocketContext";
-import { useAuth } from "../context/AuthContext";
+import { useSocket } from "../../context/SocketContext";
+import { useAuth } from "../../context/AuthContext";
 import axios from "axios";
 
 const formatTime = (dateString) => {

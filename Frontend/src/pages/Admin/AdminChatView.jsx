@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import { useSocket } from "../context/SocketContext";
-import MessageBubble from "../components/MessageBubble";
+import { useAuth } from "../../context/AuthContext";
+import { useSocket } from "../../context/SocketContext";
+import MessageBubble from "../../components/Chat/MessageBubble";
 
 const AdminChatView = () => {
 	const { roomId } = useParams();
