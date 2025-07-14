@@ -8,7 +8,7 @@ const formatTime = (dateString) => {
 	return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 };
 
-const ChatWindow = ({ selectedChat }) => {
+const ChatWindow = ({ selectedChat, setSelectedChat }) => {
 	const { socket } = useSocket();
 	const { user, token } = useAuth();
 
@@ -121,6 +121,26 @@ const ChatWindow = ({ selectedChat }) => {
 			socket.off("messageSeen", handleMessageSeen);
 		};
 	}, [socket]);
+
+	useEffect(() => {
+		if (!socket || !roomId) return;
+
+		const handleChatFrozen = () => {
+			setSelectedChat((prev) => ({ ...prev, isFrozen: true }));
+		};
+
+		const handleChatEnded = () => {
+			setSelectedChat((prev) => ({ ...prev, isEnded: true }));
+		};
+
+		socket.on("chatFrozen", handleChatFrozen);
+		socket.on("chatEnded", handleChatEnded);
+
+		return () => {
+			socket.off("chatFrozen", handleChatFrozen);
+			socket.off("chatEnded", handleChatEnded);
+		};
+	}, [socket, roomId, setSelectedChat]);
 
 	// Handle input change (typing logic)
 	const handleInputChange = (e) => {

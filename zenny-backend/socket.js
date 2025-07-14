@@ -2,8 +2,10 @@ import { Server } from "socket.io";
 
 const socketUserMap = new Map();
 
+let io;
+
 export const setupSocket = (server) => {
-	const io = new Server(server, {
+	io = new Server(server, {
 		cors: {
 			origin: "*",
 			methods: ["GET", "POST"],
@@ -55,5 +57,10 @@ export const setupSocket = (server) => {
 		});
 	});
 
+	return io;
+};
+
+export const getIO = () => {
+	if (!io) throw new Error("Socket.io not initialized");
 	return io;
 };

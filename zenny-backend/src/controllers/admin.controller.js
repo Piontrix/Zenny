@@ -1,6 +1,6 @@
+import { getIO } from "../../socket.js";
 import ChatRoom from "../models/ChatRoom.model.js";
 import User from "../models/User.model.js";
-
 // GET all chat rooms with creator/editor info
 export const getAllChatRooms = async (req, res) => {
 	try {
@@ -27,7 +27,7 @@ export const freezeChatRoom = async (req, res) => {
 		const chat = await ChatRoom.findByIdAndUpdate(roomId, { isFrozen: true }, { new: true });
 
 		if (!chat) return res.status(404).json({ message: "Chat room not found" });
-
+		getIO().to(roomId).emit("chatFrozen");
 		res.status(200).json({ message: "Chat room frozen", data: chat });
 	} catch (err) {
 		console.error("Freeze chat error:", err);
@@ -43,7 +43,7 @@ export const endChatRoom = async (req, res) => {
 		const chat = await ChatRoom.findByIdAndUpdate(roomId, { isEnded: true }, { new: true });
 
 		if (!chat) return res.status(404).json({ message: "Chat room not found" });
-
+		getIO().to(roomId).emit("chatEnded");
 		res.status(200).json({ message: "Chat room ended", data: chat });
 	} catch (err) {
 		console.error("End chat error:", err);

@@ -10,7 +10,7 @@ const ChatPage = () => {
 	return (
 		<div className="h-screen w-full flex font-sans bg-roseclub-paper">
 			<ChatSidebar onSelectChat={setSelectedChat} />
-			<ChatWindow selectedChat={selectedChat} />
+			<ChatWindow selectedChat={selectedChat} setSelectedChat={setSelectedChat} />
 			<div className="absolute bottom-2 left-2 text-xs text-gray-500">
 				Socket: {isConnected ? "🟢 Connected" : "🔴 Disconnected"}
 			</div>
