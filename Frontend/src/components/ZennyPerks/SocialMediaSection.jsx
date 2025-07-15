@@ -4,33 +4,33 @@ import ValueCard from "../About/ValueCard"; // Make sure this path is correct
 
 const creators = [
 	{
-		name: "Creator 1",
-		handle: "@creator_one",
-		type: "Lifestyle Vlogs",
-		quote: "Love working with the Zenny team!",
-		link: "https://www.instagram.com/creator_one",
+		name: "Bansal Cable Ind",
+		handle: "bansalcableindustries",
+		type: "Design and Manufacture",
+		// quote: "Love working with the Zenny team!",
+		link: "https://www.instagram.com/bansalcableindustries?igsh=MjU4dHp2ZW4wZmtl&utm_source=qr",
 	},
-	{
-		name: "Creator 2",
-		handle: "@creator_two",
-		type: "Comedy Reels",
-		quote: "Zenny made my edits stress-free.",
-		link: "https://www.instagram.com/creator_two",
-	},
-	{
-		name: "Creator 3",
-		handle: "@creator_three",
-		type: "Podcast Clips",
-		quote: "Super fast turnaround. Loved it!",
-		link: "https://www.instagram.com/creator_three",
-	},
-	{
-		name: "Creator 4",
-		handle: "@creator_four",
-		type: "Fashion Creator",
-		quote: "My go-to for all video edits",
-		link: "https://www.instagram.com/creator_four",
-	},
+	// {
+	// 	name: "Creator 2",
+	// 	handle: "@creator_two",
+	// 	type: "Comedy Reels",
+	// 	quote: "Zenny made my edits stress-free.",
+	// 	link: "https://www.instagram.com/creator_two",
+	// },
+	// {
+	// 	name: "Creator 3",
+	// 	handle: "@creator_three",
+	// 	type: "Podcast Clips",
+	// 	quote: "Super fast turnaround. Loved it!",
+	// 	link: "https://www.instagram.com/creator_three",
+	// },
+	// {
+	// 	name: "Creator 4",
+	// 	handle: "@creator_four",
+	// 	type: "Fashion Creator",
+	// 	quote: "My go-to for all video edits",
+	// 	link: "https://www.instagram.com/creator_four",
+	// },
 ];
 
 const SocialMediaSection = () => {
