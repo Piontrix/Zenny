@@ -12,11 +12,9 @@ const formatTime = (dateString) => {
 const ChatWindow = ({ selectedChat, setSelectedChat }) => {
 	const { socket } = useSocket();
 	const { user, token } = useAuth();
-
 	const [messages, setMessages] = useState([]);
 	const [newMessage, setNewMessage] = useState("");
 	const [isOtherUserTyping, setIsOtherUserTyping] = useState(false);
-
 	const messagesEndRef = useRef(null);
 	const typingTimeoutRef = useRef(null);
 
@@ -24,28 +22,21 @@ const ChatWindow = ({ selectedChat, setSelectedChat }) => {
 	const isFrozen = selectedChat?.isFrozen;
 	const isEnded = selectedChat?.isEnded;
 
-	// Scroll to bottom
 	useEffect(() => {
 		if (messagesEndRef.current) {
 			messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
 		}
 	}, [messages]);
 
-	// Join room
 	useEffect(() => {
 		if (socket && roomId && user?._id) {
-			socket.emit("joinRoom", {
-				roomId,
-				userId: user._id,
-			});
+			socket.emit("joinRoom", { roomId, userId: user._id });
 		}
 	}, [socket, roomId, user]);
 
-	// Fetch messages
 	useEffect(() => {
 		const fetchMessages = async () => {
 			if (!token || !roomId) return;
-
 			try {
 				const res = await axios.get(API.GET_MESSAGES(roomId), {
 					headers: { Authorization: `Bearer ${token}` },
@@ -55,17 +46,14 @@ const ChatWindow = ({ selectedChat, setSelectedChat }) => {
 				console.error("❌ Error fetching messages", err);
 			}
 		};
-
 		fetchMessages();
 	}, [roomId, token]);
 
-	// Listen for new messages
 	useEffect(() => {
 		if (!socket) return;
 
 		const handleNewMessage = (msg) => {
 			setMessages((prev) => [...prev, msg]);
-
 			socket.emit("messageSeen", {
 				roomId: msg.chatRoom,
 				messageId: msg._id,
@@ -75,52 +63,37 @@ const ChatWindow = ({ selectedChat, setSelectedChat }) => {
 		};
 
 		socket.on("newMessage", handleNewMessage);
-
-		return () => {
-			socket.off("newMessage", handleNewMessage);
-		};
+		return () => socket.off("newMessage", handleNewMessage);
 	}, [socket, user, roomId]);
 
-	// Typing indicators
 	useEffect(() => {
 		if (!socket || !selectedChat) return;
 
 		const handleTyping = ({ user: typingUser }) => {
-			if (typingUser._id !== user._id && typingUser.role !== user.role) {
-				setIsOtherUserTyping(true);
-			}
+			if (typingUser._id !== user._id && typingUser.role !== user.role) setIsOtherUserTyping(true);
 		};
-
 		const handleStopTyping = ({ user: typingUser }) => {
-			if (typingUser._id !== user._id && typingUser.role !== user.role) {
-				setIsOtherUserTyping(false);
-			}
+			if (typingUser._id !== user._id && typingUser.role !== user.role) setIsOtherUserTyping(false);
 		};
 
 		socket.on("typing", handleTyping);
 		socket.on("stopTyping", handleStopTyping);
-
 		return () => {
 			socket.off("typing", handleTyping);
 			socket.off("stopTyping", handleStopTyping);
 		};
 	}, [socket, user, selectedChat]);
 
-	// Seen status
 	useEffect(() => {
 		if (!socket) return;
 
 		const handleMessageSeen = ({ messageId }) => {
 			setMessages((prev) => prev.map((msg) => (msg._id === messageId ? { ...msg, read: true } : msg)));
 		};
-
 		socket.on("messageSeen", handleMessageSeen);
-		return () => {
-			socket.off("messageSeen", handleMessageSeen);
-		};
+		return () => socket.off("messageSeen", handleMessageSeen);
 	}, [socket]);
 
-	// Chat state updates
 	useEffect(() => {
 		if (!socket || !roomId) return;
 
@@ -142,38 +115,18 @@ const ChatWindow = ({ selectedChat, setSelectedChat }) => {
 		};
 	}, [socket, roomId, setSelectedChat]);
 
-	// Input
 	const handleInputChange = (e) => {
 		setNewMessage(e.target.value);
-
-		if (socket && roomId) {
-			socket.emit("typing", {
-				roomId,
-				user: {
-					_id: user._id,
-					username: user.username,
-					role: user.role,
-				},
-			});
-
-			clearTimeout(typingTimeoutRef.current);
-			typingTimeoutRef.current = setTimeout(() => {
-				socket.emit("stopTyping", {
-					roomId,
-					user: {
-						_id: user._id,
-						username: user.username,
-						role: user.role,
-					},
-				});
-			}, 2000);
-		}
+		if (!socket || !roomId) return;
+		socket.emit("typing", { roomId, user });
+		clearTimeout(typingTimeoutRef.current);
+		typingTimeoutRef.current = setTimeout(() => {
+			socket.emit("stopTyping", { roomId, user });
+		}, 2000);
 	};
 
-	// Send
 	const handleSend = async () => {
 		if (!newMessage.trim() || !roomId || !token || isFrozen || isEnded) return;
-
 		try {
 			const res = await axios.post(
 				API.SEND_MESSAGE,
@@ -202,7 +155,7 @@ const ChatWindow = ({ selectedChat, setSelectedChat }) => {
 	return (
 		<div className="flex-1 flex flex-col bg-white">
 			{/* Fixed Header */}
-			<div className="sticky top-0 z-50 bg-white p-4 shadow border-b flex items-center justify-between">
+			<div className="sticky top-16 z-30 bg-white p-4 shadow border-b flex items-center justify-between">
 				<div>
 					<h2 className="font-semibold text-lg">
 						{user.role === "creator" ? selectedChat.editor?.username : selectedChat.creator?.email}
@@ -211,18 +164,14 @@ const ChatWindow = ({ selectedChat, setSelectedChat }) => {
 				</div>
 			</div>
 
-			{/* Freeze / Ended */}
-			{isEnded && (
-				<div className="text-sm text-white text-center bg-gray-800 py-1">This chat has been ended by an admin.</div>
-			)}
+			{/* Banners */}
+			{isEnded && <div className="text-sm text-white text-center bg-gray-800 py-1">Chat ended by admin.</div>}
 			{isFrozen && !isEnded && (
-				<div className="text-sm text-yellow-800 text-center bg-yellow-100 py-1">
-					This chat is temporarily frozen by admin.
-				</div>
+				<div className="text-sm text-yellow-800 text-center bg-yellow-100 py-1">Chat frozen by admin.</div>
 			)}
 
-			{/* Chat Area */}
-			<div className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar-thin scrollbar-thumb-rose-300 scrollbar-track-transparent">
+			{/* Chat Scroll Area */}
+			<div className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar-thin scrollbar-thumb-rose-300 max-h-[calc(100vh-10rem)] pb-16">
 				{messages.map((msg, idx) => {
 					const isSelf = msg.sender._id === user._id;
 					return (
@@ -243,7 +192,6 @@ const ChatWindow = ({ selectedChat, setSelectedChat }) => {
 					);
 				})}
 
-				{/* Typing indicator */}
 				{isOtherUserTyping && (
 					<div className="text-xs text-gray-500 italic ml-2">
 						✍️ {user.role === "creator" ? "Editor" : "Creator"} is typing...
@@ -252,9 +200,8 @@ const ChatWindow = ({ selectedChat, setSelectedChat }) => {
 
 				<div ref={messagesEndRef} />
 			</div>
-
-			{/* Input */}
-			<div className="p-4 border-t flex gap-2">
+			{/* Input Field */}
+			<div className="p-4 flex gap-2 w-full bg-white absolute bottom-0 left-0">
 				<input
 					value={newMessage}
 					onChange={handleInputChange}

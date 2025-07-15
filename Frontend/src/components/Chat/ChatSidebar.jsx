@@ -11,12 +11,9 @@ const ChatSidebar = ({ onSelectChat }) => {
 	useEffect(() => {
 		const fetchChats = async () => {
 			if (!token) return;
-
 			try {
 				const res = await axios.get(API.MY_CHAT_ROOMS, {
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
+					headers: { Authorization: `Bearer ${token}` },
 				});
 				setChats(res.data.data || []);
 			} catch (err) {
@@ -25,7 +22,6 @@ const ChatSidebar = ({ onSelectChat }) => {
 				setLoading(false);
 			}
 		};
-
 		fetchChats();
 	}, [token]);
 
@@ -36,9 +32,9 @@ const ChatSidebar = ({ onSelectChat }) => {
 	};
 
 	return (
-		<div className="w-full md:w-72 h-64 md:h-full bg-roseclub-light text-white flex flex-col border-b md:border-r border-white/10">
+		<div className="h-full flex flex-col text-white">
 			<div className="p-4 font-bold text-lg border-b border-white/20">Your Chats</div>
-			<div className="flex-1 overflow-y-auto">
+			<div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/30">
 				{loading ? (
 					<p className="text-sm p-4">Loading chats...</p>
 				) : chats.length === 0 ? (
