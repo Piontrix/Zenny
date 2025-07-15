@@ -11,6 +11,7 @@ const Layout = ({ children }) => {
 		"/admin/chat-rooms",
 		"/admin/chat-rooms/:roomId",
 		"/admin/register-editor",
+		"/chat",
 	];
 
 	const shouldHideFooter = hideFooterRoutes.some((path) => location.pathname.startsWith(path.replace(":roomId", "")));

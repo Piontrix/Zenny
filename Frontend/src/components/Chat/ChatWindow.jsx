@@ -24,50 +24,40 @@ const ChatWindow = ({ selectedChat, setSelectedChat }) => {
 	const isFrozen = selectedChat?.isFrozen;
 	const isEnded = selectedChat?.isEnded;
 
-	// Auto-scroll to bottom
+	// Scroll to bottom
 	useEffect(() => {
-		if (messagesEndRef.current) {
-			messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-		}
+		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 	}, [messages]);
 
 	// Join room
 	useEffect(() => {
 		if (socket && roomId && user?._id) {
-			socket.emit("joinRoom", {
-				roomId,
-				userId: user._id,
-			});
+			socket.emit("joinRoom", { roomId, userId: user._id });
 		}
 	}, [socket, roomId, user]);
 
-	// Fetch message history
+	// Fetch messages
 	useEffect(() => {
+		if (!token || !roomId) return;
 		const fetchMessages = async () => {
-			if (!token || !roomId) return;
-
 			try {
 				const res = await axios.get(API.GET_MESSAGES(roomId), {
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
+					headers: { Authorization: `Bearer ${token}` },
 				});
 				setMessages(res.data.data || []);
 			} catch (err) {
 				console.error("❌ Error fetching messages", err);
 			}
 		};
-
 		fetchMessages();
 	}, [roomId, token]);
 
-	// Listen for new messages
+	// Socket listeners
 	useEffect(() => {
 		if (!socket) return;
 
 		const handleNewMessage = (msg) => {
 			setMessages((prev) => [...prev, msg]);
-
 			socket.emit("messageSeen", {
 				roomId: msg.chatRoom,
 				messageId: msg._id,
@@ -76,14 +66,19 @@ const ChatWindow = ({ selectedChat, setSelectedChat }) => {
 			});
 		};
 
+		const handleMessageSeen = ({ messageId }) => {
+			setMessages((prev) => prev.map((msg) => (msg._id === messageId ? { ...msg, read: true } : msg)));
+		};
+
 		socket.on("newMessage", handleNewMessage);
+		socket.on("messageSeen", handleMessageSeen);
 
 		return () => {
 			socket.off("newMessage", handleNewMessage);
+			socket.off("messageSeen", handleMessageSeen);
 		};
 	}, [socket, user, roomId]);
 
-	// Listen for typing events
 	useEffect(() => {
 		if (!socket || !selectedChat) return;
 
@@ -108,111 +103,48 @@ const ChatWindow = ({ selectedChat, setSelectedChat }) => {
 		};
 	}, [socket, user, selectedChat]);
 
-	// Handle message seen updates
-	useEffect(() => {
-		if (!socket) return;
-
-		const handleMessageSeen = ({ messageId }) => {
-			setMessages((prevMessages) => prevMessages.map((msg) => (msg._id === messageId ? { ...msg, read: true } : msg)));
-		};
-
-		socket.on("messageSeen", handleMessageSeen);
-
-		return () => {
-			socket.off("messageSeen", handleMessageSeen);
-		};
-	}, [socket]);
-
+	// Admin control events
 	useEffect(() => {
 		if (!socket || !roomId) return;
 
-		const handleChatFrozen = () => {
-			setSelectedChat((prev) => ({ ...prev, isFrozen: true }));
+		const updateChatStatus = (statusField, value) => {
+			setSelectedChat((prev) => ({ ...prev, [statusField]: value }));
 		};
 
-		const handleChatEnded = () => {
-			setSelectedChat((prev) => ({ ...prev, isEnded: true }));
-		};
-
-		socket.on("chatFrozen", handleChatFrozen);
-		socket.on("chatEnded", handleChatEnded);
+		socket.on("chatFrozen", () => updateChatStatus("isFrozen", true));
+		socket.on("chatEnded", () => updateChatStatus("isEnded", true));
+		socket.on("chatUnfrozen", () => updateChatStatus("isFrozen", false));
+		socket.on("chatReopened", () => updateChatStatus("isEnded", false));
 
 		return () => {
-			socket.off("chatFrozen", handleChatFrozen);
-			socket.off("chatEnded", handleChatEnded);
-		};
-	}, [socket, roomId, setSelectedChat]);
-	useEffect(() => {
-		if (!socket || !roomId) return;
-
-		const handleChatUnfrozen = () => {
-			setSelectedChat((prev) => ({ ...prev, isFrozen: false }));
-		};
-
-		const handleChatReopened = () => {
-			setSelectedChat((prev) => ({ ...prev, isEnded: false }));
-		};
-
-		socket.on("chatUnfrozen", handleChatUnfrozen);
-		socket.on("chatReopened", handleChatReopened);
-
-		return () => {
-			socket.off("chatUnfrozen", handleChatUnfrozen);
-			socket.off("chatReopened", handleChatReopened);
+			socket.off("chatFrozen");
+			socket.off("chatEnded");
+			socket.off("chatUnfrozen");
+			socket.off("chatReopened");
 		};
 	}, [socket, roomId, setSelectedChat]);
 
-	// Handle input change (typing logic)
+	// Typing
 	const handleInputChange = (e) => {
 		setNewMessage(e.target.value);
-
 		if (socket && roomId) {
-			socket.emit("typing", {
-				roomId,
-				user: {
-					_id: user._id,
-					username: user.username,
-					role: user.role,
-				},
-			});
-
-			if (typingTimeoutRef.current) {
-				clearTimeout(typingTimeoutRef.current);
-			}
-
+			socket.emit("typing", { roomId, user });
+			clearTimeout(typingTimeoutRef.current);
 			typingTimeoutRef.current = setTimeout(() => {
-				socket.emit("stopTyping", {
-					roomId,
-					user: {
-						_id: user._id,
-						username: user.username,
-						role: user.role,
-					},
-				});
+				socket.emit("stopTyping", { roomId, user });
 			}, 2000);
 		}
 	};
 
-	// Send a message
+	// Send
 	const handleSend = async () => {
 		if (!newMessage.trim() || !roomId || !token || isFrozen || isEnded) return;
-
 		try {
 			const res = await axios.post(
 				API.SEND_MESSAGE,
 				{ chatRoomId: roomId, content: newMessage },
 				{ headers: { Authorization: `Bearer ${token}` } }
 			);
-
-			const savedMessage = res.data.data;
-
-			socket.emit("sendMessage", {
-				...savedMessage,
-				chatRoom: roomId,
-				sender: { _id: user._id },
-			});
-
-			setMessages((prev) => [...prev, { ...savedMessage, sender: { _id: user._id } }]);
 			setNewMessage("");
 		} catch (err) {
 			console.error("❌ Failed to send message:", err);
@@ -226,35 +158,34 @@ const ChatWindow = ({ selectedChat, setSelectedChat }) => {
 	}
 
 	return (
-		<div className="flex-1 flex flex-col justify-between p-4 bg-white shadow-sm">
-			<div className="mb-4 flex items-center justify-between border-b pb-2">
-				<div>
-					<h2 className="font-semibold text-lg">
-						{user.role === "creator" ? selectedChat.editor?.username : selectedChat.creator?.email}
-					</h2>
-					<p className="text-xs text-gray-500 capitalize">{user.role === "creator" ? "Editor" : "Creator"}</p>
-				</div>
+		<div className="flex-1 flex flex-col justify-between p-3 md:p-4 bg-white shadow-sm h-full">
+			{/* Header */}
+			<div className="mb-2 border-b pb-1">
+				<h2 className="font-semibold text-lg">
+					{user.role === "creator" ? selectedChat.editor?.username : selectedChat.creator?.email}
+				</h2>
+				<p className="text-xs text-gray-500">{user.role === "creator" ? "Editor" : "Creator"}</p>
 			</div>
 
-			{/* Freeze / Ended Banner */}
+			{/* Status Banner */}
 			{isEnded && (
-				<div className="text-sm text-white text-center bg-gray-800 py-1 rounded mb-2">
+				<p className="text-xs text-white bg-gray-800 text-center py-1 rounded mb-2">
 					This chat has been ended by an admin.
-				</div>
+				</p>
 			)}
 			{isFrozen && !isEnded && (
-				<div className="text-sm text-yellow-700 text-center bg-yellow-100 py-1 rounded mb-2">
+				<p className="text-xs text-yellow-700 bg-yellow-100 text-center py-1 rounded mb-2">
 					This chat is temporarily frozen by admin.
-				</div>
+				</p>
 			)}
 
-			{/* Chat Messages */}
-			<div className="flex-1 overflow-y-auto space-y-2 mb-4">
-				{messages.map((msg, idx) => {
+			{/* Chat messages */}
+			<div className="flex-1 overflow-y-auto space-y-2 mb-2">
+				{messages.map((msg, i) => {
 					const isSelf = msg.sender._id === user._id;
 					return (
 						<div
-							key={msg._id || idx}
+							key={msg._id || i}
 							className={`max-w-xs px-3 py-2 rounded-lg text-sm shadow ${
 								isSelf
 									? "bg-roseclub-light text-white self-end ml-auto"
@@ -269,18 +200,15 @@ const ChatWindow = ({ selectedChat, setSelectedChat }) => {
 						</div>
 					);
 				})}
-
-				{/* Typing Indicator */}
 				{isOtherUserTyping && (
 					<div className="text-xs text-gray-500 italic ml-2">
 						✍️ {user.role === "creator" ? "Editor" : "Creator"} is typing...
 					</div>
 				)}
-
 				<div ref={messagesEndRef} />
 			</div>
 
-			{/* Input Field */}
+			{/* Input */}
 			<div className="flex gap-2">
 				<input
 					value={newMessage}
@@ -288,13 +216,13 @@ const ChatWindow = ({ selectedChat, setSelectedChat }) => {
 					type="text"
 					placeholder={isFrozen || isEnded ? "Chat is disabled" : "Type a message..."}
 					disabled={isFrozen || isEnded}
-					className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-roseclub-accent disabled:bg-gray-100 disabled:text-gray-400"
+					className="flex-1 px-3 py-2 border rounded-md disabled:bg-gray-100"
 				/>
 				<button
 					onClick={handleSend}
 					disabled={isFrozen || isEnded}
 					className={`px-4 py-2 rounded-md text-white ${
-						isFrozen || isEnded ? "bg-gray-300 cursor-not-allowed" : "bg-roseclub-accent hover:bg-roseclub-dark"
+						isFrozen || isEnded ? "bg-gray-300" : "bg-roseclub-accent hover:bg-roseclub-dark"
 					}`}
 				>
 					Send
