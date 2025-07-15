@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import toast from "react-hot-toast";
+import API from "../../constants/api";
 
 const AdminLogin = () => {
 	const [username, setUsername] = useState("");
@@ -14,7 +15,7 @@ const AdminLogin = () => {
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		try {
-			const res = await axios.post("http://localhost:4000/api/auth/admin/login", {
+			const res = await axios.post(API.ADMIN_LOGIN, {
 				username,
 				password,
 			});

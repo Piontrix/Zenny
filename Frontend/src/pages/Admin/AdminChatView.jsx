@@ -5,6 +5,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useSocket } from "../../context/SocketContext";
 import MessageBubble from "../../components/Chat/MessageBubble";
 import toast from "react-hot-toast";
+import API from "../../constants/api";
 
 const AdminChatView = () => {
 	const { roomId } = useParams();
@@ -18,7 +19,8 @@ const AdminChatView = () => {
 
 	const fetchMessages = async () => {
 		try {
-			const res = await axios.get(`http://localhost:4000/api/chat/${roomId}/messages`, {
+			console.log(API.GET_MESSAGES(roomId));
+			const res = await axios.get(API.GET_MESSAGES(roomId), {
 				headers: { Authorization: `Bearer ${token}` },
 			});
 			setMessages(res.data.data || []);
@@ -29,7 +31,7 @@ const AdminChatView = () => {
 
 	const fetchRoomInfo = async () => {
 		try {
-			const res = await axios.get("http://localhost:4000/api/admin/chat-rooms", {
+			const res = await axios.get(API.ADMIN_GET_CHAT_ROOMS, {
 				headers: { Authorization: `Bearer ${token}` },
 			});
 			const found = res.data.data.find((r) => r._id === roomId);
@@ -55,11 +57,7 @@ const AdminChatView = () => {
 	const handleFreeze = async () => {
 		try {
 			setLoading(true);
-			await axios.patch(
-				`http://localhost:4000/api/admin/chat/${roomId}/freeze`,
-				{},
-				{ headers: { Authorization: `Bearer ${token}` } }
-			);
+			await axios.patch(API.ADMIN_FREEZE_CHAT(roomId), {}, { headers: { Authorization: `Bearer ${token}` } });
 			socket.emit("freezeChatRoom", { roomId });
 			await fetchRoomInfo();
 			toast.success("Chat room frozen successfully");
@@ -74,11 +72,7 @@ const AdminChatView = () => {
 	const handleEnd = async () => {
 		try {
 			setLoading(true);
-			await axios.patch(
-				`http://localhost:4000/api/admin/chat/${roomId}/end`,
-				{},
-				{ headers: { Authorization: `Bearer ${token}` } }
-			);
+			await axios.patch(API.ADMIN_END_CHAT(roomId), {}, { headers: { Authorization: `Bearer ${token}` } });
 			socket.emit("endChatRoom", { roomId });
 			await fetchRoomInfo();
 			toast.success("Chat room Ended successfully");
@@ -93,11 +87,7 @@ const AdminChatView = () => {
 	const handleUnfreeze = async () => {
 		try {
 			setLoading(true);
-			await axios.patch(
-				`http://localhost:4000/api/admin/chat/${roomId}/unfreeze`,
-				{},
-				{ headers: { Authorization: `Bearer ${token}` } }
-			);
+			await axios.patch(API.ADMIN_UNFREEZE_CHAT(roomId), {}, { headers: { Authorization: `Bearer ${token}` } });
 			socket.emit("unfreezeChatRoom", { roomId });
 			await fetchRoomInfo();
 			toast.success("Chat room unfrozen successfully");
@@ -112,11 +102,7 @@ const AdminChatView = () => {
 	const handleUnend = async () => {
 		try {
 			setLoading(true);
-			await axios.patch(
-				`http://localhost:4000/api/admin/chat/${roomId}/unend`,
-				{},
-				{ headers: { Authorization: `Bearer ${token}` } }
-			);
+			await axios.patch(API.ADMIN_UNEND_CHAT(roomId), {}, { headers: { Authorization: `Bearer ${token}` } });
 			socket.emit("reopenChatRoom", { roomId });
 			await fetchRoomInfo();
 			toast.success("Chat room reopened successfully");

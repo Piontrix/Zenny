@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import toast from "react-hot-toast";
+import API from "../../constants/api";
 
 const EditorLogin = () => {
 	const [username, setUsername] = useState("");
@@ -14,7 +15,7 @@ const EditorLogin = () => {
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		try {
-			const res = await axios.post("http://localhost:4000/api/auth/editor/login", {
+			const res = await axios.post(API.EDITOR_LOGIN, {
 				username,
 				password,
 			});

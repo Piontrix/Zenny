@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
 import toast from "react-hot-toast";
+import API from "../../constants/api";
 
 const CreatorLogin = () => {
 	const [email, setEmail] = useState("");
@@ -18,7 +19,7 @@ const CreatorLogin = () => {
 		setError("");
 
 		try {
-			const res = await axios.post("http://localhost:4000/api/auth/creator/login", {
+			const res = await axios.post(API.CREATOR_LOGIN, {
 				email,
 				password,
 			});

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
+import API from "../constants/api";
 
 const VerifyOtp = () => {
 	const [searchParams] = useSearchParams();
@@ -16,7 +17,7 @@ const VerifyOtp = () => {
 		setError("");
 
 		try {
-			await axios.post("http://localhost:4000/api/auth/creator/verify", {
+			await axios.post(API.CREATOR_VERIFY_OTP, {
 				email,
 				otp,
 			});

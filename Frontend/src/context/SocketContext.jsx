@@ -1,8 +1,9 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
+import API from "../constants/api";
 
 // 🧠 Adjust this to your backend (localhost OR deployed)
-const SOCKET_SERVER_URL = "http://localhost:4000"; // or your live URL
+const SOCKET_SERVER_URL = API.BASE_URL;
 
 const SocketContext = createContext();
 

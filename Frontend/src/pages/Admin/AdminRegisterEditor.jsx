@@ -1,6 +1,8 @@
 import { useState } from "react";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
+import API from "../../constants/api";
+import toast from "react-hot-toast";
 
 const AdminRegisterEditor = () => {
 	const [username, setUsername] = useState("");
@@ -16,7 +18,7 @@ const AdminRegisterEditor = () => {
 
 		try {
 			const res = await axios.post(
-				"http://localhost:4000/api/auth/admin/register-editor",
+				API.ADMIN_REGISTER_EDITOR,
 				{ username, password },
 				{
 					headers: {
@@ -25,10 +27,13 @@ const AdminRegisterEditor = () => {
 				}
 			);
 			setMessage(res.data.message);
+			toast.success(res.data.message || "Editor registered successfully!");
 			setUsername("");
 			setPassword("");
 		} catch (err) {
 			setError(err.response?.data?.message || "Registration failed");
+
+			toast.error(err.response?.data?.message || "Editor registration failed");
 		}
 	};
 

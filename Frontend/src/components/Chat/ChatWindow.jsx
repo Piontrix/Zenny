@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSocket } from "../../context/SocketContext";
 import { useAuth } from "../../context/AuthContext";
 import axios from "axios";
+import API from "../../constants/api";
 
 const formatTime = (dateString) => {
 	const date = new Date(dateString);
@@ -46,7 +47,7 @@ const ChatWindow = ({ selectedChat, setSelectedChat }) => {
 			if (!token || !roomId) return;
 
 			try {
-				const res = await axios.get(`http://localhost:4000/api/chat/${roomId}/messages`, {
+				const res = await axios.get(API.GET_MESSAGES(roomId), {
 					headers: {
 						Authorization: `Bearer ${token}`,
 					},
@@ -198,7 +199,7 @@ const ChatWindow = ({ selectedChat, setSelectedChat }) => {
 
 		try {
 			const res = await axios.post(
-				"http://localhost:4000/api/chat/message",
+				API.SEND_MESSAGE,
 				{ chatRoomId: roomId, content: newMessage },
 				{ headers: { Authorization: `Bearer ${token}` } }
 			);

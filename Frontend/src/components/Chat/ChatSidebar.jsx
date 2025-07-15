@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
+import API from "../../constants/api";
 
 const ChatSidebar = ({ onSelectChat }) => {
 	const { user, token } = useAuth();
@@ -12,7 +13,7 @@ const ChatSidebar = ({ onSelectChat }) => {
 			if (!token) return;
 
 			try {
-				const res = await axios.get("http://localhost:4000/api/chat/my-rooms", {
+				const res = await axios.get(API.MY_CHAT_ROOMS, {
 					headers: {
 						Authorization: `Bearer ${token}`,
 					},
