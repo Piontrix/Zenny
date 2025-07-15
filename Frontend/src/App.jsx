@@ -20,12 +20,37 @@ import AdminRegisterEditor from "./pages/Admin/AdminRegisterEditor";
 import CreatorRegister from "./pages/CreatorRegister";
 import AdminChatRooms from "./pages/Admin/AdminChatRooms";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
+import { Toaster } from "react-hot-toast";
 
 const App = () => {
 	return (
 		<Router>
 			<Layout>
 				<ScrollToTop />
+				<Toaster
+					position="top-right"
+					toastOptions={{
+						duration: 3000,
+						style: {
+							background: "#fff8f7", // roseclub.paper
+							color: "#9e2a2b", // roseclub.dark
+							border: "1px solid #f4b6b6", // roseclub.light
+							fontFamily: "Inter, sans-serif",
+						},
+						success: {
+							iconTheme: {
+								primary: "#e63946", // roseclub.accent
+								secondary: "#fff",
+							},
+						},
+						error: {
+							iconTheme: {
+								primary: "#d76767", // roseclub.medium
+								secondary: "#fff",
+							},
+						},
+					}}
+				/>
 				<Routes>
 					<Route path="/" element={<Home />} />
 					<Route path="/about" element={<About />} />

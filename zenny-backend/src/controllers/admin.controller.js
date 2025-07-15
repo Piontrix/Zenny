@@ -50,3 +50,39 @@ export const endChatRoom = async (req, res) => {
 		res.status(500).json({ message: "Server error" });
 	}
 };
+
+// PATCH unfreeze chat room
+export const unfreezeChatRoom = async (req, res) => {
+	try {
+		const { roomId } = req.params;
+
+		const chat = await ChatRoom.findByIdAndUpdate(roomId, { isFrozen: false }, { new: true });
+
+		if (!chat) return res.status(404).json({ message: "Chat room not found" });
+
+		getIO().to(roomId).emit("chatUnfrozen");
+
+		res.status(200).json({ message: "Chat room unfrozen", data: chat });
+	} catch (err) {
+		console.error("Unfreeze chat error:", err);
+		res.status(500).json({ message: "Server error" });
+	}
+};
+
+// PATCH unend chat room
+export const unendChatRoom = async (req, res) => {
+	try {
+		const { roomId } = req.params;
+
+		const chat = await ChatRoom.findByIdAndUpdate(roomId, { isEnded: false }, { new: true });
+
+		if (!chat) return res.status(404).json({ message: "Chat room not found" });
+
+		getIO().to(roomId).emit("chatReopened");
+
+		res.status(200).json({ message: "Chat room reopened", data: chat });
+	} catch (err) {
+		console.error("Unend chat error:", err);
+		res.status(500).json({ message: "Server error" });
+	}
+};

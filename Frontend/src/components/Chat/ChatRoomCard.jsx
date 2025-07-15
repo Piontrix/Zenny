@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-const ChatRoomCard = ({ room, onFreeze, onEnd }) => {
+const ChatRoomCard = ({ room, onFreeze, onEnd, onUnfreeze, onUnend }) => {
 	return (
 		<div className="border p-4 rounded shadow-sm bg-white">
 			<div className="flex justify-between items-start">
@@ -25,23 +25,47 @@ const ChatRoomCard = ({ room, onFreeze, onEnd }) => {
 				</div>
 			</div>
 
-			<div className="mt-3 flex gap-2">
-				<button
-					onClick={() => onFreeze(room._id)}
-					disabled={room.isFrozen || room.isEnded}
-					className="bg-yellow-500 text-white px-3 py-1 rounded disabled:bg-gray-300"
-				>
-					Freeze
-				</button>
-				<button
-					onClick={() => onEnd(room._id)}
-					disabled={room.isEnded}
-					className="bg-red-600 text-white px-3 py-1 rounded disabled:bg-gray-300"
-				>
-					End
-				</button>
+			<div className="mt-3 flex gap-2 flex-wrap">
+				{/* Freeze / Unfreeze */}
+				{room.isFrozen && !room.isEnded ? (
+					<button
+						onClick={() => onUnfreeze(room._id)}
+						className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+					>
+						Unfreeze
+					</button>
+				) : (
+					!room.isEnded && (
+						<button
+							onClick={() => onFreeze(room._id)}
+							className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+						>
+							Freeze
+						</button>
+					)
+				)}
+
+				{/* End / Reopen */}
+				{room.isEnded ? (
+					<button
+						onClick={() => onUnend(room._id)}
+						className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
+					>
+						Reopen
+					</button>
+				) : (
+					<button
+						onClick={() => onEnd(room._id)}
+						disabled={room.isEnded}
+						className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 disabled:bg-gray-300"
+					>
+						End
+					</button>
+				)}
+
+				{/* View Button */}
 				<Link to={`/admin/dashboard/chat-rooms/${room._id}`}>
-					<button className="bg-blue-600 text-white px-3 py-1 rounded">View</button>
+					<button className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">View</button>
 				</Link>
 			</div>
 		</div>

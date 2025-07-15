@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSocket } from "../../context/SocketContext";
 import MessageBubble from "../../components/Chat/MessageBubble";
+import toast from "react-hot-toast";
 
 const AdminChatView = () => {
 	const { roomId } = useParams();
@@ -61,8 +62,10 @@ const AdminChatView = () => {
 			);
 			socket.emit("freezeChatRoom", { roomId });
 			await fetchRoomInfo();
+			toast.success("Chat room frozen successfully");
 		} catch (err) {
 			console.error("Error freezing chat room", err);
+			toast.error("Failed to freeze chat room");
 		} finally {
 			setLoading(false);
 		}
@@ -78,8 +81,48 @@ const AdminChatView = () => {
 			);
 			socket.emit("endChatRoom", { roomId });
 			await fetchRoomInfo();
+			toast.success("Chat room Ended successfully");
 		} catch (err) {
 			console.error("Error ending chat room", err);
+			toast.error("Failed to end chat room");
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const handleUnfreeze = async () => {
+		try {
+			setLoading(true);
+			await axios.patch(
+				`http://localhost:4000/api/admin/chat/${roomId}/unfreeze`,
+				{},
+				{ headers: { Authorization: `Bearer ${token}` } }
+			);
+			socket.emit("unfreezeChatRoom", { roomId });
+			await fetchRoomInfo();
+			toast.success("Chat room unfrozen successfully");
+		} catch (err) {
+			console.error("Error unfreezing chat room", err);
+			toast.error("Failed to unfreeze chat room");
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const handleUnend = async () => {
+		try {
+			setLoading(true);
+			await axios.patch(
+				`http://localhost:4000/api/admin/chat/${roomId}/unend`,
+				{},
+				{ headers: { Authorization: `Bearer ${token}` } }
+			);
+			socket.emit("reopenChatRoom", { roomId });
+			await fetchRoomInfo();
+			toast.success("Chat room reopened successfully");
+		} catch (err) {
+			console.error("Error reopening chat room", err);
+			toast.error("Failed to reopen chat room");
 		} finally {
 			setLoading(false);
 		}
@@ -108,7 +151,27 @@ const AdminChatView = () => {
 						</span>
 					</p>
 
-					<div className="mt-3 flex gap-3">
+					<div className="mt-3 flex gap-3 flex-wrap">
+						{roomInfo.isFrozen && !roomInfo.isEnded && (
+							<button
+								onClick={handleUnfreeze}
+								disabled={loading}
+								className="px-4 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+							>
+								{loading ? "Unfreezing..." : "Unfreeze"}
+							</button>
+						)}
+
+						{roomInfo.isEnded && (
+							<button
+								onClick={handleUnend}
+								disabled={loading}
+								className="px-4 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+							>
+								{loading ? "Reopening..." : "Reopen Chat"}
+							</button>
+						)}
+
 						{!roomInfo.isFrozen && !roomInfo.isEnded && (
 							<button
 								onClick={handleFreeze}

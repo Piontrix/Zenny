@@ -141,6 +141,25 @@ const ChatWindow = ({ selectedChat, setSelectedChat }) => {
 			socket.off("chatEnded", handleChatEnded);
 		};
 	}, [socket, roomId, setSelectedChat]);
+	useEffect(() => {
+		if (!socket || !roomId) return;
+
+		const handleChatUnfrozen = () => {
+			setSelectedChat((prev) => ({ ...prev, isFrozen: false }));
+		};
+
+		const handleChatReopened = () => {
+			setSelectedChat((prev) => ({ ...prev, isEnded: false }));
+		};
+
+		socket.on("chatUnfrozen", handleChatUnfrozen);
+		socket.on("chatReopened", handleChatReopened);
+
+		return () => {
+			socket.off("chatUnfrozen", handleChatUnfrozen);
+			socket.off("chatReopened", handleChatReopened);
+		};
+	}, [socket, roomId, setSelectedChat]);
 
 	// Handle input change (typing logic)
 	const handleInputChange = (e) => {
