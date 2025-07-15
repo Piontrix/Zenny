@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const CreatorRegister = () => {
 	const [email, setEmail] = useState("");
@@ -20,11 +21,13 @@ const CreatorRegister = () => {
 				password,
 			});
 			console.log(res);
-			alert("OTP sent to your email. Please verify.");
+			toast.success("OTP sent to your email. Please verify.");
 			navigate(`/verify-otp?email=${encodeURIComponent(email)}`);
 		} catch (err) {
 			console.error(err);
-			setError(err.response?.data?.message || "Something went wrong");
+			const msg = err.response?.data?.message || "Something went wrong";
+			setError(msg);
+			toast.error(msg);
 		} finally {
 			setLoading(false);
 		}
@@ -33,7 +36,6 @@ const CreatorRegister = () => {
 	return (
 		<div className="max-w-md mx-auto mt-20 p-6 shadow-lg bg-white rounded">
 			<h2 className="text-2xl font-bold mb-4 text-center">Creator Register</h2>
-
 			<form onSubmit={handleRegister} className="space-y-4">
 				<input
 					type="email"

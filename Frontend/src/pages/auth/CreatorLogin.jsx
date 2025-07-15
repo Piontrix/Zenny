@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
+import toast from "react-hot-toast";
 
 const CreatorLogin = () => {
 	const [email, setEmail] = useState("");
@@ -21,14 +22,14 @@ const CreatorLogin = () => {
 				email,
 				password,
 			});
-
 			login(res.data.user, res.data.token);
-
-			alert("🎉 Login Successful!");
+			toast.success("🎉 Login successful");
 			navigate("/chat");
 		} catch (err) {
 			console.error(err);
-			setError(err.response?.data?.message || "Login failed. Try again.");
+			const msg = err.response?.data?.message || "Login failed. Try again.";
+			setError(msg);
+			toast.error(msg);
 		} finally {
 			setLoading(false);
 		}
@@ -46,7 +47,6 @@ const CreatorLogin = () => {
 					className="w-full px-4 py-2 border rounded"
 					required
 				/>
-
 				<input
 					type="password"
 					placeholder="Password"
@@ -55,7 +55,6 @@ const CreatorLogin = () => {
 					className="w-full px-4 py-2 border rounded"
 					required
 				/>
-
 				<button
 					type="submit"
 					disabled={loading}
@@ -63,10 +62,8 @@ const CreatorLogin = () => {
 				>
 					{loading ? "Logging in..." : "Login"}
 				</button>
-
 				{error && <p className="text-red-500 text-sm text-center">{error}</p>}
 			</form>
-
 			<p className="text-sm text-center mt-4">
 				New here?{" "}
 				<span className="text-roseclub-accent cursor-pointer underline" onClick={() => navigate("/register")}>

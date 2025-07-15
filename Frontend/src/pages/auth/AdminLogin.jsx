@@ -1,8 +1,8 @@
-// src/pages/auth/AdminLogin.jsx
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import toast from "react-hot-toast";
 
 const AdminLogin = () => {
 	const [username, setUsername] = useState("");
@@ -19,9 +19,12 @@ const AdminLogin = () => {
 				password,
 			});
 			login(res.data.user, res.data.token);
+			toast.success("🎉 Login successful");
 			navigate("/admin/dashboard");
 		} catch (err) {
-			setError(err.response?.data?.message || "Login failed");
+			const msg = err.response?.data?.message || "Login failed";
+			setError(msg);
+			toast.error(msg);
 		}
 	};
 

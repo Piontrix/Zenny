@@ -1,8 +1,8 @@
-// src/pages/auth/EditorLogin.jsx
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import toast from "react-hot-toast";
 
 const EditorLogin = () => {
 	const [username, setUsername] = useState("");
@@ -19,10 +19,12 @@ const EditorLogin = () => {
 				password,
 			});
 			login(res.data.user, res.data.token);
-
+			toast.success("🎉 Login successful");
 			navigate("/chat");
 		} catch (err) {
-			setError(err.response?.data?.message || "Login failed");
+			const msg = err.response?.data?.message || "Login failed";
+			setError(msg);
+			toast.error(msg);
 		}
 	};
 
