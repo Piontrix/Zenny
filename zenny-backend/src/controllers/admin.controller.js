@@ -4,10 +4,8 @@ import User from "../models/User.model.js";
 // GET all chat rooms with creator/editor info
 export const getAllChatRooms = async (req, res) => {
 	try {
-		const rooms = await ChatRoom.find()
-			.populate("creator", "username email")
-			.populate("editor", "username email")
-			.sort({ updatedAt: -1 });
+		const rooms = await ChatRoom.find().populate("creator", "username email").populate("editor", "username email");
+		// .sort({ updatedAt: -1 });
 
 		res.status(200).json({
 			message: "Chat rooms fetched",

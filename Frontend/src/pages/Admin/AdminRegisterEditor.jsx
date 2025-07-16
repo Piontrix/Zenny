@@ -2,7 +2,6 @@ import { useState } from "react";
 import API from "../../constants/api";
 import toast from "react-hot-toast";
 import axiosInstance from "../../api/axios";
-instance;
 
 const AdminRegisterEditor = () => {
 	const [username, setUsername] = useState("");

@@ -1,20 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
-import { useSocket } from "../../context/SocketContext";
 import MessageBubble from "../../components/Chat/MessageBubble";
-import toast from "react-hot-toast";
-import API from "../../constants/api";
+import useAdminChatActions from "../../hooks/useAdminChatActions";
 import axiosInstance from "../../api/axios";
+import API from "../../constants/api";
+import { useAuth } from "../../context/AuthContext";
 
 const AdminChatView = () => {
 	const { roomId } = useParams();
 	const { user } = useAuth();
-	const { socket } = useSocket();
+	const { handleFreeze, handleEnd, handleUnfreeze, handleUnend } = useAdminChatActions();
 
 	const [messages, setMessages] = useState([]);
 	const [roomInfo, setRoomInfo] = useState(null);
-	const [loading, setLoading] = useState(false);
+	const [loadingAction, setLoadingAction] = useState(null); // 'freeze', 'end', 'unfreeze', 'unend'
 	const messagesEndRef = useRef(null);
 
 	const fetchMessages = async () => {
@@ -38,10 +37,10 @@ const AdminChatView = () => {
 
 	useEffect(() => {
 		if (user?.role === "admin") {
-			fetchRoomInfo();
 			fetchMessages();
+			fetchRoomInfo();
 		}
-	}, [roomId, user]);
+	}, [user, roomId]);
 
 	useEffect(() => {
 		if (messagesEndRef.current) {
@@ -49,64 +48,11 @@ const AdminChatView = () => {
 		}
 	}, [messages]);
 
-	const handleFreeze = async () => {
-		try {
-			setLoading(true);
-			await axiosInstance.patch(API.ADMIN_FREEZE_CHAT(roomId));
-			socket.emit("freezeChatRoom", { roomId });
-			await fetchRoomInfo();
-			toast.success("Chat room frozen successfully");
-		} catch (err) {
-			console.error("Error freezing chat room", err);
-			toast.error("Failed to freeze chat room");
-		} finally {
-			setLoading(false);
-		}
-	};
-
-	const handleEnd = async () => {
-		try {
-			setLoading(true);
-			await axiosInstance.patch(API.ADMIN_END_CHAT(roomId));
-			socket.emit("endChatRoom", { roomId });
-			await fetchRoomInfo();
-			toast.success("Chat room ended successfully");
-		} catch (err) {
-			console.error("Error ending chat room", err);
-			toast.error("Failed to end chat room");
-		} finally {
-			setLoading(false);
-		}
-	};
-
-	const handleUnfreeze = async () => {
-		try {
-			setLoading(true);
-			await axiosInstance.patch(API.ADMIN_UNFREEZE_CHAT(roomId));
-			socket.emit("unfreezeChatRoom", { roomId });
-			await fetchRoomInfo();
-			toast.success("Chat room unfrozen successfully");
-		} catch (err) {
-			console.error("Error unfreezing chat room", err);
-			toast.error("Failed to unfreeze chat room");
-		} finally {
-			setLoading(false);
-		}
-	};
-
-	const handleUnend = async () => {
-		try {
-			setLoading(true);
-			await axiosInstance.patch(API.ADMIN_UNEND_CHAT(roomId));
-			socket.emit("reopenChatRoom", { roomId });
-			await fetchRoomInfo();
-			toast.success("Chat room reopened successfully");
-		} catch (err) {
-			console.error("Error reopening chat room", err);
-			toast.error("Failed to reopen chat room");
-		} finally {
-			setLoading(false);
-		}
+	const wrap = (fn, actionName) => async () => {
+		setLoadingAction(actionName);
+		await fn(roomId);
+		await fetchRoomInfo();
+		setLoadingAction(null);
 	};
 
 	return (
@@ -135,41 +81,41 @@ const AdminChatView = () => {
 					<div className="mt-3 flex gap-3 flex-wrap">
 						{roomInfo.isFrozen && !roomInfo.isEnded && (
 							<button
-								onClick={handleUnfreeze}
-								disabled={loading}
+								onClick={wrap(handleUnfreeze, "unfreeze")}
+								disabled={!!loadingAction}
 								className="px-4 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
 							>
-								{loading ? "Unfreezing..." : "Unfreeze"}
+								{loadingAction === "unfreeze" ? "Unfreezing..." : "Unfreeze"}
 							</button>
 						)}
 
 						{roomInfo.isEnded && (
 							<button
-								onClick={handleUnend}
-								disabled={loading}
+								onClick={wrap(handleUnend, "unend")}
+								disabled={!!loadingAction}
 								className="px-4 py-1 bg-green-600 text-white rounded hover:bg-green-700"
 							>
-								{loading ? "Reopening..." : "Reopen Chat"}
+								{loadingAction === "unend" ? "Reopening..." : "Reopen Chat"}
 							</button>
 						)}
 
 						{!roomInfo.isFrozen && !roomInfo.isEnded && (
 							<button
-								onClick={handleFreeze}
-								disabled={loading}
+								onClick={wrap(handleFreeze, "freeze")}
+								disabled={!!loadingAction}
 								className="px-4 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
 							>
-								{loading ? "Freezing..." : "Freeze"}
+								{loadingAction === "freeze" ? "Freezing..." : "Freeze"}
 							</button>
 						)}
 
 						{!roomInfo.isEnded && (
 							<button
-								onClick={handleEnd}
-								disabled={loading}
+								onClick={wrap(handleEnd, "end")}
+								disabled={!!loadingAction}
 								className="px-4 py-1 bg-red-600 text-white rounded hover:bg-red-700"
 							>
-								{loading ? "Ending..." : "End"}
+								{loadingAction === "end" ? "Ending..." : "End"}
 							</button>
 						)}
 					</div>
