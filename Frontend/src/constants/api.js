@@ -7,7 +7,7 @@ const API = {
 	// Auth
 	CREATOR_REGISTER: BASE_URL + "/api/auth/creator/register",
 	CREATOR_LOGIN: BASE_URL + "/api/auth/creator/login",
-	CREATOR_VERIFY_OTP: BASE_URL + "/api/auth/creator/verify-otp",
+	CREATOR_VERIFY_OTP: BASE_URL + "/api/auth/creator/verify",
 
 	EDITOR_LOGIN: BASE_URL + "/api/auth/editor/login",
 	ADMIN_LOGIN: BASE_URL + "/api/auth/admin/login",
