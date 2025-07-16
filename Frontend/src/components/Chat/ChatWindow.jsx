@@ -9,7 +9,7 @@ const formatTime = (dateString) => {
 	return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 };
 
-const ChatWindow = ({ selectedChat, setSelectedChat }) => {
+const ChatWindow = ({ selectedChat, setSelectedChat, allChats = [] }) => {
 	const { socket } = useSocket();
 	const { user } = useAuth();
 	const [messages, setMessages] = useState([]);
@@ -27,6 +27,13 @@ const ChatWindow = ({ selectedChat, setSelectedChat }) => {
 			messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
 		}
 	}, [messages]);
+
+	useEffect(() => {
+		if (!selectedChat && allChats.length && roomId) {
+			const found = allChats.find((c) => c._id === roomId);
+			if (found) setSelectedChat(found);
+		}
+	}, [selectedChat, allChats, roomId, setSelectedChat]);
 
 	useEffect(() => {
 		if (socket && roomId && user?._id) {

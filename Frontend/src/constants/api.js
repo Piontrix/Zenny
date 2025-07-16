@@ -16,6 +16,7 @@ const API = {
 	MY_CHAT_ROOMS: BASE_URL + "/api/chat/my-rooms",
 	GET_MESSAGES: (roomId) => `${BASE_URL}/api/chat/${roomId}/messages`,
 	SEND_MESSAGE: BASE_URL + "/api/chat/message",
+	INITIATE_CHAT: BASE_URL + "/api/chat/initiate",
 
 	// Admin Chat Control
 	ADMIN_REGISTER_EDITOR: BASE_URL + "/api/auth/admin/register-editor",
@@ -24,6 +25,9 @@ const API = {
 	ADMIN_UNFREEZE_CHAT: (roomId) => `${BASE_URL}/api/admin/chat/${roomId}/unfreeze`,
 	ADMIN_END_CHAT: (roomId) => `${BASE_URL}/api/admin/chat/${roomId}/end`,
 	ADMIN_UNEND_CHAT: (roomId) => `${BASE_URL}/api/admin/chat/${roomId}/unend`,
+
+	// Users
+	GET_ALL_EDITORS: BASE_URL + "/api/users/editors",
 };
 
 export default API;

@@ -3,7 +3,7 @@ import axiosInstance from "../../api/axios";
 import { useAuth } from "../../context/AuthContext";
 import API from "../../constants/api";
 
-const ChatSidebar = ({ onSelectChat }) => {
+const ChatSidebar = ({ selectedChatId, onSelectChat }) => {
 	const { user } = useAuth();
 	const [chats, setChats] = useState([]);
 	const [loading, setLoading] = useState(true);
@@ -12,7 +12,8 @@ const ChatSidebar = ({ onSelectChat }) => {
 		const fetchChats = async () => {
 			try {
 				const res = await axiosInstance.get(API.MY_CHAT_ROOMS);
-				setChats(res.data.data || []);
+				const data = res.data.data || [];
+				setChats(data); // ✅ correct usage
 			} catch (err) {
 				console.error("❌ Failed to fetch chats", err);
 			} finally {
@@ -20,7 +21,7 @@ const ChatSidebar = ({ onSelectChat }) => {
 			}
 		};
 
-		if (user) fetchChats(); // ✅ Only fetch if user exists
+		if (user) fetchChats();
 	}, [user]);
 
 	const getOtherUser = (chat) => {
@@ -40,13 +41,16 @@ const ChatSidebar = ({ onSelectChat }) => {
 				) : (
 					chats.map((chat) => {
 						const other = getOtherUser(chat);
+						const isSelected = chat._id === selectedChatId;
+
 						return (
 							<div
 								key={chat._id}
 								onClick={() => onSelectChat(chat)}
-								className="p-3 hover:bg-roseclub-medium cursor-pointer transition-all border-b border-white/10"
+								className={`p-3 cursor-pointer transition-all border-b border-white/10 
+									${isSelected ? "bg-roseclub-medium font-bold" : "hover:bg-roseclub-medium"}`}
 							>
-								<p className="font-semibold text-sm">{other?.username || other?.email || "Unknown"}</p>
+								<p className="text-sm">{other?.username || other?.email || "Unknown"}</p>
 								<p className="text-xs opacity-80 truncate">{chat.lastMessage?.message || "No messages yet"}</p>
 							</div>
 						);
