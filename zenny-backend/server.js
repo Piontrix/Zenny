@@ -7,6 +7,7 @@ import connectDB from "./src/config/db.js";
 import routes from "./src/routes/index.routes.js";
 import { protect } from "./src/middleware/auth.middleware.js";
 import { setupSocket } from "./socket.js"; // ✅ Import socket setup
+import cookieParser from "cookie-parser";
 
 // Env + DB
 dotenv.config();
@@ -26,7 +27,7 @@ app.use(
 		credentials: true,
 	})
 );
-
+app.use(cookieParser());
 app.use(express.json());
 
 // Routes
