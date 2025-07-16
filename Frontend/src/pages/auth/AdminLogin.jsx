@@ -1,9 +1,9 @@
 import { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import toast from "react-hot-toast";
 import API from "../../constants/api";
+import axiosInstance from "../../api/axios"; // ✅ centralized instance
 
 const AdminLogin = () => {
 	const [username, setUsername] = useState("");
@@ -14,12 +14,11 @@ const AdminLogin = () => {
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
+		setError("");
+
 		try {
-			const res = await axios.post(API.ADMIN_LOGIN, {
-				username,
-				password,
-			});
-			login(res.data.user, res.data.token);
+			const res = await axiosInstance.post(API.ADMIN_LOGIN, { username, password });
+			login(res.data.user);
 			toast.success("🎉 Login successful");
 			navigate("/admin/dashboard");
 		} catch (err) {
@@ -39,6 +38,7 @@ const AdminLogin = () => {
 					onChange={(e) => setUsername(e.target.value)}
 					placeholder="Username"
 					className="w-full px-4 py-2 border rounded-md"
+					required
 				/>
 				<input
 					type="password"
@@ -46,6 +46,7 @@ const AdminLogin = () => {
 					onChange={(e) => setPassword(e.target.value)}
 					placeholder="Password"
 					className="w-full px-4 py-2 border rounded-md"
+					required
 				/>
 				{error && <p className="text-red-500 text-sm">{error}</p>}
 				<button type="submit" className="w-full bg-roseclub-accent text-white py-2 rounded-md">

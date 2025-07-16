@@ -1,7 +1,7 @@
 import { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import axiosInstance from "../api/axios"; // ✅ using configured instance
 import API from "../constants/api";
 
 const CreatorRegister = () => {
@@ -17,7 +17,7 @@ const CreatorRegister = () => {
 		setError("");
 
 		try {
-			const res = await axios.post(API.CREATOR_REGISTER, {
+			const res = await axiosInstance.post(API.CREATOR_REGISTER, {
 				email,
 				password,
 			});

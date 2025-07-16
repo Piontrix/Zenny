@@ -1,9 +1,9 @@
 import { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import toast from "react-hot-toast";
 import API from "../../constants/api";
+import axiosInstance from "../../api/axios"; // ✅ use centralized instance
 
 const EditorLogin = () => {
 	const [username, setUsername] = useState("");
@@ -15,11 +15,8 @@ const EditorLogin = () => {
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		try {
-			const res = await axios.post(API.EDITOR_LOGIN, {
-				username,
-				password,
-			});
-			login(res.data.user, res.data.token);
+			const res = await axiosInstance.post(API.EDITOR_LOGIN, { username, password });
+			login(res.data.user);
 			toast.success("🎉 Login successful");
 			navigate("/chat");
 		} catch (err) {

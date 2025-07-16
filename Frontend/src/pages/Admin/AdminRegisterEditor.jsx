@@ -1,15 +1,14 @@
 import { useState } from "react";
-import axios from "axios";
-import { useAuth } from "../../context/AuthContext";
 import API from "../../constants/api";
 import toast from "react-hot-toast";
+import axiosInstance from "../../api/axios";
+instance;
 
 const AdminRegisterEditor = () => {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 	const [message, setMessage] = useState("");
 	const [error, setError] = useState("");
-	const { token } = useAuth();
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
@@ -17,23 +16,15 @@ const AdminRegisterEditor = () => {
 		setError("");
 
 		try {
-			const res = await axios.post(
-				API.ADMIN_REGISTER_EDITOR,
-				{ username, password },
-				{
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
-				}
-			);
+			const res = await axiosInstance.post(API.ADMIN_REGISTER_EDITOR, { username, password });
 			setMessage(res.data.message);
 			toast.success(res.data.message || "Editor registered successfully!");
 			setUsername("");
 			setPassword("");
 		} catch (err) {
-			setError(err.response?.data?.message || "Registration failed");
-
-			toast.error(err.response?.data?.message || "Editor registration failed");
+			const msg = err.response?.data?.message || "Editor registration failed";
+			setError(msg);
+			toast.error(msg);
 		}
 	};
 

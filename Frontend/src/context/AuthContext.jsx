@@ -1,40 +1,43 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import axiosInstance from "../api/axios"; // ✅ use named axios instance
+import API from "../constants/api";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
 	const [user, setUser] = useState(null);
-	const [token, setToken] = useState(null);
-	const [loading, setLoading] = useState(true); // 👈 Add loading state
+	const [loading, setLoading] = useState(true);
 
-	// Load token and user from localStorage
 	useEffect(() => {
-		const storedToken = localStorage.getItem("token");
-		const storedUser = localStorage.getItem("user");
+		const fetchUser = async () => {
+			try {
+				const res = await axiosInstance.get("/me");
+				setUser(res.data.user);
+			} catch (err) {
+				console.warn("Not logged in:", err.response?.data?.message || err.message);
+				setUser(null);
+			} finally {
+				setLoading(false);
+			}
+		};
 
-		if (storedToken && storedUser) {
-			setToken(storedToken);
-			setUser(JSON.parse(storedUser));
-		}
-
-		setLoading(false); // ✅ Hydration complete
+		fetchUser();
 	}, []);
 
-	const login = (userData, token) => {
-		setUser(userData);
-		setToken(token);
-		localStorage.setItem("user", JSON.stringify(userData));
-		localStorage.setItem("token", token);
+	const login = (userData) => {
+		setUser(userData); // token is in httpOnly cookie
 	};
 
-	const logout = () => {
-		setUser(null);
-		setToken(null);
-		localStorage.removeItem("user");
-		localStorage.removeItem("token");
+	const logout = async () => {
+		try {
+			await axiosInstance.post("/api/auth/logout");
+			setUser(null);
+		} catch (err) {
+			console.error("Logout error:", err.response?.data?.message || err.message);
+		}
 	};
 
-	return <AuthContext.Provider value={{ user, token, login, logout, loading }}>{children}</AuthContext.Provider>;
+	return <AuthContext.Provider value={{ user, login, logout, loading }}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => useContext(AuthContext);

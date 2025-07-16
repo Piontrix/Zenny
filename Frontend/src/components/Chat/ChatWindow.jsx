@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useSocket } from "../../context/SocketContext";
 import { useAuth } from "../../context/AuthContext";
-import axios from "axios";
+import axiosInstance from "../../api/axios";
 import API from "../../constants/api";
 
 const formatTime = (dateString) => {
@@ -11,7 +11,7 @@ const formatTime = (dateString) => {
 
 const ChatWindow = ({ selectedChat, setSelectedChat }) => {
 	const { socket } = useSocket();
-	const { user, token } = useAuth();
+	const { user } = useAuth();
 	const [messages, setMessages] = useState([]);
 	const [newMessage, setNewMessage] = useState("");
 	const [isOtherUserTyping, setIsOtherUserTyping] = useState(false);
@@ -36,18 +36,16 @@ const ChatWindow = ({ selectedChat, setSelectedChat }) => {
 
 	useEffect(() => {
 		const fetchMessages = async () => {
-			if (!token || !roomId) return;
+			if (!roomId) return;
 			try {
-				const res = await axios.get(API.GET_MESSAGES(roomId), {
-					headers: { Authorization: `Bearer ${token}` },
-				});
+				const res = await axiosInstance.get(API.GET_MESSAGES(roomId));
 				setMessages(res.data.data || []);
 			} catch (err) {
 				console.error("❌ Error fetching messages", err);
 			}
 		};
 		fetchMessages();
-	}, [roomId, token]);
+	}, [roomId]);
 
 	useEffect(() => {
 		if (!socket) return;
@@ -126,13 +124,12 @@ const ChatWindow = ({ selectedChat, setSelectedChat }) => {
 	};
 
 	const handleSend = async () => {
-		if (!newMessage.trim() || !roomId || !token || isFrozen || isEnded) return;
+		if (!newMessage.trim() || !roomId || isFrozen || isEnded) return;
 		try {
-			const res = await axios.post(
-				API.SEND_MESSAGE,
-				{ chatRoomId: roomId, content: newMessage },
-				{ headers: { Authorization: `Bearer ${token}` } }
-			);
+			const res = await axiosInstance.post(API.SEND_MESSAGE, {
+				chatRoomId: roomId,
+				content: newMessage,
+			});
 
 			socket.emit("sendMessage", {
 				...res.data.data,
@@ -200,6 +197,7 @@ const ChatWindow = ({ selectedChat, setSelectedChat }) => {
 
 				<div ref={messagesEndRef} />
 			</div>
+
 			{/* Input Field */}
 			<div className="p-4 flex gap-2 w-full bg-white absolute bottom-0 left-0">
 				<input

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../api/axios"; // ✅ use axiosInstance
 import API from "../constants/api";
 
 const VerifyOtp = () => {
@@ -17,10 +17,7 @@ const VerifyOtp = () => {
 		setError("");
 
 		try {
-			await axios.post(API.CREATOR_VERIFY_OTP, {
-				email,
-				otp,
-			});
+			await axiosInstance.post(API.CREATOR_VERIFY_OTP, { email, otp });
 
 			alert("✅ Email verified successfully!");
 			navigate("/login");

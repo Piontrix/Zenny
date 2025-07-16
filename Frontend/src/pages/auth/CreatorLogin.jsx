@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { useAuth } from "../../context/AuthContext";
 import toast from "react-hot-toast";
+import { useAuth } from "../../context/AuthContext";
 import API from "../../constants/api";
+import axiosInstance from "../../api/axios";
 
 const CreatorLogin = () => {
 	const [email, setEmail] = useState("");
@@ -19,11 +19,8 @@ const CreatorLogin = () => {
 		setError("");
 
 		try {
-			const res = await axios.post(API.CREATOR_LOGIN, {
-				email,
-				password,
-			});
-			login(res.data.user, res.data.token);
+			const res = await axiosInstance.post(API.CREATOR_LOGIN, { email, password });
+			login(res.data.user);
 			toast.success("🎉 Login successful");
 			navigate("/chat");
 		} catch (err) {

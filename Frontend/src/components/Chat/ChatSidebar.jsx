@@ -1,20 +1,17 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import axiosInstance from "../../api/axios";
 import { useAuth } from "../../context/AuthContext";
 import API from "../../constants/api";
 
 const ChatSidebar = ({ onSelectChat }) => {
-	const { user, token } = useAuth();
+	const { user } = useAuth();
 	const [chats, setChats] = useState([]);
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
 		const fetchChats = async () => {
-			if (!token) return;
 			try {
-				const res = await axios.get(API.MY_CHAT_ROOMS, {
-					headers: { Authorization: `Bearer ${token}` },
-				});
+				const res = await axiosInstance.get(API.MY_CHAT_ROOMS);
 				setChats(res.data.data || []);
 			} catch (err) {
 				console.error("❌ Failed to fetch chats", err);
@@ -22,12 +19,13 @@ const ChatSidebar = ({ onSelectChat }) => {
 				setLoading(false);
 			}
 		};
-		fetchChats();
-	}, [token]);
+
+		if (user) fetchChats(); // ✅ Only fetch if user exists
+	}, [user]);
 
 	const getOtherUser = (chat) => {
-		if (user.role === "creator") return chat.editor;
-		if (user.role === "editor") return chat.creator;
+		if (user?.role === "creator") return chat.editor;
+		if (user?.role === "editor") return chat.creator;
 		return null;
 	};
 
