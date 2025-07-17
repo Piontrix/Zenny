@@ -26,9 +26,9 @@ export const adminLogin = async (req, res) => {
 		res
 			.cookie("token", token, {
 				httpOnly: true,
-				secure: process.env.NODE_ENV === "production",
+				secure: true,
 				sameSite: "None",
-				maxAge: 3 * 24 * 60 * 60 * 1000,
+				maxAge: 3 * 24 * 60 * 60 * 1000, // 3 days
 			})
 			.status(200)
 			.json({
@@ -137,9 +137,9 @@ export const creatorLogin = async (req, res) => {
 		res
 			.cookie("token", token, {
 				httpOnly: true,
-				secure: process.env.NODE_ENV === "production",
+				secure: true,
 				sameSite: "None",
-				maxAge: 3 * 24 * 60 * 60 * 1000,
+				maxAge: 3 * 24 * 60 * 60 * 1000, // 3 days
 			})
 			.status(200)
 			.json({
@@ -220,9 +220,9 @@ export const editorLogin = async (req, res) => {
 		res
 			.cookie("token", token, {
 				httpOnly: true,
-				secure: process.env.NODE_ENV === "production",
+				secure: true,
 				sameSite: "None",
-				maxAge: 3 * 24 * 60 * 60 * 1000,
+				maxAge: 3 * 24 * 60 * 60 * 1000, // 3 days
 			})
 			.status(200)
 			.json({
