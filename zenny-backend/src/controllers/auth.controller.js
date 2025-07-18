@@ -34,6 +34,7 @@ export const adminLogin = async (req, res) => {
 			.status(200)
 			.json({
 				message: "Login successful",
+				token,
 				user: {
 					_id: user._id,
 					username: user.username,
@@ -161,6 +162,7 @@ export const creatorLogin = async (req, res) => {
 			.status(200)
 			.json({
 				message: "Login successful",
+				token,
 				user: {
 					_id: user._id,
 					email: user.email,
@@ -244,6 +246,7 @@ export const editorLogin = async (req, res) => {
 			.status(200)
 			.json({
 				message: "Login successful",
+				token,
 				user: {
 					_id: user._id,
 					username: user.username,

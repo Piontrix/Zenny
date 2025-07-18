@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { useAuth } from "../../context/AuthContext";
 import API from "../../constants/api";
 import axiosInstance from "../../api/axios";
+import { handleTokenFallback } from "../../../utils/tokenFallback";
 
 const CreatorLogin = () => {
 	const [email, setEmail] = useState("");
@@ -21,6 +22,7 @@ const CreatorLogin = () => {
 		try {
 			const res = await axiosInstance.post(API.CREATOR_LOGIN, { email, password });
 			login(res.data.user);
+			await handleTokenFallback(res.data.token);
 			toast.success("🎉 Login successful");
 			navigate("/");
 		} catch (err) {
