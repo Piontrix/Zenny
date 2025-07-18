@@ -22,7 +22,7 @@ const CreatorRegister = () => {
 				password,
 			});
 			console.log(res);
-			toast.success("OTP sent to your email. Please verify.");
+			toast.success(res?.data?.message ? res?.data?.message : "OTP sent to your email. Please verify.");
 			navigate(`/verify-otp?email=${encodeURIComponent(email)}`);
 		} catch (err) {
 			console.error(err);

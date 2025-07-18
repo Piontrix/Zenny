@@ -57,8 +57,13 @@ export const registerCreator = async (req, res) => {
 
 		const existingUser = await User.findOne({ email, role: "creator" });
 
-		// 👉 Case: If user exists and is NOT verified → resend OTP
+		// 👉 Case 1: Existing & not verified → Check password and resend OTP
 		if (existingUser && !existingUser.isVerified) {
+			const isMatch = await bcrypt.compare(password, existingUser.password);
+			if (!isMatch) {
+				return res.status(401).json({ message: "Incorrect password" });
+			}
+
 			const { otp, otpHash, otpExpires } = generateOTPData();
 
 			existingUser.otp = otpHash;
@@ -66,15 +71,15 @@ export const registerCreator = async (req, res) => {
 			await existingUser.save();
 
 			await sendOTPEmail(email, otp);
-			return res.status(200).json({ message: "New OTP sent to email." });
+			return res.status(200).json({ message: "OTP sent again for verification." });
 		}
 
-		// 👉 Case: Already verified user
+		// 👉 Case 2: Already verified
 		if (existingUser && existingUser.isVerified) {
 			return res.status(409).json({ message: "Email already in use and verified." });
 		}
 
-		// 👉 Case: New user
+		// 👉 Case 3: New user
 		const hashedPassword = await bcrypt.hash(password, 10);
 		const { otp, otpHash, otpExpires } = generateOTPData();
 
@@ -95,7 +100,6 @@ export const registerCreator = async (req, res) => {
 		res.status(500).json({ message: "Some error occurred at our end" });
 	}
 };
-
 // ----------------- CREATOR OTP VERIFY -----------------
 export const verifyCreator = async (req, res) => {
 	try {
