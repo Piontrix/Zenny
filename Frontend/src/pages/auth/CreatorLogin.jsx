@@ -22,7 +22,7 @@ const CreatorLogin = () => {
 			const res = await axiosInstance.post(API.CREATOR_LOGIN, { email, password });
 			login(res.data.user);
 			toast.success("🎉 Login successful");
-			navigate("/chat");
+			navigate("/");
 		} catch (err) {
 			console.error(err);
 			const msg = err.response?.data?.message || "Login failed. Try again.";

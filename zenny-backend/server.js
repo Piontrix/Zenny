@@ -1,6 +1,7 @@
+import dotenv from "dotenv";
+dotenv.config();
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import http from "http";
 
 import connectDB from "./src/config/db.js";
@@ -10,7 +11,6 @@ import { setupSocket } from "./socket.js"; // ✅ Import socket setup
 import cookieParser from "cookie-parser";
 
 // Env + DB
-dotenv.config();
 connectDB();
 
 const app = express();

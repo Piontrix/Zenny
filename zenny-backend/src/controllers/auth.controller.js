@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { sendOTPEmail } from "../utils/sendEmail.js";
+import { generateOTPData } from "../utils/generateOtp.js";
 
 // ----------------- ADMIN LOGIN -----------------
 export const adminLogin = async (req, res) => {
@@ -45,7 +46,7 @@ export const adminLogin = async (req, res) => {
 	}
 };
 
-// ----------------- CREATOR REGISTRATION -----------------
+// ----------------- CREATOR REGISTRATION + RESEND OTP -----------------
 export const registerCreator = async (req, res) => {
 	try {
 		const { email, password } = req.body;
@@ -54,16 +55,28 @@ export const registerCreator = async (req, res) => {
 			return res.status(400).json({ message: "Email and password are required" });
 		}
 
-		const existing = await User.findOne({ email });
-		if (existing) {
-			return res.status(409).json({ message: "Email already in use" });
+		const existingUser = await User.findOne({ email, role: "creator" });
+
+		// 👉 Case: If user exists and is NOT verified → resend OTP
+		if (existingUser && !existingUser.isVerified) {
+			const { otp, otpHash, otpExpires } = generateOTPData();
+
+			existingUser.otp = otpHash;
+			existingUser.otpExpires = otpExpires;
+			await existingUser.save();
+
+			await sendOTPEmail(email, otp);
+			return res.status(200).json({ message: "New OTP sent to email." });
 		}
 
+		// 👉 Case: Already verified user
+		if (existingUser && existingUser.isVerified) {
+			return res.status(409).json({ message: "Email already in use and verified." });
+		}
+
+		// 👉 Case: New user
 		const hashedPassword = await bcrypt.hash(password, 10);
-		// const otp = Math.floor(100000 + Math.random() * 900000).toString();
-		const otp = "1234";
-		const otpHash = crypto.createHash("sha256").update(otp).digest("hex");
-		const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+		const { otp, otpHash, otpExpires } = generateOTPData();
 
 		await User.create({
 			role: "creator",
@@ -74,12 +87,12 @@ export const registerCreator = async (req, res) => {
 			isVerified: false,
 		});
 
-		// await sendOTPEmail(email, otp);
+		await sendOTPEmail(email, otp);
 
 		res.status(201).json({ message: "OTP sent to email. Please verify." });
 	} catch (err) {
 		console.error(err);
-		res.status(500).json({ message: "Some Error Occured our at end" });
+		res.status(500).json({ message: "Some error occurred at our end" });
 	}
 };
 
