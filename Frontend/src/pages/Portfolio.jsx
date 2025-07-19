@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import axiosInstance from "../api/axios"; // ✅ use axiosInstance
 import API from "../constants/api";
 import LoaderSpinner from "../components/common/LoaderSpinner";
+import toast from "react-hot-toast";
 
 const Portfolio = () => {
 	const { user } = useAuth();
@@ -28,7 +29,7 @@ const Portfolio = () => {
 
 	const handleStartChat = async (editorId) => {
 		if (!user || user.role !== "creator") {
-			alert("Only creators can start chat. Redirecting to login...");
+			toast.error("Only creators can start chat. Redirecting to login...");
 			navigate("/login");
 			return;
 		}
@@ -38,7 +39,7 @@ const Portfolio = () => {
 			navigate(`/chat?roomId=${res.data.roomId}`);
 		} catch (err) {
 			console.error("Chat initiation failed", err);
-			alert("Failed to start chat.");
+			toast.error("Failed to start chat.");
 		}
 	};
 

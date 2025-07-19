@@ -3,6 +3,7 @@ import axiosInstance from "../../api/axios";
 import { useAuth } from "../../context/AuthContext";
 import API from "../../constants/api";
 import LoaderSpinner from "../common/LoaderSpinner";
+import { Link } from "react-router-dom";
 
 const ChatSidebar = ({ selectedChatId, onSelectChat }) => {
 	const { user } = useAuth();
@@ -40,7 +41,19 @@ const ChatSidebar = ({ selectedChatId, onSelectChat }) => {
 						<LoaderSpinner color="white" />
 					</div>
 				) : chats.length === 0 ? (
-					<p className="text-sm p-4">No chats yet</p>
+					<p className="text-sm p-4 italic text-white/80">
+						{user?.role === "creator" ? (
+							<>
+								No chats yet. Go to{" "}
+								<Link to="/portfolio" className="underline text-white hover:text-roseclub-accent">
+									Portfolio
+								</Link>{" "}
+								and message an editor.
+							</>
+						) : (
+							"No creators have contacted you yet. Please wait."
+						)}
+					</p>
 				) : (
 					chats.map((chat) => {
 						const other = getOtherUser(chat);

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import axiosInstance from "../api/axios"; // ✅ use axiosInstance
 import API from "../constants/api";
+import toast from "react-hot-toast";
 
 const VerifyOtp = () => {
 	const [searchParams] = useSearchParams();
@@ -19,7 +20,7 @@ const VerifyOtp = () => {
 		try {
 			await axiosInstance.post(API.CREATOR_VERIFY_OTP, { email, otp });
 
-			alert("✅ Email verified successfully!");
+			toast.success("✅ Email verified successfully!");
 			navigate("/login");
 		} catch (err) {
 			console.error(err);

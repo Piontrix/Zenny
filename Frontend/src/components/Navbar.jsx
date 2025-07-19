@@ -43,9 +43,12 @@ const Navbar = () => {
 					<div className="hidden md:flex items-center space-x-4">
 						{user ? (
 							<>
-								<Link to="/profile">
-									<FaUserCircle className="text-2xl text-roseclub-accent cursor-pointer" />
+								<Link to="/chat">
+									<button className="px-4 py-2 text-xl bg-roseclub-accent text-white rounded-full hover:bg-roseclub-dark transition font-semibold shadow-md">
+										Chat
+									</button>
 								</Link>
+
 								<button
 									onClick={logout}
 									className="px-4 py-2 text-xl bg-roseclub-dark text-white rounded-full hover:bg-roseclub-medium transition font-semibold shadow"
