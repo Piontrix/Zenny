@@ -6,6 +6,7 @@ import axiosInstance from "../../api/axios";
 const AdminRegisterEditor = () => {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
+	const [email, setEmail] = useState(""); // ✅ optional email field
 	const [message, setMessage] = useState("");
 	const [error, setError] = useState("");
 
@@ -15,11 +16,21 @@ const AdminRegisterEditor = () => {
 		setError("");
 
 		try {
-			const res = await axiosInstance.post(API.ADMIN_REGISTER_EDITOR, { username, password });
+			const payload = {
+				username,
+				password,
+			};
+
+			if (email.trim()) payload.email = email.trim(); // include email only if present
+
+			const res = await axiosInstance.post(API.ADMIN_REGISTER_EDITOR, payload);
+
 			setMessage(res.data.message);
 			toast.success(res.data.message || "Editor registered successfully!");
+
 			setUsername("");
 			setPassword("");
+			setEmail("");
 		} catch (err) {
 			const msg = err.response?.data?.message || "Editor registration failed";
 			setError(msg);
@@ -46,6 +57,13 @@ const AdminRegisterEditor = () => {
 					placeholder="Password"
 					className="w-full px-4 py-2 border rounded-md"
 					required
+				/>
+				<input
+					type="email"
+					value={email}
+					onChange={(e) => setEmail(e.target.value)}
+					placeholder="(Optional) Editor Email"
+					className="w-full px-4 py-2 border rounded-md"
 				/>
 				<button type="submit" className="w-full bg-roseclub-accent text-white py-2 rounded-md">
 					Register Editor

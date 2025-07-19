@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { sendOTPEmail } from "../utils/sendEmail.js";
 import { generateOTPData } from "../utils/generateOtp.js";
+import { generateRandomUsername } from "../utils/generateRandomUsername.js";
 
 // ----------------- ADMIN LOGIN -----------------
 export const adminLogin = async (req, res) => {
@@ -58,12 +59,10 @@ export const registerCreator = async (req, res) => {
 
 		const existingUser = await User.findOne({ email, role: "creator" });
 
-		// 👉 Case 1: Existing & not verified → Check password and resend OTP
+		// Case 1: Already exists but not verified → resend OTP
 		if (existingUser && !existingUser.isVerified) {
 			const isMatch = await bcrypt.compare(password, existingUser.password);
-			if (!isMatch) {
-				return res.status(401).json({ message: "Incorrect password" });
-			}
+			if (!isMatch) return res.status(401).json({ message: "Incorrect password" });
 
 			const { otp, otpHash, otpExpires } = generateOTPData();
 
@@ -75,18 +74,29 @@ export const registerCreator = async (req, res) => {
 			return res.status(200).json({ message: "OTP sent again for verification." });
 		}
 
-		// 👉 Case 2: Already verified
+		// Case 2: Already verified
 		if (existingUser && existingUser.isVerified) {
 			return res.status(409).json({ message: "Email already in use and verified." });
 		}
 
-		// 👉 Case 3: New user
+		// Case 3: New registration
 		const hashedPassword = await bcrypt.hash(password, 10);
 		const { otp, otpHash, otpExpires } = generateOTPData();
+
+		let username;
+		let isUnique = false;
+
+		// Ensure username uniqueness
+		while (!isUnique) {
+			username = generateRandomUsername();
+			const existing = await User.findOne({ username });
+			if (!existing) isUnique = true;
+		}
 
 		await User.create({
 			role: "creator",
 			email,
+			username,
 			password: hashedPassword,
 			otp: otpHash,
 			otpExpires,
@@ -94,11 +104,10 @@ export const registerCreator = async (req, res) => {
 		});
 
 		await sendOTPEmail(email, otp);
-
 		res.status(201).json({ message: "OTP sent to email. Please verify." });
 	} catch (err) {
-		console.error(err);
-		res.status(500).json({ message: "Some error occurred at our end" });
+		console.error("❌ Error in registerCreator:", err);
+		res.status(500).json({ message: "Server error" });
 	}
 };
 // ----------------- CREATOR OTP VERIFY -----------------
@@ -118,11 +127,25 @@ export const verifyCreator = async (req, res) => {
 		user.isVerified = true;
 		user.otp = null;
 		user.otpExpires = null;
+
+		// Optional: regenerate username if not set (edge case)
+		if (!user.username) {
+			let username;
+			let isUnique = false;
+
+			while (!isUnique) {
+				username = generateRandomUsername();
+				const existing = await User.findOne({ username });
+				if (!existing) isUnique = true;
+			}
+			user.username = username;
+		}
+
 		await user.save();
 
 		res.status(200).json({ message: "Account verified. You can now log in." });
 	} catch (err) {
-		console.error(err);
+		console.error("❌ Error in verifyCreator:", err);
 		res.status(500).json({ message: "Server error" });
 	}
 };
@@ -178,7 +201,7 @@ export const creatorLogin = async (req, res) => {
 // ----------------- EDITOR REGISTER -----------------
 export const registerEditor = async (req, res) => {
 	try {
-		const { username, password } = req.body;
+		const { username, password, email } = req.body; // email optional for admin mapping
 
 		if (!username || !password) {
 			return res.status(400).json({ message: "Username and password are required" });
@@ -193,6 +216,7 @@ export const registerEditor = async (req, res) => {
 
 		const editor = await User.create({
 			username,
+			email: email || undefined,
 			password: hashedPassword,
 			role: "editor",
 			isVerified: true,
@@ -204,13 +228,15 @@ export const registerEditor = async (req, res) => {
 				_id: editor._id,
 				username: editor.username,
 				role: editor.role,
+				email: editor.email,
 			},
 		});
 	} catch (err) {
-		console.error(err);
+		console.error("❌ Error in registerEditor:", err);
 		res.status(500).json({ message: "Server error" });
 	}
 };
+
 // ----------------- EDITOR LOGIN -----------------
 export const editorLogin = async (req, res) => {
 	try {

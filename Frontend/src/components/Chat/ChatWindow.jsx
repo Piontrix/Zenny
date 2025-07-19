@@ -189,7 +189,7 @@ const ChatWindow = ({ selectedChat, setSelectedChat, allChats = [] }) => {
 			<div className="sticky top-16 z-30 bg-white p-4 shadow border-b flex items-center justify-between">
 				<div>
 					<h2 className="font-semibold text-lg">
-						{user.role === "creator" ? selectedChat.editor?.username : selectedChat.creator?.email}
+						{user.role === "creator" ? selectedChat.editor?.username : selectedChat.creator?.username}
 					</h2>
 					<p className="text-xs text-gray-500 capitalize">{user.role === "creator" ? "Editor" : "Creator"}</p>
 				</div>
