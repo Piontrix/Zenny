@@ -3,6 +3,7 @@ import { useSocket } from "../../context/SocketContext";
 import { useAuth } from "../../context/AuthContext";
 import axiosInstance from "../../api/axios";
 import API from "../../constants/api";
+import LoaderSpinner from "../common/LoaderSpinner";
 
 const formatTime = (dateString) => {
 	const date = new Date(dateString);
@@ -14,6 +15,7 @@ const ChatWindow = ({ selectedChat, setSelectedChat, allChats = [] }) => {
 	const { user } = useAuth();
 	const [messages, setMessages] = useState([]);
 	const [newMessage, setNewMessage] = useState("");
+	const [loadingMessages, setLoadingMessages] = useState(true);
 	const [isOtherUserTyping, setIsOtherUserTyping] = useState(false);
 	const messagesEndRef = useRef(null);
 	const typingTimeoutRef = useRef(null);
@@ -45,10 +47,13 @@ const ChatWindow = ({ selectedChat, setSelectedChat, allChats = [] }) => {
 		const fetchMessages = async () => {
 			if (!roomId) return;
 			try {
+				setLoadingMessages(true);
 				const res = await axiosInstance.get(API.GET_MESSAGES(roomId));
 				setMessages(res.data.data || []);
 			} catch (err) {
 				console.error("❌ Error fetching messages", err);
+			} finally {
+				setLoadingMessages(false);
 			}
 		};
 		fetchMessages();
@@ -176,26 +181,31 @@ const ChatWindow = ({ selectedChat, setSelectedChat, allChats = [] }) => {
 
 			{/* Chat Scroll Area */}
 			<div className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar-thin scrollbar-thumb-rose-300 max-h-[calc(100vh-10rem)] pb-16">
-				{messages.map((msg, idx) => {
-					const isSelf = msg.sender._id === user._id;
-					return (
-						<div
-							key={msg._id || idx}
-							className={`max-w-xs px-3 py-2 rounded-lg text-sm shadow ${
-								isSelf
-									? "bg-roseclub-light text-white self-end ml-auto"
-									: "bg-gray-100 text-gray-800 self-start mr-auto"
-							}`}
-						>
-							<p>{msg.content}</p>
-							<p className="text-[10px] mt-1 text-right opacity-70">
-								{formatTime(msg.sentAt || new Date())}
-								{isSelf && msg.read && <span className="ml-1">✅</span>}
-							</p>
-						</div>
-					);
-				})}
-
+				{loadingMessages ? (
+					<div className="flex justify-center mt-8">
+						<LoaderSpinner size="lg" />
+					</div>
+				) : (
+					messages.map((msg, idx) => {
+						const isSelf = msg.sender._id === user._id;
+						return (
+							<div
+								key={msg._id || idx}
+								className={`max-w-xs px-3 py-2 rounded-lg text-sm shadow ${
+									isSelf
+										? "bg-roseclub-light text-white self-end ml-auto"
+										: "bg-gray-100 text-gray-800 self-start mr-auto"
+								}`}
+							>
+								<p>{msg.content}</p>
+								<p className="text-[10px] mt-1 text-right opacity-70">
+									{formatTime(msg.sentAt || new Date())}
+									{isSelf && msg.read && <span className="ml-1">✅</span>}
+								</p>
+							</div>
+						);
+					})
+				)}
 				{isOtherUserTyping && (
 					<div className="text-xs text-gray-500 italic ml-2">
 						✍️ {user.role === "creator" ? "Editor" : "Creator"} is typing...

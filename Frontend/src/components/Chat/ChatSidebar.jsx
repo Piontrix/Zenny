@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axiosInstance from "../../api/axios";
 import { useAuth } from "../../context/AuthContext";
 import API from "../../constants/api";
+import LoaderSpinner from "../common/LoaderSpinner";
 
 const ChatSidebar = ({ selectedChatId, onSelectChat }) => {
 	const { user } = useAuth();
@@ -35,7 +36,9 @@ const ChatSidebar = ({ selectedChatId, onSelectChat }) => {
 			<div className="p-4 font-bold text-lg border-b border-white/20">Your Chats</div>
 			<div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/30">
 				{loading ? (
-					<p className="text-sm p-4">Loading chats...</p>
+					<div className="flex justify-center py-8">
+						<LoaderSpinner color="white" />
+					</div>
 				) : chats.length === 0 ? (
 					<p className="text-sm p-4">No chats yet</p>
 				) : (

@@ -3,10 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import axiosInstance from "../api/axios"; // ✅ use axiosInstance
 import API from "../constants/api";
+import LoaderSpinner from "../components/common/LoaderSpinner";
 
 const Portfolio = () => {
 	const { user } = useAuth();
 	const [editors, setEditors] = useState([]);
+	const [loading, setLoading] = useState(true);
+
 	const navigate = useNavigate();
 
 	useEffect(() => {
@@ -16,6 +19,8 @@ const Portfolio = () => {
 				setEditors(res.data.data);
 			} catch (err) {
 				console.error("Error fetching editors", err);
+			} finally {
+				setLoading(false);
 			}
 		};
 		fetchEditors();
@@ -40,7 +45,11 @@ const Portfolio = () => {
 	return (
 		<div className="p-6">
 			<h2 className="text-2xl font-bold mb-4">Editor Portfolio</h2>
-			{editors?.length === 0 ? (
+			{loading ? (
+				<div className="flex justify-center items-center h-40">
+					<LoaderSpinner size="lg" />
+				</div>
+			) : editors.length === 0 ? (
 				<p>No editors available yet.</p>
 			) : (
 				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">

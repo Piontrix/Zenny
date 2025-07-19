@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import API from "../constants/api";
 import axiosInstance from "../api/axios";
+import LoaderSpinner from "../components/common/LoaderSpinner";
 
 const AuthContext = createContext();
 
@@ -14,7 +15,6 @@ export const AuthProvider = ({ children }) => {
 				const res = await axiosInstance.get("/me");
 				setUser(res.data.user);
 			} catch (err) {
-				// 🧠 Retry with token from localStorage if cookie-based auth fails
 				console.log(err);
 				const localToken = localStorage.getItem("token");
 				if (localToken) {
@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }) => {
 	}, []);
 
 	const login = (userData) => {
-		setUser(userData); // token is in httpOnly cookie
+		setUser(userData);
 	};
 
 	const logout = async () => {
@@ -52,6 +52,14 @@ export const AuthProvider = ({ children }) => {
 			console.error("Logout error:", err.response?.data?.message || err.message);
 		}
 	};
+
+	if (loading) {
+		return (
+			<div className="flex items-center justify-center h-screen bg-roseclub-paper">
+				<LoaderSpinner size="lg" />
+			</div>
+		);
+	}
 
 	return <AuthContext.Provider value={{ user, login, logout, loading }}>{children}</AuthContext.Provider>;
 };
