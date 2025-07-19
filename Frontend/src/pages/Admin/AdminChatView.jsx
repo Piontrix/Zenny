@@ -5,6 +5,7 @@ import useAdminChatActions from "../../hooks/useAdminChatActions";
 import axiosInstance from "../../api/axios";
 import API from "../../constants/api";
 import { useAuth } from "../../context/AuthContext";
+import LoaderSpinner from "../../components/common/LoaderSpinner";
 
 const AdminChatView = () => {
 	const { roomId } = useParams();
@@ -13,32 +14,41 @@ const AdminChatView = () => {
 
 	const [messages, setMessages] = useState([]);
 	const [roomInfo, setRoomInfo] = useState(null);
-	const [loadingAction, setLoadingAction] = useState(null); // 'freeze', 'end', 'unfreeze', 'unend'
+	const [loadingPage, setLoadingPage] = useState(true);
+	const [actionLoading, setActionLoading] = useState(""); // 'freeze' | 'end' | 'unfreeze' | 'unend' | ''
 	const messagesEndRef = useRef(null);
 
-	const fetchMessages = async () => {
+	const fetchInitialData = async () => {
 		try {
-			const res = await axiosInstance.get(API.GET_MESSAGES(roomId));
-			setMessages(res.data.data || []);
+			setLoadingPage(true);
+			const [msgRes, roomRes] = await Promise.all([
+				axiosInstance.get(API.GET_MESSAGES(roomId)),
+				axiosInstance.get(API.ADMIN_GET_CHAT_ROOMS),
+			]);
+
+			setMessages(msgRes.data.data || []);
+			const foundRoom = roomRes.data.data.find((r) => r._id === roomId);
+			setRoomInfo(foundRoom);
 		} catch (err) {
-			console.error("Failed to fetch messages", err);
+			console.error("❌ Failed to fetch chat data", err);
+		} finally {
+			setLoadingPage(false);
 		}
 	};
 
-	const fetchRoomInfo = async () => {
+	const refreshRoomInfo = async () => {
 		try {
 			const res = await axiosInstance.get(API.ADMIN_GET_CHAT_ROOMS);
 			const found = res.data.data.find((r) => r._id === roomId);
-			setRoomInfo(found);
+			if (found) setRoomInfo(found);
 		} catch (err) {
-			console.error("Failed to fetch room info", err);
+			console.error("❌ Failed to refresh room info", err);
 		}
 	};
 
 	useEffect(() => {
 		if (user?.role === "admin") {
-			fetchMessages();
-			fetchRoomInfo();
+			fetchInitialData();
 		}
 	}, [user, roomId]);
 
@@ -48,12 +58,20 @@ const AdminChatView = () => {
 		}
 	}, [messages]);
 
-	const wrap = (fn, actionName) => async () => {
-		setLoadingAction(actionName);
+	const wrap = (fn, action) => async () => {
+		setActionLoading(action);
 		await fn(roomId);
-		await fetchRoomInfo();
-		setLoadingAction(null);
+		await refreshRoomInfo();
+		setActionLoading("");
 	};
+
+	if (loadingPage) {
+		return (
+			<div className="flex justify-center items-center h-[70vh]">
+				<LoaderSpinner size="lg" />
+			</div>
+		);
+	}
 
 	return (
 		<div className="max-w-4xl mx-auto p-6">
@@ -62,10 +80,10 @@ const AdminChatView = () => {
 			{roomInfo && (
 				<div className="mb-4 text-sm text-gray-600">
 					<p>
-						<strong>Creator:</strong> {roomInfo.creator?.username || roomInfo.creator?.email}
+						<strong>Creator:</strong> {roomInfo.creator?.username || "Unknown"}
 					</p>
 					<p>
-						<strong>Editor:</strong> {roomInfo.editor?.username || roomInfo.editor?.email}
+						<strong>Editor:</strong> {roomInfo.editor?.username || "Unknown"}
 					</p>
 					<p>
 						<strong>Status:</strong>{" "}
@@ -82,40 +100,40 @@ const AdminChatView = () => {
 						{roomInfo.isFrozen && !roomInfo.isEnded && (
 							<button
 								onClick={wrap(handleUnfreeze, "unfreeze")}
-								disabled={!!loadingAction}
+								disabled={!!actionLoading}
 								className="px-4 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
 							>
-								{loadingAction === "unfreeze" ? "Unfreezing..." : "Unfreeze"}
+								{actionLoading === "unfreeze" ? "Unfreezing..." : "Unfreeze"}
 							</button>
 						)}
 
 						{roomInfo.isEnded && (
 							<button
 								onClick={wrap(handleUnend, "unend")}
-								disabled={!!loadingAction}
+								disabled={!!actionLoading}
 								className="px-4 py-1 bg-green-600 text-white rounded hover:bg-green-700"
 							>
-								{loadingAction === "unend" ? "Reopening..." : "Reopen Chat"}
+								{actionLoading === "unend" ? "Reopening..." : "Reopen Chat"}
 							</button>
 						)}
 
 						{!roomInfo.isFrozen && !roomInfo.isEnded && (
 							<button
 								onClick={wrap(handleFreeze, "freeze")}
-								disabled={!!loadingAction}
+								disabled={!!actionLoading}
 								className="px-4 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
 							>
-								{loadingAction === "freeze" ? "Freezing..." : "Freeze"}
+								{actionLoading === "freeze" ? "Freezing..." : "Freeze"}
 							</button>
 						)}
 
 						{!roomInfo.isEnded && (
 							<button
 								onClick={wrap(handleEnd, "end")}
-								disabled={!!loadingAction}
+								disabled={!!actionLoading}
 								className="px-4 py-1 bg-red-600 text-white rounded hover:bg-red-700"
 							>
-								{loadingAction === "end" ? "Ending..." : "End"}
+								{actionLoading === "end" ? "Ending..." : "End"}
 							</button>
 						)}
 					</div>

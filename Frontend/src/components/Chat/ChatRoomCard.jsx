@@ -7,10 +7,10 @@ const ChatRoomCard = ({ room, onFreeze, onEnd, onUnfreeze, onUnend }) => {
 				<div>
 					<p className="text-sm text-gray-600">Room ID: {room._id}</p>
 					<p>
-						<b>Creator:</b> {room.creator?.username || room.creator?.email}
+						<b>Creator:</b> {room.creator?.username || "Unknown"}
 					</p>
 					<p>
-						<b>Editor:</b> {room.editor?.username || room.editor?.email}
+						<b>Editor:</b> {room.editor?.username || "Unknown"}
 					</p>
 				</div>
 

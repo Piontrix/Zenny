@@ -66,7 +66,7 @@ const ChatSidebar = ({ selectedChatId, onSelectChat }) => {
 								className={`p-3 cursor-pointer transition-all border-b border-white/10 
 									${isSelected ? "bg-roseclub-medium font-bold" : "hover:bg-roseclub-medium"}`}
 							>
-								<p className="text-sm">{other?.username || other?.email || "Unknown"}</p>
+								<p className="text-sm">{other?.username || "Unknown"}</p>
 								<p className="text-xs opacity-80 truncate">{chat.lastMessage?.message || "No messages yet"}</p>
 							</div>
 						);
