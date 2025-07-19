@@ -4,6 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import axiosInstance from "../../api/axios";
 import API from "../../constants/api";
 import LoaderSpinner from "../common/LoaderSpinner";
+import { TiTick } from "react-icons/ti";
 
 const formatTime = (dateString) => {
 	const date = new Date(dateString);
@@ -49,13 +50,26 @@ const ChatWindow = ({ selectedChat, setSelectedChat, allChats = [] }) => {
 			try {
 				setLoadingMessages(true);
 				const res = await axiosInstance.get(API.GET_MESSAGES(roomId));
-				setMessages(res.data.data || []);
+				const msgs = res.data.data || [];
+				setMessages(msgs);
+
+				msgs.forEach((msg) => {
+					if (!msg.read && msg.sender._id !== user._id) {
+						socket.emit("messageSeen", {
+							roomId,
+							messageId: msg._id,
+							sender: msg.sender._id,
+							receiver: user._id,
+						});
+					}
+				});
 			} catch (err) {
 				console.error("❌ Error fetching messages", err);
 			} finally {
 				setLoadingMessages(false);
 			}
 		};
+
 		fetchMessages();
 	}, [roomId]);
 
@@ -63,13 +77,17 @@ const ChatWindow = ({ selectedChat, setSelectedChat, allChats = [] }) => {
 		if (!socket) return;
 
 		const handleNewMessage = (msg) => {
+			if (msg.chatRoom !== roomId) return;
 			setMessages((prev) => [...prev, msg]);
-			socket.emit("messageSeen", {
-				roomId: msg.chatRoom,
-				messageId: msg._id,
-				sender: msg.sender._id,
-				receiver: user._id,
-			});
+
+			if (msg.sender._id !== user._id) {
+				socket.emit("messageSeen", {
+					roomId: msg.chatRoom,
+					messageId: msg._id,
+					sender: msg.sender._id,
+					receiver: user._id,
+				});
+			}
 		};
 
 		socket.on("newMessage", handleNewMessage);
@@ -95,14 +113,17 @@ const ChatWindow = ({ selectedChat, setSelectedChat, allChats = [] }) => {
 	}, [socket, user, selectedChat]);
 
 	useEffect(() => {
-		if (!socket) return;
+		if (!socket || !user?._id) return;
 
-		const handleMessageSeen = ({ messageId }) => {
-			setMessages((prev) => prev.map((msg) => (msg._id === messageId ? { ...msg, read: true } : msg)));
+		const handleMessageSeen = ({ messageId, sender }) => {
+			if (user._id === sender) {
+				setMessages((prev) => prev.map((msg) => (msg._id === messageId ? { ...msg, read: true } : msg)));
+			}
 		};
+
 		socket.on("messageSeen", handleMessageSeen);
 		return () => socket.off("messageSeen", handleMessageSeen);
-	}, [socket]);
+	}, [socket, user]);
 
 	useEffect(() => {
 		if (!socket || !roomId) return;
@@ -147,6 +168,7 @@ const ChatWindow = ({ selectedChat, setSelectedChat, allChats = [] }) => {
 				...res.data.data,
 				chatRoom: roomId,
 				sender: { _id: user._id },
+				read: false,
 			});
 
 			setNewMessage("");
@@ -198,9 +220,16 @@ const ChatWindow = ({ selectedChat, setSelectedChat, allChats = [] }) => {
 								}`}
 							>
 								<p>{msg.content}</p>
-								<p className="text-[10px] mt-1 text-right opacity-70">
-									{formatTime(msg.sentAt || new Date())}
-									{isSelf && msg.read && <span className="ml-1">✅</span>}
+								<p className="text-[10px] mt-1 text-right opacity-70 flex items-center justify-end gap-1">
+									<div>{formatTime(msg.sentAt || new Date())}</div>
+									<div className="flex">
+										{isSelf && (
+											<>
+												<TiTick className={`text-base ${msg.read ? "text-blue-800" : "text-gray-600"}`} />
+												<TiTick className={`text-base ${msg.read ? "text-blue-800" : "text-gray-600"}`} />
+											</>
+										)}
+									</div>
 								</p>
 							</div>
 						);

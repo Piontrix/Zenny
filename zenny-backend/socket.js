@@ -1,5 +1,5 @@
 import { Server } from "socket.io";
-
+import Message from "./src/models/Message.model.js";
 const socketUserMap = new Map();
 
 let io;
@@ -27,7 +27,8 @@ export const setupSocket = (server) => {
 			io.to(chatRoom).emit("newMessage", msg);
 		});
 
-		socket.on("messageSeen", ({ roomId, messageId, sender, receiver }) => {
+		socket.on("messageSeen", async ({ roomId, messageId, sender, receiver }) => {
+			await Message.findByIdAndUpdate(messageId, { read: true });
 			io.to(roomId).emit("messageSeen", { messageId, sender, receiver });
 		});
 
