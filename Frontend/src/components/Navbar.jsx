@@ -22,8 +22,9 @@ const Navbar = () => {
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 				<div className="flex justify-between items-center h-16">
 					{/* Logo */}
-					<Link to="/" className="text-3xl font-extrabold text-roseclub-dark tracking-wide">
-						Zenny
+					<Link to="/" className="flex items-center space-x-2">
+						<span className="text-3xl font-extrabold text-roseclub-dark tracking-wide">Zenny</span>
+						<img src="/navbarImage.png" alt="Zenny Logo" className="h-10 w-auto object-contain" />
 					</Link>
 
 					{/* Desktop Nav */}
