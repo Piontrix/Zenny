@@ -31,3 +31,17 @@ export const sendOTPEmail = async (to, otp) => {
     `,
 	});
 };
+
+export const sendReminderEmail = async (to, chatRoomId) => {
+	await transporter.sendMail({
+		from: `"Zenny" <${process.env.EMAIL_USER}>`,
+		to,
+		subject: "You have unread messages on Zenny!",
+		html: `
+      <p>Hello,</p>
+      <p>You have unread messages in your Zenny chat room. Please check your chat to stay updated.</p>
+      <br/>
+      <small>– Zenny Team</small>
+    `,
+	});
+};

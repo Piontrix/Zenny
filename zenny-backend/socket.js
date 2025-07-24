@@ -1,5 +1,7 @@
 import { Server } from "socket.io";
 import Message from "./src/models/Message.model.js";
+import { cancelReminder } from "./src/controllers/chat.controller.js";
+import ChatRoom from "./src/models/ChatRoom.model.js";
 const socketUserMap = new Map();
 
 let io;
@@ -29,6 +31,11 @@ export const setupSocket = (server) => {
 
 		socket.on("messageSeen", async ({ roomId, messageId, sender, receiver }) => {
 			await Message.findByIdAndUpdate(messageId, { read: true });
+			// Cancel reminder for this chat/recipient
+			const chatRoom = await ChatRoom.findById(roomId);
+			if (chatRoom) {
+				await cancelReminder(roomId, receiver);
+			}
 			io.to(roomId).emit("messageSeen", { messageId, sender, receiver });
 		});
 

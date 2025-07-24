@@ -1,6 +1,13 @@
 import ChatRoom from "../models/ChatRoom.model.js";
 import Message from "../models/Message.model.js";
 import User from "../models/User.model.js";
+import Reminder from "../models/Reminder.model.js";
+
+// Helper to get the recipient in a chat
+function getRecipientId(chatRoom, senderId) {
+	if (chatRoom.creator.toString() === senderId.toString()) return chatRoom.editor;
+	return chatRoom.creator;
+}
 
 export const initiateChat = async (req, res) => {
 	try {
@@ -89,6 +96,39 @@ export const sendMessage = async (req, res) => {
 			content,
 		});
 
+		// Reminder logic (DB polling)
+		const recipientId = getRecipientId(chatRoom, req.user._id);
+		// Find the first unread message for this recipient in this chat
+		const firstUnread = await Message.findOne({
+			chatRoom: chatRoomId,
+			sender: { $ne: recipientId },
+			read: false,
+		}).sort({ sentAt: 1 });
+		if (firstUnread) {
+			console.log("First unread message:", firstUnread._id);
+			// Check if a reminder already exists and is not sent/cancelled
+			const existingReminder = await Reminder.findOne({
+				chatRoom: chatRoomId,
+				recipient: recipientId,
+				sent: false,
+				cancelled: false,
+			});
+			if (!existingReminder) {
+				console.log("Creating reminder for", recipientId, "in chat", chatRoomId);
+				// Schedule a reminder for 1 minute from the first unread message
+				await Reminder.create({
+					chatRoom: chatRoomId,
+					recipient: recipientId,
+					firstUnreadMessage: firstUnread._id,
+					scheduledFor: new Date(Date.now() + 20 * 60 * 1000),
+				});
+			} else {
+				console.log("Reminder already exists for", recipientId, "in chat", chatRoomId);
+			}
+		} else {
+			console.log("No unread message found for recipient", recipientId, "in chat", chatRoomId);
+		}
+
 		res.status(201).json({
 			message: "Message sent successfully",
 			data: {
@@ -104,6 +144,19 @@ export const sendMessage = async (req, res) => {
 		res.status(500).json({ message: "Server error" });
 	}
 };
+
+// Cancel reminder utility (to be used in socket.js)
+export async function cancelReminder(chatRoomId, recipientId) {
+	await Reminder.updateMany(
+		{
+			chatRoom: chatRoomId,
+			recipient: recipientId,
+			sent: false,
+			cancelled: false,
+		},
+		{ $set: { cancelled: true } }
+	);
+}
 
 export const getMessagesByRoom = async (req, res) => {
 	try {
