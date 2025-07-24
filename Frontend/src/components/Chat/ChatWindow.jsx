@@ -18,6 +18,7 @@ const ChatWindow = ({ selectedChat, setSelectedChat, allChats = [] }) => {
 	const [newMessage, setNewMessage] = useState("");
 	const [loadingMessages, setLoadingMessages] = useState(true);
 	const [isOtherUserTyping, setIsOtherUserTyping] = useState(false);
+	const [sending, setSending] = useState(false);
 	const messagesEndRef = useRef(null);
 	const typingTimeoutRef = useRef(null);
 
@@ -157,7 +158,8 @@ const ChatWindow = ({ selectedChat, setSelectedChat, allChats = [] }) => {
 	};
 
 	const handleSend = async () => {
-		if (!newMessage.trim() || !roomId || isFrozen || isEnded) return;
+		if (!newMessage.trim() || !roomId || isFrozen || isEnded || sending) return;
+		setSending(true);
 		try {
 			const res = await axiosInstance.post(API.SEND_MESSAGE, {
 				chatRoomId: roomId,
@@ -174,6 +176,8 @@ const ChatWindow = ({ selectedChat, setSelectedChat, allChats = [] }) => {
 			setNewMessage("");
 		} catch (err) {
 			console.error("❌ Failed to send message:", err);
+		} finally {
+			setSending(false);
 		}
 	};
 
@@ -251,17 +255,19 @@ const ChatWindow = ({ selectedChat, setSelectedChat, allChats = [] }) => {
 					onChange={handleInputChange}
 					type="text"
 					placeholder={isFrozen || isEnded ? "Chat is disabled" : "Type a message..."}
-					disabled={isFrozen || isEnded}
+					disabled={isFrozen || isEnded || sending}
 					className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-roseclub-accent disabled:bg-gray-100 disabled:text-gray-400"
 				/>
 				<button
 					onClick={handleSend}
-					disabled={isFrozen || isEnded}
+					disabled={isFrozen || isEnded || sending || !newMessage.trim()}
 					className={`px-4 py-2 rounded-md text-white ${
-						isFrozen || isEnded ? "bg-gray-300 cursor-not-allowed" : "bg-roseclub-accent hover:bg-roseclub-dark"
+						isFrozen || isEnded || sending
+							? "bg-gray-300 cursor-not-allowed"
+							: "bg-roseclub-accent hover:bg-roseclub-dark"
 					}`}
 				>
-					Send
+					{sending ? "Sending..." : "Send"}
 				</button>
 			</div>
 		</div>
