@@ -7,8 +7,11 @@ import {
 	unfreezeChatRoom,
 	unendChatRoom,
 } from "../controllers/admin.controller.js";
+import multer from "multer";
+import { updateEditorPortfolioStructure, uploadEditorPortfolioSamples } from "../controllers/editor.controller.js";
 
 const router = express.Router();
+const upload = multer({ dest: "temp/" });
 
 router.use(protect, allowRoles("admin"));
 
@@ -17,5 +20,9 @@ router.patch("/chat/:roomId/freeze", freezeChatRoom);
 router.patch("/chat/:roomId/end", endChatRoom);
 router.patch("/chat/:roomId/unfreeze", unfreezeChatRoom);
 router.patch("/chat/:roomId/unend", unendChatRoom);
+router.patch("/editors/:editorId/portfolio/structure", updateEditorPortfolioStructure);
+
+// Portfolio sample media upload (files + tags)
+router.patch("/editors/:editorId/portfolio/samples", upload.any(), uploadEditorPortfolioSamples);
 
 export default router;
