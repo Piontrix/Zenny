@@ -1,5 +1,6 @@
 import User from "../models/User.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import path from "path";
 
 export const updateEditorPortfolioStructure = async (req, res) => {
 	try {
@@ -33,10 +34,10 @@ export const uploadEditorPortfolioSamples = async (req, res) => {
 		if (!editor.portfolio || !editor.portfolio.tiers) {
 			return res.status(400).json({ message: "Portfolio structure must be created first." });
 		}
-
 		if (req.files && Array.isArray(req.files)) {
 			for (const file of req.files) {
-				const cloudinaryRes = await uploadOnCloudinary(file.path);
+				const absolutePath = path.resolve(file.path); // 👈 Convert relative to absolute
+				const cloudinaryRes = await uploadOnCloudinary(absolutePath);
 				if (!cloudinaryRes?.secure_url) continue;
 				fs.unlinkSync(file.path);
 				const tier = file.fieldname.split("_")[0]; // fieldname: "basic_sample"
