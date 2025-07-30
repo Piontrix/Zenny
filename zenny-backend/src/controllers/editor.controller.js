@@ -35,7 +35,6 @@ export const uploadEditorPortfolioSamples = async (req, res) => {
 			return res.status(400).json({ message: "Portfolio structure must be created first." });
 		}
 
-		// Check if files were uploaded
 		if (!req.files || req.files.length === 0) {
 			return res.status(400).json({ message: "No files uploaded" });
 		}
@@ -43,17 +42,15 @@ export const uploadEditorPortfolioSamples = async (req, res) => {
 		let successCount = 0;
 		const failed = [];
 
-		// Group files by tier and process them
 		const filesByTier = {};
 		req.files.forEach((file) => {
-			const tier = file.fieldname.split("_")[0]; // e.g., "basic"
+			const tier = file.fieldname.split("_")[0];
 			if (!filesByTier[tier]) {
 				filesByTier[tier] = [];
 			}
 			filesByTier[tier].push(file);
 		});
 
-		// Process each tier's files
 		for (const [tier, files] of Object.entries(filesByTier)) {
 			const targetTier = editor.portfolio.tiers.find((t) => t.title === tier);
 			if (!targetTier) {
@@ -61,10 +58,8 @@ export const uploadEditorPortfolioSamples = async (req, res) => {
 				continue;
 			}
 
-			// Initialize samples array if it doesn't exist
 			targetTier.samples = targetTier.samples || [];
 
-			// Process each file in this tier
 			for (let i = 0; i < files.length; i++) {
 				const file = files[i];
 				const absolutePath = path.resolve(file.path);
@@ -73,7 +68,7 @@ export const uploadEditorPortfolioSamples = async (req, res) => {
 				if (!cloudinaryRes?.secure_url) {
 					failed.push({
 						filename: file.originalname,
-						tier: tier,
+						tier,
 						reason: "Cloudinary upload failed or invalid path",
 					});
 					continue;
@@ -81,7 +76,6 @@ export const uploadEditorPortfolioSamples = async (req, res) => {
 
 				successCount++;
 
-				// Handle individual file tags using pattern: tier_sample_index_tags
 				let tags = [];
 				const individualTagsKey = `${tier}_sample_${i}_tags`;
 
@@ -89,11 +83,9 @@ export const uploadEditorPortfolioSamples = async (req, res) => {
 					try {
 						const tagsValue = req.body[individualTagsKey];
 						if (typeof tagsValue === "string") {
-							// Try to parse as JSON
 							try {
 								tags = JSON.parse(tagsValue);
 							} catch {
-								// If it's not JSON, treat as single tag
 								tags = [tagsValue];
 							}
 						} else if (Array.isArray(tagsValue)) {
@@ -101,11 +93,7 @@ export const uploadEditorPortfolioSamples = async (req, res) => {
 						} else {
 							tags = [tagsValue];
 						}
-
-						// Ensure tags is an array
-						if (!Array.isArray(tags)) {
-							tags = [];
-						}
+						if (!Array.isArray(tags)) tags = [];
 					} catch (parseError) {
 						console.warn(`❌ Failed to parse tags for ${tier} sample ${i}:`, parseError.message);
 						tags = [];
@@ -114,7 +102,6 @@ export const uploadEditorPortfolioSamples = async (req, res) => {
 
 				const type = file.mimetype.startsWith("video") ? "video" : "image";
 
-				// Add the sample to the tier
 				targetTier.samples.push({
 					url: cloudinaryRes.secure_url,
 					type,
