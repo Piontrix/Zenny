@@ -30,7 +30,9 @@ const Portfolio = () => {
 		return (
 			<div className="min-h-screen bg-roseclub-paper flex items-center justify-center">
 				<div className="text-center">
-					<LoaderSpinner size="lg" />
+					<div className="flex justify-center">
+						<LoaderSpinner size="lg" />
+					</div>
 					<p className="mt-4 text-roseclub-dark">Loading editor portfolios...</p>
 				</div>
 			</div>
