@@ -59,6 +59,9 @@ const AdminAllEditors = () => {
 									<p className="text-xs text-rose-500 mt-2">Portfolio tiers: {editor.portfolio.tiers.length}</p>
 								)}
 							</div>
+							<Link to={`/admin/dashboard/edit-structure/${editor._id}`} className="text-blue-600 underline">
+								Edit Structure
+							</Link>
 
 							<Link
 								to={`/admin/dashboard/edit-editor/${editor._id}`}

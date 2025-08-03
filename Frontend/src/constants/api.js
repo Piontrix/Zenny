@@ -28,6 +28,8 @@ const API = {
 
 	// Add this to the API object
 	ADMIN_UPLOAD_EDITOR_PORTFOLIO_SAMPLES: (editorId) => `${BASE_URL}/api/admin/editors/${editorId}/portfolio/samples`,
+	ADMIN_UPDATE_EDITOR_PORTFOLIO_STRUCTURE: (editorId) =>
+		`${BASE_URL}/api/admin/editors/${editorId}/portfolio/structure`,
 
 	// Users
 	GET_ALL_EDITORS: BASE_URL + "/api/users/editors",
