@@ -21,6 +21,7 @@ import CreatorRegister from "./pages/CreatorRegister";
 import AdminChatRooms from "./pages/Admin/AdminChatRooms";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import { Toaster } from "react-hot-toast";
+import EditorPortfolioDetail from "./components/Portfolio/EditorPortfolioDetail";
 
 const App = () => {
 	return (
@@ -56,6 +57,7 @@ const App = () => {
 					<Route path="/about" element={<About />} />
 					<Route path="/contact" element={<Contact />} />
 					<Route path="/portfolio" element={<Portfolio />} />
+					<Route path="/portfolio/:editorId" element={<EditorPortfolioDetail />} />
 					<Route path="/profile" element={<Profile />} />
 					<Route path="/faqs" element={<FAQSection />} />
 					<Route path="/zenny-perks" element={<ZennyPerks />} />

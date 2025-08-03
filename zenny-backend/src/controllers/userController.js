@@ -9,3 +9,22 @@ export const getAllVerifiedEditors = async (req, res) => {
 		res.status(500).json({ message: "Server error" });
 	}
 };
+
+export const getEditorById = async (req, res) => {
+	try {
+		const { editorId } = req.params;
+
+		const editor = await User.findOne({ _id: editorId, role: "editor" }).select("-password");
+		if (!editor) {
+			return res.status(404).json({ message: "Editor not found" });
+		}
+
+		res.status(200).json({
+			message: "Editor fetched successfully",
+			data: editor,
+		});
+	} catch (err) {
+		console.error("Error fetching editor by ID:", err);
+		res.status(500).json({ message: "Server error" });
+	}
+};

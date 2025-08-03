@@ -5,6 +5,7 @@ import axiosInstance from "../api/axios";
 import API from "../constants/api";
 import toast from "react-hot-toast";
 import LoaderSpinner from "../components/common/LoaderSpinner";
+import { Link } from "react-router-dom";
 
 const EditorPortfolioCard = ({ editor }) => {
 	const { user } = useAuth();
@@ -186,6 +187,11 @@ const EditorPortfolioCard = ({ editor }) => {
 
 				{/* Action Button */}
 				<div className="mt-6 pt-4 border-t border-roseclub-light">
+					<Link to={`/portfolio/${editor._id}`}>
+						<button className="mt-4 px-4 py-2 bg-roseclub-accent text-white rounded-lg hover:bg-roseclub-dark transition w-full mb-4">
+							View Portfolio
+						</button>
+					</Link>
 					<button
 						onClick={handleStartChat}
 						disabled={loading}
