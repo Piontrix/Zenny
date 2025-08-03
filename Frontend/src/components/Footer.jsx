@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { FaInstagram, FaTwitter, FaYoutube } from "react-icons/fa";
+import MadeWithLove from "./MadeWithLove";
 
 const Footer = () => {
 	return (
@@ -90,7 +91,7 @@ const Footer = () => {
 			</div>
 
 			{/* Bottom Bar */}
-			<div className="border-t border-roseclub-light mt-10 pt-4 text-center text-xs sm:text-sm text-roseclub-medium">
+			<div className=" mt-10 pt-4 text-center text-xs sm:text-sm text-roseclub-medium">
 				<div className="flex flex-wrap justify-center gap-6 mb-2">
 					<Link to="/terms" className="hover:text-roseclub-accent transition">
 						Terms & Conditions
@@ -103,10 +104,12 @@ const Footer = () => {
 					</Link> */}
 				</div>
 
-				<p className="mt-2 text-roseclub-dark italic font-romantic">
-					&copy; {new Date().getFullYear()} <span className="text-roseclub-accent font-semibold">Zenny</span> — Crafted
-					with love 💌
+				<p className="mt-2 text-roseclub-dark ">
+					&copy; {new Date().getFullYear()}{" "}
+					<span className="text-roseclub-accent font-semibold italic font-romantic">Zenny.&nbsp;</span> All rights
+					reserved.
 				</p>
+				<MadeWithLove />
 			</div>
 		</footer>
 	);

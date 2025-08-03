@@ -25,9 +25,18 @@ const API = {
 	ADMIN_UNFREEZE_CHAT: (roomId) => `${BASE_URL}/api/admin/chat/${roomId}/unfreeze`,
 	ADMIN_END_CHAT: (roomId) => `${BASE_URL}/api/admin/chat/${roomId}/end`,
 	ADMIN_UNEND_CHAT: (roomId) => `${BASE_URL}/api/admin/chat/${roomId}/unend`,
+	ADMIN_GET_ALL_TICKETS: BASE_URL + "/api/admin/support-tickets",
+
+	// Add this to the API object
+	ADMIN_UPLOAD_EDITOR_PORTFOLIO_SAMPLES: (editorId) => `${BASE_URL}/api/admin/editors/${editorId}/portfolio/samples`,
+	ADMIN_UPDATE_EDITOR_PORTFOLIO_STRUCTURE: (editorId) =>
+		`${BASE_URL}/api/admin/editors/${editorId}/portfolio/structure`,
 
 	// Users
 	GET_ALL_EDITORS: BASE_URL + "/api/users/editors",
+	GET_EDITOR_BY_ID: (editorId) => `${BASE_URL}/api/users/editors/${editorId}`,
+
+	SUBMIT_SUPPORT_TICKET: BASE_URL + "/api/public/support",
 };
 
 export default API;
