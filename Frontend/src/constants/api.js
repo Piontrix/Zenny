@@ -34,6 +34,8 @@ const API = {
 	// Users
 	GET_ALL_EDITORS: BASE_URL + "/api/users/editors",
 	GET_EDITOR_BY_ID: (editorId) => `${BASE_URL}/api/users/editors/${editorId}`,
+
+	SUBMIT_SUPPORT_TICKET: BASE_URL + "/api/public/support",
 };
 
 export default API;

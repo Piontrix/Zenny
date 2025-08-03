@@ -6,6 +6,8 @@ import {
 	endChatRoom,
 	unfreezeChatRoom,
 	unendChatRoom,
+	getAllSupportTickets,
+	updateSupportTicket,
 } from "../controllers/admin.controller.js";
 import multer from "multer";
 import { updateEditorPortfolioStructure, uploadEditorPortfolioSamples } from "../controllers/editor.controller.js";
@@ -58,5 +60,8 @@ router.patch(
 	},
 	uploadEditorPortfolioSamples
 );
+
+router.get("/support-tickets", protect, allowRoles("admin"), getAllSupportTickets);
+router.patch("/support-tickets/:id", protect, allowRoles("admin"), updateSupportTicket);
 
 export default router;

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import API from "../../constants/api";
 
 const ContactForm = () => {
 	const [formData, setFormData] = useState({
@@ -7,17 +8,40 @@ const ContactForm = () => {
 		subject: "",
 		message: "",
 	});
+	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [success, setSuccess] = useState(false);
+	const [error, setError] = useState("");
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
 		setFormData((prev) => ({ ...prev, [name]: value }));
 	};
 
-	const handleSubmit = (e) => {
+	const handleSubmit = async (e) => {
 		e.preventDefault();
-		console.log("📨 Contact Form Submitted:", formData);
-		// You can integrate emailjs / Formspree / API call here
-		setFormData({ name: "", email: "", subject: "", message: "" });
+		setIsSubmitting(true);
+		setError("");
+		setSuccess(false);
+
+		try {
+			const response = await fetch(API.SUBMIT_SUPPORT_TICKET, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(formData),
+			});
+
+			if (!response.ok) {
+				const err = await response.json();
+				throw new Error(err.message || "Submission failed");
+			}
+
+			setSuccess(true);
+			setFormData({ name: "", email: "", subject: "", message: "" });
+		} catch (err) {
+			setError(err.message);
+		} finally {
+			setIsSubmitting(false);
+		}
 	};
 
 	return (
@@ -60,11 +84,16 @@ const ContactForm = () => {
 				placeholder="Write your message..."
 				className="inputStyle"
 			/>
+
+			{error && <p className="text-red-600 text-sm">{error}</p>}
+			{success && <p className="text-green-600 text-sm">Ticket submitted successfully!</p>}
+
 			<button
 				type="submit"
-				className="w-full bg-roseclub-accent text-white py-3 rounded-full font-semibold hover:bg-roseclub-dark transition"
+				disabled={isSubmitting}
+				className="w-full bg-roseclub-accent text-white py-3 rounded-full font-semibold hover:bg-roseclub-dark transition disabled:opacity-50"
 			>
-				Send Message 💌
+				{isSubmitting ? "Sending..." : "Send Message 💌"}
 			</button>
 		</form>
 	);

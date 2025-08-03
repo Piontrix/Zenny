@@ -1,5 +1,6 @@
 import { getIO } from "../../socket.js";
 import ChatRoom from "../models/ChatRoom.model.js";
+import { SupportTicket } from "../models/SupportTicket.model.js";
 import User from "../models/User.model.js";
 // GET all chat rooms with creator/editor info
 export const getAllChatRooms = async (req, res) => {
@@ -82,5 +83,36 @@ export const unendChatRoom = async (req, res) => {
 	} catch (err) {
 		console.error("Unend chat error:", err);
 		res.status(500).json({ message: "Server error" });
+	}
+};
+
+export const getAllSupportTickets = async (req, res) => {
+	try {
+		const tickets = await SupportTicket.find().sort({ createdAt: -1 });
+		res.status(200).json(tickets);
+	} catch (err) {
+		console.error(err);
+		res.status(500).json({ message: "Failed to fetch tickets." });
+	}
+};
+
+// Update ticket status or add internal note
+export const updateSupportTicket = async (req, res) => {
+	try {
+		const { id } = req.params;
+		const { status, internalNote } = req.body;
+
+		const ticket = await SupportTicket.findById(id);
+		if (!ticket) return res.status(404).json({ message: "Ticket not found" });
+
+		if (status) ticket.status = status;
+		if (internalNote !== undefined) ticket.internalNote = internalNote;
+
+		await ticket.save();
+
+		res.json({ message: "Ticket updated", ticket });
+	} catch (err) {
+		console.error(err);
+		res.status(500).json({ message: "Failed to update ticket." });
 	}
 };
