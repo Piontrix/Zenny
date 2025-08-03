@@ -32,13 +32,6 @@ const AdminEditEditorPortfolio = () => {
 		setFileInputs((prev) => ({ ...prev, [tier]: files }));
 	};
 
-	const handleTagChange = (tier, index, value) => {
-		setTagsInputs((prev) => ({
-			...prev,
-			[`${tier}_sample_${index}_tags`]: value,
-		}));
-	};
-
 	const handleUpload = async () => {
 		if (!editor) return;
 
@@ -46,7 +39,8 @@ const AdminEditEditorPortfolio = () => {
 		Object.entries(fileInputs).forEach(([tier, files]) => {
 			Array.from(files).forEach((file, idx) => {
 				formData.append(`${tier}_${idx}`, file);
-				formData.append(`${tier}_sample_${idx}_tags`, tagsInputs[`${tier}_sample_${idx}_tags`] || "[]");
+				const tagKey = `${tier}_sample_${idx}_tags`;
+				formData.append(tagKey, JSON.stringify(tagsInputs[tagKey] || []));
 			});
 		});
 
@@ -75,30 +69,73 @@ const AdminEditEditorPortfolio = () => {
 			{editor.portfolio.tiers.map((tier) => (
 				<div key={tier.title} className="mb-8">
 					<h3 className="text-lg font-semibold capitalize mb-2 text-roseclub-accent">{tier.title} Tier</h3>
+
 					<input
 						type="file"
 						multiple
 						accept="image/*,video/*"
 						onChange={(e) => handleFileChange(tier.title, e.target.files)}
-						className="mb-2 block"
+						className="mb-3 block w-full text-sm"
 					/>
 
 					{fileInputs[tier.title] &&
-						Array.from(fileInputs[tier.title]).map((file, i) => (
-							<div key={i} className="mb-3 border p-2 rounded bg-gray-50">
-								<p className="font-medium text-sm text-gray-700 mb-1">File: {file.name}</p>
-								<label className="block text-sm text-gray-600 mb-1">
-									Tags for <span className="font-semibold">{file.name}</span>
-								</label>
-								<input
-									type="text"
-									placeholder='e.g., ["dance", "hook"]'
-									className="border p-2 rounded w-full text-sm"
-									value={tagsInputs[`${tier.title}_sample_${i}_tags`] || ""}
-									onChange={(e) => handleTagChange(tier.title, i, e.target.value)}
-								/>
-							</div>
-						))}
+						Array.from(fileInputs[tier.title]).map((file, i) => {
+							const tagKey = `${tier.title}_sample_${i}_tags`;
+							const tags = tagsInputs[tagKey] || [];
+
+							const addTag = (e) => {
+								if (e.key === "Enter" || e.key === ",") {
+									e.preventDefault();
+									const newTag = e.target.value.trim();
+									if (newTag && !tags.includes(newTag)) {
+										setTagsInputs((prev) => ({
+											...prev,
+											[tagKey]: [...tags, newTag],
+										}));
+									}
+									e.target.value = "";
+								}
+							};
+
+							const removeTag = (tagToRemove) => {
+								setTagsInputs((prev) => ({
+									...prev,
+									[tagKey]: tags.filter((tag) => tag !== tagToRemove),
+								}));
+							};
+
+							return (
+								<div key={i} className="mb-4 border p-4 rounded-md bg-gray-50">
+									<p className="text-sm font-medium text-gray-700 mb-2">File: {file.name}</p>
+
+									{/* Tags display */}
+									<div className="flex flex-wrap gap-2 mb-2">
+										{tags.map((tag, idx) => (
+											<span
+												key={idx}
+												className="bg-rose-100 text-rose-700 px-3 py-1 rounded-full text-xs flex items-center gap-2"
+											>
+												{tag}
+												<button
+													onClick={() => removeTag(tag)}
+													className="text-rose-500 hover:text-red-500 font-bold text-xs"
+												>
+													×
+												</button>
+											</span>
+										))}
+									</div>
+
+									{/* Tag input */}
+									<input
+										type="text"
+										placeholder="Type tag & press Enter or comma"
+										onKeyDown={addTag}
+										className="w-full border px-3 py-1 rounded text-sm"
+									/>
+								</div>
+							);
+						})}
 				</div>
 			))}
 
