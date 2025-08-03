@@ -10,11 +10,12 @@ const EditorPortfolioDetail = () => {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState("");
 
+	const [previewSample, setPreviewSample] = useState(null); // modal state
+
 	useEffect(() => {
 		const fetchEditor = async () => {
 			try {
 				const res = await axiosInstance.get(API.GET_EDITOR_BY_ID(editorId));
-				console.log("Editor Data:", res.data.data);
 				setEditor(res.data.data);
 			} catch (err) {
 				console.error("Error fetching editor portfolio", err);
@@ -62,10 +63,16 @@ const EditorPortfolioDetail = () => {
 								{tier.samples.map((sample, i) => (
 									<div
 										key={i}
-										className="bg-white rounded-2xl shadow-md hover:shadow-xl hover:scale-[1.02] transition-all overflow-hidden"
+										className="bg-white rounded-2xl shadow-md hover:shadow-xl hover:scale-[1.02] transition-all overflow-hidden cursor-pointer"
+										onClick={() => setPreviewSample(sample)} // trigger modal
 									>
 										{sample.type === "video" ? (
-											<video src={sample.url} controls className="w-full h-52 object-cover" />
+											<video
+												src={sample.url}
+												className="w-full h-52 object-cover pointer-events-none"
+												muted
+												playsInline
+											/>
 										) : (
 											<img src={sample.url} alt="Sample" className="w-full h-52 object-cover" />
 										)}
@@ -98,6 +105,49 @@ const EditorPortfolioDetail = () => {
 					← Back to All Portfolios
 				</Link>
 			</div>
+
+			{/* Modal */}
+			{previewSample && (
+				<div
+					className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center"
+					onClick={() => setPreviewSample(null)}
+				>
+					<div
+						className="relative bg-white rounded-3xl shadow-xl w-full max-w-3xl mx-4 max-h-[90vh] flex flex-col overflow-hidden"
+						onClick={(e) => e.stopPropagation()}
+					>
+						{/* Sticky Close & Tags */}
+						<div className="sticky top-0 z-10 bg-white px-6 pt-5 pb-3 border-b border-gray-100 flex items-start justify-between">
+							<div className="flex flex-wrap gap-2">
+								{previewSample.tags?.map((tag, index) => (
+									<span
+										key={index}
+										className="bg-[#ffeef3] text-[#ff3860] text-xs font-semibold px-3 py-1 rounded-full"
+									>
+										#{tag}
+									</span>
+								))}
+							</div>
+
+							<button
+								className="text-2xl text-gray-500 hover:text-gray-800 transition"
+								onClick={() => setPreviewSample(null)}
+							>
+								×
+							</button>
+						</div>
+
+						{/* Scrollable Preview */}
+						<div className="overflow-y-auto px-6 pb-6 pt-2">
+							{previewSample.type === "video" ? (
+								<video src={previewSample.url} controls autoPlay className="w-full rounded-xl" />
+							) : (
+								<img src={previewSample.url} alt="Preview" className="w-full rounded-xl" />
+							)}
+						</div>
+					</div>
+				</div>
+			)}
 		</div>
 	);
 };

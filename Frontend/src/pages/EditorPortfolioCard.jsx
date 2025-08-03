@@ -128,7 +128,7 @@ const EditorPortfolioCard = ({ editor }) => {
 							)}
 
 							{/* Samples */}
-							{tier.samples && tier.samples.length > 0 && (
+							{/* {tier.samples && tier.samples.length > 0 && (
 								<div>
 									<p className="text-sm text-gray-600 mb-2">Samples:</p>
 									<div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -180,7 +180,7 @@ const EditorPortfolioCard = ({ editor }) => {
 										</button>
 									)}
 								</div>
-							)}
+							)} */}
 						</div>
 					))}
 				</div>
