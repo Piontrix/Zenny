@@ -18,7 +18,7 @@ const Navbar = () => {
 	const activeLinkClass = "text-roseclub-accent font-extrabold";
 
 	return (
-		<nav className="sticky top-0 z-50 bg-roseclub-paper/70 backdrop-blur-md shadow-md font-romantic">
+		<nav className="sticky top-0 z-50 bg-roseclub-paper/70 backdrop-blur-md shadow-md font-serif">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 				<div className="flex justify-between items-center h-16">
 					{/* Logo */}
@@ -28,7 +28,7 @@ const Navbar = () => {
 					</Link>
 
 					{/* Desktop Nav */}
-					<div className="hidden md:flex space-x-8 text-xl text-roseclub-medium font-medium">
+					<div className="hidden md:flex space-x-8 lg:text-xl text-roseclub-medium font-medium">
 						{navLinks.map((link) => (
 							<NavLink
 								key={link.to}
@@ -109,7 +109,7 @@ const Navbar = () => {
 							to={link.to}
 							onClick={() => setMenuOpen(false)}
 							className={({ isActive }) =>
-								`block px-4 py-2 rounded-md text-roseclub-dark hover:text-roseclub-accent hover:bg-roseclub-paper transition text-base font-medium ${
+								`block px-4 py-2 rounded-md text-roseclub-dark hover:text-roseclub-accent hover:bg-roseclub-paper transition text-xl font-medium ${
 									isActive ? activeLinkClass + " bg-roseclub-paper" : ""
 								}`
 							}
