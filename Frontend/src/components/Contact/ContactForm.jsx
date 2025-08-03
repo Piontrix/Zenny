@@ -93,7 +93,7 @@ const ContactForm = () => {
 				disabled={isSubmitting}
 				className="w-full bg-roseclub-accent text-white py-3 rounded-full font-semibold hover:bg-roseclub-dark transition disabled:opacity-50"
 			>
-				{isSubmitting ? "Sending..." : "Send Message 💌"}
+				{isSubmitting ? "Sending..." : "Raise A Ticket 💌"}
 			</button>
 		</form>
 	);

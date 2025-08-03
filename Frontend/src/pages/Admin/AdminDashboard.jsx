@@ -39,6 +39,17 @@ const AdminDashboard = () => {
 					>
 						All Editors
 					</NavLink>
+
+					<NavLink
+						to="/admin/dashboard/support-tickets"
+						className={({ isActive }) =>
+							`block px-3 py-2 rounded-md text-sm font-medium ${
+								isActive ? "bg-white text-roseclub-dark" : "hover:bg-white/20"
+							}`
+						}
+					>
+						View Support Tickets
+					</NavLink>
 				</nav>
 			</aside>
 

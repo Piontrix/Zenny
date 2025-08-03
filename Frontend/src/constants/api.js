@@ -25,6 +25,7 @@ const API = {
 	ADMIN_UNFREEZE_CHAT: (roomId) => `${BASE_URL}/api/admin/chat/${roomId}/unfreeze`,
 	ADMIN_END_CHAT: (roomId) => `${BASE_URL}/api/admin/chat/${roomId}/end`,
 	ADMIN_UNEND_CHAT: (roomId) => `${BASE_URL}/api/admin/chat/${roomId}/unend`,
+	ADMIN_GET_ALL_TICKETS: BASE_URL + "/api/admin/support-tickets",
 
 	// Add this to the API object
 	ADMIN_UPLOAD_EDITOR_PORTFOLIO_SAMPLES: (editorId) => `${BASE_URL}/api/admin/editors/${editorId}/portfolio/samples`,

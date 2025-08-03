@@ -25,6 +25,7 @@ import EditorPortfolioDetail from "./components/Portfolio/EditorPortfolioDetail"
 import AdminEditEditorPortfolio from "./pages/AdminEditEditorPortfolio";
 import AdminAllEditors from "./pages/Admin/AdminAllEditors";
 import AdminEditEditorPortfolioStructure from "./pages/Admin/AdminEditEditorPortfolioStructure";
+import AdminSupportTickets from "./pages/Admin/AdminSupportTickets";
 
 const App = () => {
 	return (
@@ -92,6 +93,7 @@ const App = () => {
 						<Route path="all-editors" element={<AdminAllEditors />} />
 						<Route path="edit-editor/:editorId" element={<AdminEditEditorPortfolio />} />
 						<Route path="/admin/dashboard/edit-structure/:editorId" element={<AdminEditEditorPortfolioStructure />} />
+						<Route path="/admin/dashboard/support-tickets" element={<AdminSupportTickets />} />
 					</Route>
 
 					<Route path="*" element={<PageNotFound />} />
