@@ -26,6 +26,9 @@ const API = {
 	ADMIN_END_CHAT: (roomId) => `${BASE_URL}/api/admin/chat/${roomId}/end`,
 	ADMIN_UNEND_CHAT: (roomId) => `${BASE_URL}/api/admin/chat/${roomId}/unend`,
 
+	// Add this to the API object
+	ADMIN_UPLOAD_EDITOR_PORTFOLIO_SAMPLES: (editorId) => `${BASE_URL}/api/admin/editors/${editorId}/portfolio/samples`,
+
 	// Users
 	GET_ALL_EDITORS: BASE_URL + "/api/users/editors",
 	GET_EDITOR_BY_ID: (editorId) => `${BASE_URL}/api/users/editors/${editorId}`,

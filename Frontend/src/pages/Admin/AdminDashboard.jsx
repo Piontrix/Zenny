@@ -17,6 +17,7 @@ const AdminDashboard = () => {
 					>
 						Register Editor
 					</NavLink>
+
 					<NavLink
 						to="/admin/dashboard/chat-rooms"
 						className={({ isActive }) =>
@@ -26,6 +27,17 @@ const AdminDashboard = () => {
 						}
 					>
 						View Chat Rooms
+					</NavLink>
+
+					<NavLink
+						to="/admin/dashboard/all-editors"
+						className={({ isActive }) =>
+							`block px-3 py-2 rounded-md text-sm font-medium ${
+								isActive ? "bg-white text-roseclub-dark" : "hover:bg-white/20"
+							}`
+						}
+					>
+						All Editors
 					</NavLink>
 				</nav>
 			</aside>

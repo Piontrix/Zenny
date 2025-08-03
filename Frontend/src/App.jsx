@@ -22,6 +22,8 @@ import AdminChatRooms from "./pages/Admin/AdminChatRooms";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import { Toaster } from "react-hot-toast";
 import EditorPortfolioDetail from "./components/Portfolio/EditorPortfolioDetail";
+import AdminEditEditorPortfolio from "./pages/AdminEditEditorPortfolio";
+import AdminAllEditors from "./pages/Admin/AdminAllEditors";
 
 const App = () => {
 	return (
@@ -86,16 +88,10 @@ const App = () => {
 						<Route path="register-editor" element={<AdminRegisterEditor />} />
 						<Route path="chat-rooms" element={<AdminChatRooms />} />
 						<Route path="chat-rooms/:roomId" element={<AdminChatView />} />
+						<Route path="all-editors" element={<AdminAllEditors />} />
+						<Route path="edit-editor/:editorId" element={<AdminEditEditorPortfolio />} />
 					</Route>
 
-					<Route
-						path="/admin/dashboard"
-						element={
-							<ProtectedRoute allowedRoles={["admin"]}>
-								<AdminDashboard />
-							</ProtectedRoute>
-						}
-					/>
 					<Route path="*" element={<PageNotFound />} />
 				</Routes>
 			</Layout>
