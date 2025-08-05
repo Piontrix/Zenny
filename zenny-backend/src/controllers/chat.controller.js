@@ -67,6 +67,19 @@ export const sendMessage = async (req, res) => {
 		if (!chatRoomId || !content) {
 			return res.status(400).json({ message: "ChatRoom ID and message content are required" });
 		}
+		// Prevent sharing of personal emails or phone numbers
+		const blockedPatterns = [
+			/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi, // email
+			/\b\d{10,}\b/g, // 10 or more digit numbers (likely phone numbers)
+		];
+
+		for (const pattern of blockedPatterns) {
+			if (pattern.test(content)) {
+				return res.status(400).json({
+					message: "Sharing personal contact details (email/phone) is not allowed in chat.",
+				});
+			}
+		}
 
 		const chatRoom = await ChatRoom.findById(chatRoomId);
 		if (!chatRoom) {

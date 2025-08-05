@@ -5,6 +5,7 @@ import axiosInstance from "../../api/axios";
 import API from "../../constants/api";
 import LoaderSpinner from "../common/LoaderSpinner";
 import { TiTick } from "react-icons/ti";
+import toast from "react-hot-toast";
 
 const formatTime = (dateString) => {
 	const date = new Date(dateString);
@@ -161,6 +162,17 @@ const ChatWindow = ({ selectedChat, setSelectedChat, allChats = [] }) => {
 		if (!newMessage.trim() || !roomId || isFrozen || isEnded || sending) return;
 		setSending(true);
 		try {
+			const containsPrivateInfo = (msg) => {
+				const emailRegex = /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi;
+				const phoneRegex = /\b\d{10,}\b/g;
+				return emailRegex.test(msg) || phoneRegex.test(msg);
+			};
+
+			if (containsPrivateInfo(newMessage)) {
+				toast.error("You are not allowed to share personal contact details like email or phone.");
+				return;
+			}
+
 			const res = await axiosInstance.post(API.SEND_MESSAGE, {
 				chatRoomId: roomId,
 				content: newMessage,
@@ -172,10 +184,11 @@ const ChatWindow = ({ selectedChat, setSelectedChat, allChats = [] }) => {
 				sender: { _id: user._id },
 				read: false,
 			});
-
+			toast.success("Message sent!");
 			setNewMessage("");
 		} catch (err) {
 			console.error("❌ Failed to send message:", err);
+			toast.error("Failed to send message.");
 		} finally {
 			setSending(false);
 		}
