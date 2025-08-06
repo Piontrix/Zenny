@@ -14,6 +14,6 @@ router.use("/auth", authRoutes);
 router.use("/chat", chatRoutes);
 router.use("/admin", adminRoutes);
 router.use("/public", publicRoutes);
-router.use("/payment", paymentRoutes);
+router.use("/payments", paymentRoutes);
 
 export default router;

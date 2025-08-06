@@ -4,6 +4,7 @@ import {
 	handleCashfreeWebhook,
 	getEditorPayments,
 	getAllPaymentsForAdmin,
+	getCreatorPayments,
 } from "../controllers/payment.controller.js";
 import { protect, allowRoles } from "../middleware/auth.middleware.js";
 

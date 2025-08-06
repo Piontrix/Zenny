@@ -3,7 +3,8 @@ import User from "../models/User.model.js";
 import Payment from "../models/payment.model.js";
 import crypto from "crypto";
 
-const { CASHFREE_API_URL, CASHFREE_CLIENT_ID, CASHFREE_CLIENT_SECRET } = process.env;
+const { CASHFREE_API_URL, CASHFREE_CLIENT_ID, CASHFREE_CLIENT_SECRET, CASHFREE_RETURN_URL, CASHFREE_WEBHOOK_SECRET } =
+	process.env;
 
 const getEditorTierPrice = (editor, planType) => {
 	const tier = editor.portfolio?.tiers?.find((t) => t.title === planType);
@@ -13,8 +14,13 @@ const getEditorTierPrice = (editor, planType) => {
 
 export const createPaymentLink = async (req, res) => {
 	try {
+		console.log("first");
 		const { editorId, plan } = req.params;
-		const { creatorNote } = req.body;
+		const { creatorNote, phone } = req.body;
+
+		if (!phone || phone.length !== 10) {
+			return res.status(400).json({ message: "Phone number is required and must be 10 digits" });
+		}
 
 		const editor = await User.findById(editorId);
 		if (!editor || editor.role !== "editor") {
@@ -30,7 +36,7 @@ export const createPaymentLink = async (req, res) => {
 		const orderId = `order_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
 
 		// Create order via Cashfree API
-		const returnUrl = process.env.CASHFREE_RETURN_URL || "http://localhost:5173/payment-success";
+		const returnUrl = CASHFREE_RETURN_URL || "http://localhost:5173/payment-success";
 		const response = await axios.post(
 			`${CASHFREE_API_URL}/orders`,
 			{
@@ -40,14 +46,14 @@ export const createPaymentLink = async (req, res) => {
 				customer_details: {
 					customer_id: req.user._id,
 					customer_email: req.user.email,
+					customer_phone: phone, // required by Cashfree
 				},
-
 				order_meta: {
 					return_url: `${returnUrl}?order_id=${orderId}`,
 				},
 				notes: {
 					creatorNote: creatorNote || "",
-					editorId: editorId,
+					editorId,
 					planType: plan,
 				},
 			},
@@ -62,7 +68,7 @@ export const createPaymentLink = async (req, res) => {
 		);
 
 		const cfOrderId = response.data.order_id;
-		const paymentLink = response.data.payment_link;
+		// const paymentLink = response.data.payments?.url;
 
 		// Save to DB
 		await Payment.create({
@@ -74,9 +80,14 @@ export const createPaymentLink = async (req, res) => {
 			status: "INITIATED",
 			creatorNote,
 			creator: req.user._id,
+			phone,
 		});
+		console.log(response.data);
+		const paymentSessionId = response.data.payment_session_id;
 
-		res.status(201).json({ paymentLink });
+		const paymentLink = `https://sandbox.cashfree.com/pgapp/v1/orderpage?payment_session_id=${paymentSessionId}`;
+
+		res.status(201).json({ paymentLink, raw: response.data });
 	} catch (error) {
 		console.error("Cashfree Error:", error?.response?.data || error.message);
 		res.status(500).json({ message: "Failed to create payment link" });
@@ -88,10 +99,7 @@ export const handleCashfreeWebhook = async (req, res) => {
 		const signature = req.headers["x-webhook-signature"];
 		const payload = JSON.stringify(req.body);
 
-		const expectedSignature = crypto
-			.createHmac("sha256", process.env.CASHFREE_WEBHOOK_SECRET)
-			.update(payload)
-			.digest("base64");
+		const expectedSignature = crypto.createHmac("sha256", CASHFREE_WEBHOOK_SECRET).update(payload).digest("base64");
 
 		if (signature !== expectedSignature) {
 			return res.status(401).json({ message: "Invalid webhook signature" });
@@ -116,6 +124,7 @@ export const handleCashfreeWebhook = async (req, res) => {
 		res.status(500).json({ message: "Webhook handling failed" });
 	}
 };
+
 export const getEditorPayments = async (req, res) => {
 	try {
 		const payments = await Payment.find({ editor: req.user._id }).sort({ createdAt: -1 });

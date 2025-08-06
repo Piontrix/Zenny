@@ -21,6 +21,10 @@ const paymentSchema = new mongoose.Schema(
 			type: Number,
 			required: true,
 		},
+		phone: {
+			type: Number,
+			required: true,
+		},
 		cfOrderId: {
 			type: String,
 			required: true,
