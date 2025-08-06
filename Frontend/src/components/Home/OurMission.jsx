@@ -19,7 +19,7 @@ const OurMission = () => {
 				</p>
 
 				<p className="mt-4 text-base sm:text-lg text-roseclub-medium leading-relaxed">
-					We believe in <span className="font-semibold text-roseclub-dark">letting work shine</span> — not followers or
+					We believe in <span className="font-semibold text-roseclub-dark">letting work shine</span>, not followers or
 					filters. That’s why we built a space where creative minds connect anonymously, share clear project
 					expectations, and create magic without drama or distractions.
 				</p>

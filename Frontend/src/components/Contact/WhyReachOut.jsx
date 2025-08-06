@@ -10,7 +10,7 @@ const WhyReachOut = () => {
 				<li>Got a cool project or collab idea? Let’s build something ✨</li>
 				<li>Bug or glitch ruining the vibe? We’re on it 🔧</li>
 				<li>Feedback, features, or fan mail? We love it all 💬</li>
-				<li>Brands & businesses — yes, we’re open to chat 💼</li>
+				<li>Brands & businesses, yes, we’re open to chat 💼</li>
 			</ul>
 
 			<p className="text-xs text-center mt-6 italic text-roseclub-medium">

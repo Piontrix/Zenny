@@ -4,12 +4,11 @@ import ValueCard from "./ValueCard";
 const coreValues = [
 	{
 		title: "Authentic Collaboration",
-		description: "Zenny bridges creators and editors through real work — no clout, no filters, just vibes and results.",
+		description: "Zenny bridges creators and editors through real work, no clout, no filters, just vibes and results.",
 	},
 	{
 		title: "Anonymity by Design",
-		description:
-			"Connect without bias. Editors and creators work anonymously, letting the work — not the face — speak.",
+		description: "Connect without bias. Editors and creators work anonymously, letting the work, not the face, speak.",
 	},
 	{
 		title: "Creative Freedom",
@@ -17,7 +16,7 @@ const coreValues = [
 	},
 	{
 		title: "Mutual Growth",
-		description: "Creators get quality edits, editors get recognition (and gigs) — Zenny grows with every collab.",
+		description: "Creators get quality edits, editors get recognition (and gigs), Zenny grows with every collab.",
 	},
 	{
 		title: "Built for GenZ",

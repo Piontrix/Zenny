@@ -7,7 +7,7 @@ export const handleTokenFallback = async (token) => {
 		// Cookie failed → fallback to Authorization
 		if (token) {
 			localStorage.setItem("token", token);
-			console.warn("⚠️ Cookie blocked — token saved to localStorage");
+			console.warn("⚠️ Cookie blocked, token saved to localStorage");
 		}
 	}
 };

@@ -5,24 +5,24 @@ const faqs = [
 	{
 		question: "What is Zenny?",
 		answer:
-			"Zenny is the easiest way to find the perfect video editor for your content. Browse verified portfolios, connect directly, and get your videos edited — no stress.",
+			"Zenny is the easiest way to find the perfect video editor for your content. Browse verified portfolios, connect directly, and get your videos edited, no stress.",
 	},
 	{
 		question: "How does Zenny work?",
 		answer: `Simple.
 → Search through editor profiles and portfolios.
-→ Connect with any editor you like via Telegram.
+→ Connect with any editor you like via our chat.
 → Get a watermarked sample of your edit.
 → Once you’re happy, make the payment via a secure link.
 → Receive the final, un-watermarked video.`,
 	},
 	{
 		question: "Can I message multiple editors?",
-		answer: "Yes, you’re free to connect with as many editors as you like — find the one that fits your style.",
+		answer: "Yes, you’re free to connect with as many editors as you like, find the one that fits your style.",
 	},
 	{
 		question: "Is it really anonymous?",
-		answer: "Yes. All chats happen via Telegram using unique IDs — no need to share personal contact details.",
+		answer: "Yes. All chats happen using unique IDs, no need to share personal contact details.",
 	},
 	{
 		question: "How do payments work?",
@@ -36,11 +36,11 @@ const faqs = [
 	{
 		question: "How much does it cost?",
 		answer:
-			"Prices are set individually by editors — their rates are visible on their profiles, so there are no surprises.",
+			"Prices are set individually by editors, their rates are visible on their profiles, so there are no surprises.",
 	},
 	{
 		question: "Can I work with the same editor again?",
-		answer: "Definitely. Once you find your go-to editor, you can work with them again — all through Zenny.",
+		answer: "Definitely. Once you find your go-to editor, you can work with them again, all through Zenny.",
 	},
 	{
 		question: "Who are the editors on Zenny?",

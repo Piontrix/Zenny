@@ -12,19 +12,19 @@ const features = [
 		icon: <BsIncognito className="text-xl text-roseclub-accent" />,
 		title: "Complete Anonymity",
 		description:
-			"Skip the awkward intros. Zenny lets creators and editors connect without revealing their identity — only your work matters here.",
+			"Skip the awkward intros. Zenny lets creators and editors connect without revealing their identity only your work matters here.",
 	},
 	{
 		icon: <BsChatDotsFill className="text-xl text-roseclub-accent" />,
 		title: "Clear Project Flow",
 		description:
-			"From brief to final file, Zenny gives you a clean pipeline. No guesswork, no confusion — just smooth collaboration.",
+			"From brief to final file, Zenny gives you a clean pipeline. No guesswork, no confusion, just smooth collaboration.",
 	},
 	{
 		icon: <BsShieldLockFill className="text-xl text-roseclub-accent" />,
 		title: "Safe & Drama-Free",
 		description:
-			"Work in a respectful, toxicity-free environment. No ghosting, no rude replies — just mutual professionalism.",
+			"Work in a respectful, toxicity-free environment. No ghosting, no rude replies, just mutual professionalism.",
 	},
 ];
 

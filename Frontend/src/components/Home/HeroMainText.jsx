@@ -6,7 +6,7 @@ const HeroMainText = ({ onOpenModal }) => {
 			<h1 className="text-4xl sm:text-5xl font-medium drop-shadow-sm leading-snug">Where Creators & Editors Meet 💌</h1>
 
 			<p className="text-xl sm:text-2xl font-medium text-roseclub-dark leading-relaxed drop-shadow-sm">
-				At <span className=" text-roseclub-accent">Zenny</span>, we help you turn imagination into reality — without
+				At <span className=" text-roseclub-accent">Zenny</span>, we help you turn imagination into reality, without
 				revealing your identity. Anonymous. Seamless. Real work.
 			</p>
 

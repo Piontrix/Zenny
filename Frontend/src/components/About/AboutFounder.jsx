@@ -24,9 +24,9 @@ const AboutFounder = () => {
 						</h2>
 
 						<p className="text-base sm:text-lg leading-relaxed">
-							<strong>Zenny</strong> was built by <strong>Riddhi Aggarwal</strong> — a young, ambitious founder who
+							<strong>Zenny</strong> was built by <strong>Riddhi Aggarwal</strong>, a young, ambitious founder who
 							believes in keeping things real, unfiltered, and efficient. At just 19, Riddhi decided to solve a problem
-							most creators silently struggle with — finding reliable, affordable editors without all the hassle.
+							most creators silently struggle with, finding reliable, affordable editors without all the hassle.
 						</p>
 
 						<p className="text-base sm:text-lg leading-relaxed mt-4">
@@ -35,13 +35,13 @@ const AboutFounder = () => {
 						</p>
 
 						<p className="text-base sm:text-lg leading-relaxed mt-4">
-							Zenny isn’t just a platform — it’s a reflection of her belief that great work should be easy to access, no
+							Zenny isn’t just a platform,it’s a reflection of her belief that great work should be easy to access, no
 							matter who you are.
 						</p>
 
 						<p className="text-base sm:text-lg italic leading-relaxed mt-4">
 							Driven by the same chaos, caffeine, and late-night overthinking every founder knows, Riddhi’s journey is
-							proof that you don’t need to have it all figured out — you just need to start.
+							proof that you don’t need to have it all figured out, you just need to start.
 						</p>
 					</div>
 				</div>
