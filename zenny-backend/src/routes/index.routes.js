@@ -5,6 +5,7 @@ import chatRoutes from "./chat.routes.js";
 import adminRoutes from "./admin.routes.js";
 import userRoutes from "./user.routes.js";
 import publicRoutes from "./public.routes.js";
+import paymentRoutes from "./payment.routes.js";
 const router = express.Router();
 
 router.use("/users", userRoutes);
@@ -13,5 +14,6 @@ router.use("/auth", authRoutes);
 router.use("/chat", chatRoutes);
 router.use("/admin", adminRoutes);
 router.use("/public", publicRoutes);
+router.use("/payment", paymentRoutes);
 
 export default router;
