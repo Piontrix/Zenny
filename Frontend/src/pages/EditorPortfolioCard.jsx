@@ -37,9 +37,9 @@ const EditorPortfolioCard = ({ editor }) => {
 
 		const price = pricing[0];
 		if (price.priceMax) {
-			return `$${price.priceMin} - $${price.priceMax}`;
+			return `₹${price.priceMin} - ₹${price.priceMax}`;
 		}
-		return `$${price.priceMin}`;
+		return `₹${price.priceMin}`;
 	};
 
 	const getTierColor = (tier) => {
