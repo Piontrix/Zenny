@@ -184,15 +184,16 @@ export const handleCashfreeWebhook = async (req, res) => {
 
 		console.log(`Order: ${cfOrderId}, Payment: ${cfPaymentId}, Status: ${mappedStatus}`);
 
-		await Payment.findOneAndUpdate(
+		const updated = await Payment.findOneAndUpdate(
 			{ $or: [{ cfOrderId }, { orderId: cfOrderId }] },
-			{ cfPaymentId, status: statusMap[paymentStatus] || "FAILED" }
+			{ cfPaymentId, status: mappedStatus },
+			{ new: true }
 		);
 
 		if (!updated) {
-			console.warn(`No DB record found for cfOrderId ${cfOrderId}`);
+			console.warn(`No DB record found for cfOrderId/orderId: ${cfOrderId}`);
 		} else {
-			console.log("Updated payment:", updated.status);
+			console.log(`Payment updated in DB. New status: ${updated.status}`);
 		}
 
 		res.status(200).json({ message: "Webhook received" });
