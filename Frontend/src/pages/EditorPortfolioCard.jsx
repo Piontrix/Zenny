@@ -6,12 +6,18 @@ import API from "../constants/api";
 import toast from "react-hot-toast";
 import LoaderSpinner from "../components/common/LoaderSpinner";
 import { Link } from "react-router-dom";
+import PaymentModal from "../components/Payment/PaymentModal";
 
 const EditorPortfolioCard = ({ editor }) => {
 	const { user } = useAuth();
 	const navigate = useNavigate();
 	const [loading, setLoading] = useState(false);
 	const [selectedTier, setSelectedTier] = useState(null);
+	const [paymentModal, setPaymentModal] = useState({
+		isOpen: false,
+		plan: null,
+		amount: null,
+	});
 
 	const handleStartChat = async () => {
 		if (!user || user.role !== "creator") {
@@ -30,6 +36,26 @@ const EditorPortfolioCard = ({ editor }) => {
 		} finally {
 			setLoading(false);
 		}
+	};
+
+	const handlePaymentClick = (plan, amount) => {
+		if (!user || user.role !== "creator") {
+			toast.error("Only creators can make payments");
+			return;
+		}
+		setPaymentModal({
+			isOpen: true,
+			plan,
+			amount,
+		});
+	};
+
+	const closePaymentModal = () => {
+		setPaymentModal({
+			isOpen: false,
+			plan: null,
+			amount: null,
+		});
 	};
 
 	const formatPrice = (pricing) => {
@@ -127,6 +153,16 @@ const EditorPortfolioCard = ({ editor }) => {
 								</div>
 							)}
 
+							{/* Payment Button */}
+							{user?.role === "creator" && (
+								<button
+									onClick={() => handlePaymentClick(tier.title, tier.pricing[0].priceMin)}
+									className="w-full mt-3 px-4 py-2 bg-roseclub-accent text-white rounded-lg hover:bg-roseclub-dark transition font-semibold"
+								>
+									Pay ₹{tier.pricing[0].priceMin}
+								</button>
+							)}
+
 							{/* Samples */}
 							{/* {tier.samples && tier.samples.length > 0 && (
 								<div>
@@ -208,6 +244,17 @@ const EditorPortfolioCard = ({ editor }) => {
 					</button>
 				</div>
 			</div>
+
+			{/* Payment Modal */}
+			{paymentModal.isOpen && (
+				<PaymentModal
+					isOpen={paymentModal.isOpen}
+					onClose={closePaymentModal}
+					editor={editor}
+					plan={paymentModal.plan}
+					amount={paymentModal.amount}
+				/>
+			)}
 
 			{/* Sample Modal */}
 			{selectedTier && (

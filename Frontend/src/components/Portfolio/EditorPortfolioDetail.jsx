@@ -1,16 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import axiosInstance from "../../api/axios";
 import API from "../../constants/api";
 import LoaderSpinner from "../common/LoaderSpinner";
+import PaymentModal from "../Payment/PaymentModal";
+import toast from "react-hot-toast";
 
 const EditorPortfolioDetail = () => {
 	const { editorId } = useParams();
+	const { user } = useAuth();
 	const [editor, setEditor] = useState(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState("");
 
 	const [previewSample, setPreviewSample] = useState(null); // modal state
+	const [paymentModal, setPaymentModal] = useState({
+		isOpen: false,
+		plan: null,
+		amount: null,
+	});
 
 	useEffect(() => {
 		const fetchEditor = async () => {
@@ -26,6 +35,30 @@ const EditorPortfolioDetail = () => {
 		};
 		fetchEditor();
 	}, [editorId]);
+
+	const handlePaymentClick = (plan, amount) => {
+		if (!user) {
+			toast.error("Please login to make a payment");
+			return;
+		}
+		if (user.role !== "creator") {
+			toast.error("Only creators can make payments");
+			return;
+		}
+		setPaymentModal({
+			isOpen: true,
+			plan,
+			amount,
+		});
+	};
+
+	const closePaymentModal = () => {
+		setPaymentModal({
+			isOpen: false,
+			plan: null,
+			amount: null,
+		});
+	};
 
 	if (loading) {
 		return (
@@ -51,52 +84,70 @@ const EditorPortfolioDetail = () => {
 			<div className="max-w-6xl mx-auto">
 				<h1 className="text-3xl sm:text-4xl font-bold text-roseclub-dark mb-8">{editor.username}'s Portfolio</h1>
 
-				{editor.portfolio?.tiers?.map((tier, idx) => (
-					<div key={idx} className="mb-14">
-						<h2 className="text-2xl sm:text-3xl font-semibold text-roseclub-accent capitalize mb-2">
-							{tier.title} Tier
-						</h2>
-						<p className="mb-4 text-roseclub-dark/80">{tier.description}</p>
+				{editor.portfolio?.tiers?.map((tier, idx) => {
+					const amount = tier.pricing?.[0]?.priceMin || 0;
+					return (
+						<div key={idx} className="mb-14">
+							<div className="flex items-center justify-between mb-4">
+								<div>
+									<h2 className="text-2xl sm:text-3xl font-semibold text-roseclub-accent capitalize mb-2">
+										{tier.title} Tier
+									</h2>
+									<p className="text-roseclub-dark/80">{tier.description}</p>
+								</div>
+								<div className="text-right">
+									<div className="text-2xl font-bold text-roseclub-accent">₹{amount}</div>
+									{user?.role === "creator" && (
+										<button
+											onClick={() => handlePaymentClick(tier.title, amount)}
+											className="mt-2 px-6 py-2 bg-roseclub-accent text-white rounded-lg hover:bg-roseclub-dark transition font-semibold"
+										>
+											Pay Now
+										</button>
+									)}
+								</div>
+							</div>
 
-						{tier.samples?.length > 0 ? (
-							<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-								{tier.samples.map((sample, i) => (
-									<div
-										key={i}
-										className="bg-white rounded-2xl shadow-md hover:shadow-xl hover:scale-[1.02] transition-all overflow-hidden cursor-pointer"
-										onClick={() => setPreviewSample(sample)} // trigger modal
-									>
-										{sample.type === "video" ? (
-											<video
-												src={sample.url}
-												className="w-full h-52 object-cover pointer-events-none"
-												muted
-												playsInline
-											/>
-										) : (
-											<img src={sample.url} alt="Sample" className="w-full h-52 object-cover" />
-										)}
+							{tier.samples?.length > 0 ? (
+								<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+									{tier.samples.map((sample, i) => (
+										<div
+											key={i}
+											className="bg-white rounded-2xl shadow-md hover:shadow-xl hover:scale-[1.02] transition-all overflow-hidden cursor-pointer"
+											onClick={() => setPreviewSample(sample)} // trigger modal
+										>
+											{sample.type === "video" ? (
+												<video
+													src={sample.url}
+													className="w-full h-52 object-cover pointer-events-none"
+													muted
+													playsInline
+												/>
+											) : (
+												<img src={sample.url} alt="Sample" className="w-full h-52 object-cover" />
+											)}
 
-										<div className="p-4 border-t">
-											<div className="flex flex-wrap gap-2">
-												{sample.tags?.map((tag, index) => (
-													<span
-														key={index}
-														className="bg-roseclub-light text-xs font-medium px-2 py-1 rounded-full text-roseclub-dark"
-													>
-														#{tag}
-													</span>
-												))}
+											<div className="p-4 border-t">
+												<div className="flex flex-wrap gap-2">
+													{sample.tags?.map((tag, index) => (
+														<span
+															key={index}
+															className="bg-roseclub-light text-xs font-medium px-2 py-1 rounded-full text-roseclub-dark"
+														>
+															#{tag}
+														</span>
+													))}
+												</div>
 											</div>
 										</div>
-									</div>
-								))}
-							</div>
-						) : (
-							<p className="text-sm text-gray-500 italic">No samples uploaded yet.</p>
-						)}
-					</div>
-				))}
+									))}
+								</div>
+							) : (
+								<p className="text-sm text-gray-500 italic">No samples uploaded yet.</p>
+							)}
+						</div>
+					);
+				})}
 
 				<Link
 					to="/portfolio"
@@ -147,6 +198,17 @@ const EditorPortfolioDetail = () => {
 						</div>
 					</div>
 				</div>
+			)}
+
+			{/* Payment Modal */}
+			{paymentModal.isOpen && (
+				<PaymentModal
+					isOpen={paymentModal.isOpen}
+					onClose={closePaymentModal}
+					editor={editor}
+					plan={paymentModal.plan}
+					amount={paymentModal.amount}
+				/>
 			)}
 		</div>
 	);

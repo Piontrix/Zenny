@@ -36,6 +36,12 @@ const API = {
 	GET_ALL_EDITORS: BASE_URL + "/api/users/editors",
 	GET_EDITOR_BY_ID: (editorId) => `${BASE_URL}/api/users/editors/${editorId}`,
 
+	// Payment
+	CREATE_PAYMENT_LINK: (editorId, plan) => `${BASE_URL}/api/payment/${editorId}/${plan}`,
+	GET_CREATOR_PAYMENTS: BASE_URL + "/api/payment/creator/me",
+	GET_EDITOR_PAYMENTS: BASE_URL + "/api/payment/editor/me",
+	GET_PAYMENT_STATUS: (orderId) => `${BASE_URL}/api/payment/status/${orderId}`,
+
 	SUBMIT_SUPPORT_TICKET: BASE_URL + "/api/public/support",
 };
 

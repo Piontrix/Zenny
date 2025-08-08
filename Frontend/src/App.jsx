@@ -26,6 +26,7 @@ import AdminEditEditorPortfolio from "./pages/AdminEditEditorPortfolio";
 import AdminAllEditors from "./pages/Admin/AdminAllEditors";
 import AdminEditEditorPortfolioStructure from "./pages/Admin/AdminEditEditorPortfolioStructure";
 import AdminSupportTickets from "./pages/Admin/AdminSupportTickets";
+import PaymentSuccess from "./pages/PaymentSuccess";
 
 const App = () => {
 	return (
@@ -70,6 +71,7 @@ const App = () => {
 					<Route path="/admin-login" element={<AdminLogin />} />
 					<Route path="/verify-otp" element={<VerifyOtp />} />
 					<Route path="/register" element={<CreatorRegister />} />
+					<Route path="/payment-success" element={<PaymentSuccess />} />
 					<Route
 						path="/chat"
 						element={
