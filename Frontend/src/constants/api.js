@@ -32,6 +32,8 @@ const API = {
 	ADMIN_UPDATE_EDITOR_PORTFOLIO_STRUCTURE: (editorId) =>
 		`${BASE_URL}/api/admin/editors/${editorId}/portfolio/structure`,
 
+	ADMIN_GET_ALL_PAYMENTS: BASE_URL + "/api/payment/admin",
+
 	// Users
 	GET_ALL_EDITORS: BASE_URL + "/api/users/editors",
 	GET_EDITOR_BY_ID: (editorId) => `${BASE_URL}/api/users/editors/${editorId}`,

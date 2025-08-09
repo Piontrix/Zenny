@@ -205,7 +205,10 @@ export const handleCashfreeWebhook = async (req, res) => {
 
 export const getEditorPayments = async (req, res) => {
 	try {
-		const payments = await Payment.find({ editor: req.user._id }).sort({ createdAt: -1 });
+		const payments = await Payment.find({ editor: req.user._id })
+			.populate("creator", "username")
+			.populate("editor", "username")
+			.sort({ createdAt: -1 });
 		res.json({ payments });
 	} catch (error) {
 		res.status(500).json({ message: "Failed to fetch editor payments" });
@@ -228,7 +231,8 @@ export const getAllPaymentsForAdmin = async (req, res) => {
 export const getCreatorPayments = async (req, res) => {
 	try {
 		const payments = await Payment.find({ creator: req.user._id })
-			.populate("editor", "username email")
+			.populate("creator", "username")
+			.populate("editor", "username")
 			.sort({ createdAt: -1 });
 
 		res.json({ payments });

@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { FaUserCircle } from "react-icons/fa";
 import { Link, NavLink } from "react-router-dom";
-import { useAuth } from "../context/AuthContext"; // ✅ Import auth
+import { useAuth } from "../context/AuthContext";
 
 const Navbar = () => {
 	const [menuOpen, setMenuOpen] = useState(false);
-	const { user, logout } = useAuth(); // ✅ Get user + logout from context
+	const { user, logout } = useAuth();
 
 	const navLinks = [
 		{ label: "Home", to: "/" },
@@ -16,6 +16,9 @@ const Navbar = () => {
 	];
 
 	const activeLinkClass = "text-roseclub-accent font-extrabold";
+
+	const isCreatorOrEditor = user?.role === "creator" || user?.role === "editor";
+	const isAdmin = user?.role === "admin";
 
 	return (
 		<nav className="sticky top-0 z-50 bg-roseclub-paper/70 backdrop-blur-md shadow-md font-serif">
@@ -40,16 +43,31 @@ const Navbar = () => {
 						))}
 					</div>
 
-					{/* Right Section */}
+					{/* Right Section Desktop */}
 					<div className="hidden md:flex items-center space-x-4">
 						{user ? (
 							<>
-								<Link to="/chat">
-									<button className="px-4 py-2 text-xl bg-roseclub-accent text-white rounded-full hover:bg-roseclub-dark transition font-semibold shadow-md">
-										Chat
-									</button>
-								</Link>
+								{/* Chat button for creator/editor */}
+								{isCreatorOrEditor && (
+									<Link to="/chat">
+										<button className="px-4 py-2 text-xl bg-roseclub-accent text-white rounded-full hover:bg-roseclub-dark transition font-semibold shadow-md">
+											Chat
+										</button>
+									</Link>
+								)}
 
+								{/* Profile icon */}
+								{(isCreatorOrEditor || isAdmin) && (
+									<Link
+										to={isAdmin ? "/admin/dashboard" : "/profile"}
+										className="text-2xl text-roseclub-accent hover:text-roseclub-dark transition"
+										title="Profile"
+									>
+										<FaUserCircle />
+									</Link>
+								)}
+
+								{/* Logout */}
 								<button
 									onClick={logout}
 									className="px-4 py-2 text-xl bg-roseclub-dark text-white rounded-full hover:bg-roseclub-medium transition font-semibold shadow"
@@ -59,6 +77,7 @@ const Navbar = () => {
 							</>
 						) : (
 							<>
+								{/* Login & Register buttons */}
 								<Link to="/login">
 									<button className="px-4 py-2 text-xl bg-roseclub-accent text-white rounded-full hover:bg-roseclub-dark transition font-semibold shadow-md">
 										Login
@@ -99,7 +118,7 @@ const Navbar = () => {
 			{/* Mobile Nav */}
 			<div
 				className={`text-center md:hidden px-4 transition-all duration-300 ease-in-out overflow-hidden bg-roseclub-light ${
-					menuOpen ? "max-h-96 pt-4 pb-6 opacity-100 scale-100" : "max-h-0 opacity-0 scale-95"
+					menuOpen ? " pt-4 pb-6 opacity-100 scale-100" : "max-h-0 opacity-0 scale-95"
 				}`}
 			>
 				<div className="space-y-3">
@@ -120,15 +139,34 @@ const Navbar = () => {
 
 					{user ? (
 						<>
-							<Link to="/profile" onClick={() => setMenuOpen(false)}>
-								<FaUserCircle className="text-2xl text-roseclub-accent mt-2" />
-							</Link>
+							{/* Chat button for creator/editor */}
+							{isCreatorOrEditor && (
+								<Link to="/chat" onClick={() => setMenuOpen(false)}>
+									<button className="w-full bg-roseclub-accent text-white py-2 rounded-full hover:bg-roseclub-dark transition mb-2">
+										Chat
+									</button>
+								</Link>
+							)}
+
+							{/* Profile icon */}
+							{(isCreatorOrEditor || isAdmin) && (
+								<Link
+									to={isAdmin ? "/admin/dashboard" : "/profile"}
+									onClick={() => setMenuOpen(false)}
+									className="inline-block text-3xl text-roseclub-accent hover:text-roseclub-dark transition"
+									title="Profile"
+								>
+									<FaUserCircle />
+								</Link>
+							)}
+
+							{/* Logout */}
 							<button
 								onClick={() => {
 									logout();
 									setMenuOpen(false);
 								}}
-								className="w-full bg-roseclub-dark text-white py-2 rounded-full hover:bg-roseclub-medium transition mt-2"
+								className="w-full bg-roseclub-dark text-white py-2 rounded-full hover:bg-roseclub-medium transition"
 							>
 								Logout
 							</button>
@@ -136,12 +174,12 @@ const Navbar = () => {
 					) : (
 						<>
 							<Link to="/login" onClick={() => setMenuOpen(false)}>
-								<button className="w-full bg-roseclub-accent text-white py-2 rounded-full hover:bg-roseclub-dark transition mt-2">
+								<button className="w-full bg-roseclub-accent text-white py-2 rounded-full hover:bg-roseclub-dark transition mb-2">
 									Login
 								</button>
 							</Link>
 							<Link to="/register" onClick={() => setMenuOpen(false)}>
-								<button className="w-full bg-roseclub-accent text-white py-2 rounded-full hover:bg-roseclub-dark transition mt-2">
+								<button className="w-full bg-roseclub-accent text-white py-2 rounded-full hover:bg-roseclub-dark transition mb-2">
 									Register
 								</button>
 							</Link>

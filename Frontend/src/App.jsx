@@ -27,6 +27,7 @@ import AdminAllEditors from "./pages/Admin/AdminAllEditors";
 import AdminEditEditorPortfolioStructure from "./pages/Admin/AdminEditEditorPortfolioStructure";
 import AdminSupportTickets from "./pages/Admin/AdminSupportTickets";
 import PaymentSuccess from "./pages/PaymentSuccess";
+import AdminPayments from "./components/AdminPayments";
 
 const App = () => {
 	return (
@@ -63,7 +64,15 @@ const App = () => {
 					<Route path="/contact" element={<Contact />} />
 					<Route path="/portfolio" element={<Portfolio />} />
 					<Route path="/portfolio/:editorId" element={<EditorPortfolioDetail />} />
-					<Route path="/profile" element={<Profile />} />
+					<Route
+						path="/profile"
+						element={
+							<ProtectedRoute allowedRoles={["creator", "editor"]}>
+								<Profile />
+							</ProtectedRoute>
+						}
+					/>
+
 					<Route path="/faqs" element={<FAQSection />} />
 					<Route path="/zenny-perks" element={<ZennyPerks />} />
 					<Route path="/login" element={<CreatorLogin />} />
@@ -95,6 +104,7 @@ const App = () => {
 						<Route path="all-editors" element={<AdminAllEditors />} />
 						<Route path="edit-editor/:editorId" element={<AdminEditEditorPortfolio />} />
 						<Route path="/admin/dashboard/edit-structure/:editorId" element={<AdminEditEditorPortfolioStructure />} />
+						<Route path="/admin/dashboard/all-payments" element={<AdminPayments />} />
 						<Route path="/admin/dashboard/support-tickets" element={<AdminSupportTickets />} />
 					</Route>
 
