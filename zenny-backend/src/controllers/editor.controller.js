@@ -28,8 +28,12 @@ export const updateEditorPortfolioStructure = async (req, res) => {
 export const uploadEditorPortfolioSamples = async (req, res) => {
 	try {
 		const { editorId } = req.params;
-		const MAX_FILE_SIZE_MB = process.env.MAX_FILE_SIZE_MB;
-		const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+
+		const MAX_IMAGE_SIZE_MB = Number(process.env.MAX_IMAGE_SIZE_MB) || 10;
+		const MAX_VIDEO_SIZE_MB = Number(process.env.MAX_VIDEO_SIZE_MB) || 100;
+
+		const MAX_IMAGE_SIZE_BYTES = MAX_IMAGE_SIZE_MB * 1024 * 1024;
+		const MAX_VIDEO_SIZE_BYTES = MAX_VIDEO_SIZE_MB * 1024 * 1024;
 
 		const editor = await User.findOne({ _id: editorId, role: "editor" }).select("-password");
 		if (!editor) return res.status(404).json({ message: "Editor not found" });
@@ -42,10 +46,20 @@ export const uploadEditorPortfolioSamples = async (req, res) => {
 			return res.status(400).json({ message: "No files uploaded" });
 		}
 
-		const oversizedFiles = req.files.filter((file) => file.size > MAX_FILE_SIZE_BYTES);
+		// Check for oversized files based on type
+		const oversizedFiles = req.files.filter((file) => {
+			if (file.mimetype.startsWith("image/")) {
+				return file.size > MAX_IMAGE_SIZE_BYTES;
+			} else if (file.mimetype.startsWith("video/")) {
+				return file.size > MAX_VIDEO_SIZE_BYTES;
+			}
+			// Consider other file types as invalid or oversized
+			return true;
+		});
+
 		if (oversizedFiles.length > 0) {
 			return res.status(400).json({
-				message: `Some files exceed the ${MAX_FILE_SIZE_MB}MB limit.`,
+				message: `Some files exceed size limits (Images: ${MAX_IMAGE_SIZE_MB}MB, Videos: ${MAX_VIDEO_SIZE_MB}MB).`,
 				files: oversizedFiles.map((f) => f.originalname),
 			});
 		}

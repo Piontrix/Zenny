@@ -35,7 +35,7 @@ export const protect = async (req, res, next) => {
 // Role-based access control
 export const allowRoles = (...roles) => {
 	return (req, res, next) => {
-		console.log(roles, "AA");
+		// console.log(roles, "AA");
 		if (!roles.includes(req.user.role)) {
 			console.log(req.user.role);
 			return res.status(403).json({ message: "Forbidden: Access denied" });
