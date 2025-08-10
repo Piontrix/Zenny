@@ -35,7 +35,7 @@ const CreatorRegister = () => {
 	};
 
 	return (
-		<div className="max-w-md mx-auto mt-20 p-6 shadow-lg bg-white rounded">
+		<div className="max-w-md mx-auto my-20 p-6 shadow-lg bg-white rounded">
 			<h2 className="text-2xl font-bold mb-4 text-center">Creator Register</h2>
 			<form onSubmit={handleRegister} className="space-y-4">
 				<input

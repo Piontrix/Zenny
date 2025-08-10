@@ -136,7 +136,26 @@ const EditorPortfolioCard = ({ editor }) => {
 									</span>
 									<h5 className="font-semibold text-roseclub-dark">{tier.description || `${tier.title} Editing`}</h5>
 								</div>
-								<span className="text-lg font-bold text-roseclub-accent">{formatPrice(tier.pricing)}</span>
+
+								<div>
+									<div className="text-center">
+										<span className="text-lg font-bold text-roseclub-accent">{formatPrice(tier.pricing)}</span>
+									</div>
+
+									{/* Payment Button */}
+									<button
+										onClick={() => {
+											if (!user || user.role !== "creator") {
+												toast.error("Please login or register to avail service");
+												return;
+											}
+											handlePaymentClick(tier.title, tier.pricing[0].priceMin);
+										}}
+										className="w-full mt-3 px-4 py-2 bg-roseclub-accent text-white rounded-lg hover:bg-roseclub-dark transition font-semibold"
+									>
+										Pay ₹{tier.pricing[0].priceMin}
+									</button>
+								</div>
 							</div>
 
 							{/* Features */}
@@ -152,71 +171,6 @@ const EditorPortfolioCard = ({ editor }) => {
 									</div>
 								</div>
 							)}
-
-							{/* Payment Button */}
-							{user?.role === "creator" && (
-								<button
-									onClick={() => handlePaymentClick(tier.title, tier.pricing[0].priceMin)}
-									className="w-full mt-3 px-4 py-2 bg-roseclub-accent text-white rounded-lg hover:bg-roseclub-dark transition font-semibold"
-								>
-									Pay ₹{tier.pricing[0].priceMin}
-								</button>
-							)}
-
-							{/* Samples */}
-							{/* {tier.samples && tier.samples.length > 0 && (
-								<div>
-									<p className="text-sm text-gray-600 mb-2">Samples:</p>
-									<div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-										{tier.samples.slice(0, 6).map((sample, idx) => (
-											<div
-												key={idx}
-												className="relative group cursor-pointer"
-												onClick={() => setSelectedTier({ tier, sample })}
-											>
-												{sample.type === "video" ? (
-													<div className="relative aspect-video rounded-lg overflow-hidden">
-														<img
-															src={sample.thumbnailUrl || "/fallback-thumbnail.jpg"}
-															alt={`Video Thumbnail ${idx + 1}`}
-															className="w-full h-full object-cover"
-														/>
-														<div className="absolute inset-0 flex items-center justify-center bg-black/30">
-															<span className="text-white text-2xl">▶</span>
-														</div>
-													</div>
-												) : (
-													<img
-														src={sample.url}
-														alt={`Sample ${idx + 1}`}
-														className="w-full h-24 object-cover rounded-lg"
-													/>
-												)}
-
-												{sample.tags && sample.tags.length > 0 && (
-													<div className="absolute bottom-1 left-1 right-1">
-														<div className="flex flex-wrap gap-1">
-															{sample.tags.slice(0, 2).map((tag, tagIdx) => (
-																<span key={tagIdx} className="px-1 py-0.5 bg-black/70 text-white text-xs rounded">
-																	{tag}
-																</span>
-															))}
-														</div>
-													</div>
-												)}
-											</div>
-										))}
-									</div>
-									{tier.samples.length > 6 && (
-										<button
-											className="text-xs text-roseclub-accent hover:underline mt-2"
-											onClick={() => setSelectedTier({ tier, showAllSamples: true })}
-										>
-											+{tier.samples.length - 6} more samples
-										</button>
-									)}
-								</div>
-							)} */}
 						</div>
 					))}
 				</div>
