@@ -15,14 +15,6 @@ const getEditorTierPrice = (editor, planType) => {
 
 export const createPaymentLink = async (req, res) => {
 	try {
-		console.log("Creating payment link for:", { editorId: req.params.editorId, plan: req.params.plan });
-		console.log("CashFree Environment Variables:", {
-			CASHFREE_API_URL: CASHFREE_API_URL,
-			CASHFREE_CLIENT_ID: CASHFREE_CLIENT_ID ? "SET" : "NOT SET",
-			CASHFREE_CLIENT_SECRET: CASHFREE_CLIENT_SECRET ? "SET" : "NOT SET",
-			CASHFREE_RETURN_URL: CASHFREE_RETURN_URL,
-		});
-
 		// Check if required environment variables are set
 		if (!CASHFREE_API_URL || !CASHFREE_CLIENT_ID || !CASHFREE_CLIENT_SECRET) {
 			console.error("Missing required CashFree environment variables");
@@ -50,7 +42,7 @@ export const createPaymentLink = async (req, res) => {
 			return res.status(400).json({ message: `No pricing found for ${plan} plan` });
 		}
 
-		console.log("Editor and amount validation passed:", { editorId, plan, amount });
+		// console.log("Editor and amount validation passed:", { editorId, plan, amount });
 
 		// Generate a unique orderId for this payment
 		const orderId = `order_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
@@ -73,15 +65,6 @@ export const createPaymentLink = async (req, res) => {
 			order_note: `Creator Note: ${creatorNote || ""} | Editor: ${editorId} | Plan: ${plan}`,
 		};
 
-		console.log("CashFree API URL:", `${CASHFREE_API_URL}/orders`);
-		console.log("CashFree Request Body:", JSON.stringify(requestBody, null, 2));
-		console.log("CashFree Headers:", {
-			"Content-Type": "application/json",
-			"x-client-id": CASHFREE_CLIENT_ID,
-			"x-client-secret": "***HIDDEN***",
-			"x-api-version": "2025-01-01",
-		});
-
 		// First create the order
 		const orderResponse = await axios.post(`${CASHFREE_API_URL}/orders`, requestBody, {
 			headers: {
@@ -91,8 +74,6 @@ export const createPaymentLink = async (req, res) => {
 				"x-api-version": "2025-01-01",
 			},
 		});
-
-		console.log("Order Response:", orderResponse.data);
 
 		const cfOrderId = orderResponse.data.order_id;
 		// const paymentLink = response.data.payments?.url;

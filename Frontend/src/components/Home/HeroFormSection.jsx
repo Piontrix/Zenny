@@ -14,7 +14,7 @@ const HeroFormSection = () => {
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
-		console.log("🚀 Submitted Form Data:", { ...formData, role });
+		// console.log("🚀 Submitted Form Data:", { ...formData, role });
 
 		// Reset form
 		setFormData({ name: "", email: "", phone: "", followerCount: "" });

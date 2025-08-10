@@ -28,8 +28,27 @@ const AdminEditEditorPortfolio = () => {
 		fetchEditor();
 	}, [editorId]);
 
-	const handleFileChange = (tier, files) => {
-		setFileInputs((prev) => ({ ...prev, [tier]: files }));
+	const handleFileChange = (tier, files, e) => {
+		const fileArray = Array.from(files);
+
+		// Convert MB (from .env) to bytes
+		const MAX_FILE_SIZE = Number(import.meta.env.VITE_MAX_FILE_SIZE) * 1024 * 1024;
+
+		const oversizedFiles = fileArray.filter((file) => file.size > MAX_FILE_SIZE);
+		const allowedFiles = fileArray.filter((file) => file.size <= MAX_FILE_SIZE);
+
+		if (oversizedFiles.length > 0) {
+			toast.error(
+				`Some files exceed the ${import.meta.env.VITE_MAX_FILE_SIZE}MB limit: ${oversizedFiles
+					.map((f) => f.name)
+					.join(", ")}`
+			);
+			// Clear file input in DOM
+			if (e?.target) e.target.value = "";
+		}
+
+		// Save only allowed files in state
+		setFileInputs((prev) => ({ ...prev, [tier]: allowedFiles.length ? allowedFiles : undefined }));
 	};
 
 	const handleUpload = async () => {
@@ -54,7 +73,7 @@ const AdminEditEditorPortfolio = () => {
 			setTagsInputs({});
 		} catch (err) {
 			console.error(err);
-			toast.error("Upload failed.");
+			toast.error(err.response.data.message || "Upload failed.");
 		} finally {
 			setSubmitting(false);
 		}
@@ -81,7 +100,7 @@ const AdminEditEditorPortfolio = () => {
 							type="file"
 							multiple
 							accept="image/*,video/*"
-							onChange={(e) => handleFileChange(tier.title, e.target.files)}
+							onChange={(e) => handleFileChange(tier.title, e.target.files, e)}
 							className="mb-3 block w-full text-sm"
 						/>
 

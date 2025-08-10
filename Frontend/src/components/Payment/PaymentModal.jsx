@@ -44,7 +44,7 @@ const PaymentModal = ({ isOpen, onClose, editor, plan, amount }) => {
 				creatorNote: formData.creatorNote,
 			});
 
-			console.log("Payment response:", response.data);
+			// console.log("Payment response:", response.data);
 
 			// Extract payment session ID from the response
 			const paymentSessionId = response.data.paymentSessionId || response.data.raw?.payment_session_id;
@@ -53,7 +53,7 @@ const PaymentModal = ({ isOpen, onClose, editor, plan, amount }) => {
 				return;
 			}
 
-			console.log("Payment Session ID:", paymentSessionId);
+			// console.log("Payment Session ID:", paymentSessionId);
 
 			// Launch CashFree checkout using SDK
 			await launchCashfreeCheckout(paymentSessionId);

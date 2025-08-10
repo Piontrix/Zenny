@@ -13,8 +13,15 @@ import multer from "multer";
 import { updateEditorPortfolioStructure, uploadEditorPortfolioSamples } from "../controllers/editor.controller.js";
 
 const router = express.Router();
+
+const MAX_FILE_SIZE_MB = Number(process.env.MAX_FILE_SIZE_MB);
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+
 const upload = multer({
 	dest: "temp/",
+	limits: {
+		fileSize: MAX_FILE_SIZE_BYTES,
+	},
 	fileFilter: (req, file, cb) => {
 		const allowedMimeTypes = [
 			"image/jpeg",
@@ -28,12 +35,9 @@ const upload = multer({
 		];
 
 		if (allowedMimeTypes.includes(file.mimetype)) {
-			cb(null, true); // Accept file
+			cb(null, true);
 		} else {
-			cb(
-				new Error("Only image and video files are allowed!"),
-				false // Reject file
-			);
+			cb(new Error("Only image and video files are allowed!"), false);
 		}
 	},
 });

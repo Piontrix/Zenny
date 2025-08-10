@@ -11,7 +11,7 @@ const AdminSupportTickets = () => {
 		const fetchTickets = async () => {
 			try {
 				const res = await axiosInstance.get(API.ADMIN_GET_ALL_TICKETS);
-				console.log(res.data);
+				// console.log(res.data);
 				if (Array.isArray(res.data)) {
 					setTickets(res.data);
 				} else {
