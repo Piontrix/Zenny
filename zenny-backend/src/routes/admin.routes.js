@@ -23,8 +23,6 @@ router.patch("/chat/:roomId/unfreeze", unfreezeChatRoom);
 router.patch("/chat/:roomId/unend", unendChatRoom);
 
 router.patch("/editors/:editorId/portfolio/structure", updateEditorPortfolioStructure);
-
-			next();
 // Portfolio sample media upload
 router.patch("/editors/:editorId/portfolio/samples", uploadMedia.any(), uploadEditorPortfolioSamples);
 
