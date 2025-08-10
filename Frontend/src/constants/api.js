@@ -44,6 +44,11 @@ const API = {
 	GET_EDITOR_PAYMENTS: BASE_URL + "/api/payment/editor/me",
 	GET_PAYMENT_STATUS: (orderId) => `${BASE_URL}/api/payment/status/${orderId}`,
 
+	// Refunds
+	ADMIN_CREATE_REFUND: (orderId) => `${BASE_URL}/api/payment/refund/${orderId}`,
+	GET_REFUND_DETAILS: (refundId) => `${BASE_URL}/api/payment/refund/${refundId}`,
+
+	// Support
 	SUBMIT_SUPPORT_TICKET: BASE_URL + "/api/public/support",
 };
 

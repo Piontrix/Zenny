@@ -6,13 +6,22 @@ import {
 	getAllPaymentsForAdmin,
 	getCreatorPayments,
 	getPaymentStatus,
+	createRefund,
+	getRefundDetails,
 } from "../controllers/payment.controller.js";
 import { protect, allowRoles } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
-router.post("/:editorId/:plan", protect, allowRoles("creator"), createPaymentLink);
+// ✅ Refund routes first so they aren't matched by /:editorId/:plan
+router.post("/refund/:orderId", protect, allowRoles("admin"), createRefund);
+router.get("/refund/:refundId", protect, allowRoles("editor", "creator", "admin"), getRefundDetails);
+
+// ✅ Webhook
 router.post("/webhook", handleCashfreeWebhook);
+
+// ✅ Payments
+router.post("/:editorId/:plan", protect, allowRoles("creator"), createPaymentLink);
 
 router.get("/editor/me", protect, allowRoles("editor"), getEditorPayments);
 router.get("/admin", protect, allowRoles("admin"), getAllPaymentsForAdmin);

@@ -2,6 +2,7 @@ import axios from "axios";
 import User from "../models/User.model.js";
 import Payment from "../models/payment.model.js";
 import crypto from "crypto";
+import { v4 as uuidv4 } from "uuid";
 
 const { CASHFREE_API_URL, CASHFREE_CLIENT_ID, CASHFREE_CLIENT_SECRET, CASHFREE_RETURN_URL, CASHFREE_WEBHOOK_SECRET } =
 	process.env;
@@ -152,13 +153,12 @@ export const handleCashfreeWebhook = async (req, res) => {
 	try {
 		console.log("---- Cashfree Webhook ----");
 
+		// ✅ Step 1: Verify Signature
 		const signature = req.headers["x-webhook-signature"];
 		const timestamp = req.headers["x-webhook-timestamp"];
-		const rawBody = req.rawBody;
-
+		const rawBody = req.rawBody; // Ensure middleware keeps raw body for verification
 		const merchantSecret = process.env.CASHFREE_WEBHOOK_SECRET;
 
-		// Verify signature
 		const expectedSignature = crypto
 			.createHmac("sha256", merchantSecret)
 			.update(timestamp + rawBody)
@@ -169,33 +169,56 @@ export const handleCashfreeWebhook = async (req, res) => {
 			return res.status(401).json({ message: "Invalid webhook signature" });
 		}
 
+		// ✅ Step 2: Parse incoming data
 		const data = req.body.data || {};
-		const cfOrderId = String(data.order?.order_id || "");
-		const cfPaymentId = data.payment?.payment_id || null;
-		const paymentStatus = data.payment?.payment_status;
+		const webhookType = req.body.type || "";
 
-		const statusMap = {
-			SUCCESS: "SUCCESS",
-			FAILED: "FAILED",
-			INPROGRESS: "INITIATED",
-		};
+		console.log(`Webhook Type: ${webhookType}`);
 
-		const mappedStatus = statusMap[paymentStatus] || "FAILED";
+		// ✅ Step 3: Handle Payment Status Updates
+		if (data.payment) {
+			const cfOrderId = String(data.order?.order_id || "");
+			const cfPaymentId = data.payment?.payment_id || null;
+			const paymentStatus = data.payment?.payment_status;
 
-		console.log(`Order: ${cfOrderId}, Payment: ${cfPaymentId}, Status: ${mappedStatus}`);
+			const statusMap = {
+				SUCCESS: "SUCCESS",
+				FAILED: "FAILED",
+				INPROGRESS: "INITIATED",
+			};
 
-		const updated = await Payment.findOneAndUpdate(
-			{ $or: [{ cfOrderId }, { orderId: cfOrderId }] },
-			{ cfPaymentId, status: mappedStatus },
-			{ new: true }
-		);
+			const mappedStatus = statusMap[paymentStatus] || "FAILED";
 
-		if (!updated) {
-			console.warn(`No DB record found for cfOrderId/orderId: ${cfOrderId}`);
-		} else {
-			console.log(`Payment updated in DB. New status: ${updated.status}`);
+			console.log(`Payment Event → Order: ${cfOrderId}, Payment: ${cfPaymentId}, Status: ${mappedStatus}`);
+
+			await Payment.findOneAndUpdate(
+				{ $or: [{ cfOrderId }, { orderId: cfOrderId }] },
+				{ cfPaymentId, status: mappedStatus },
+				{ new: true }
+			);
 		}
 
+		// ✅ Step 4: Handle Refund Status Updates (Manual & Auto-Refund)
+		if (data.refund || data.auto_refund) {
+			const refundData = data.refund || data.auto_refund;
+			const cfOrderId = String(refundData.order_id || "");
+			const refundId = refundData.refund_id || refundData.cf_refund_id || null;
+			const refundStatus = refundData.refund_status || "PENDING";
+
+			console.log(`Refund Event → Order: ${cfOrderId}, Refund: ${refundId}, Status: ${refundStatus}`);
+
+			await Payment.findOneAndUpdate(
+				{ $or: [{ cfOrderId }, { orderId: cfOrderId }] },
+				{
+					refundId,
+					refundStatus,
+					status: refundStatus === "SUCCESS" ? "REFUNDED" : `REFUND_${refundStatus}`,
+				},
+				{ new: true }
+			);
+		}
+
+		// ✅ Step 5: Respond to Cashfree
 		res.status(200).json({ message: "Webhook received" });
 	} catch (error) {
 		console.error("Webhook error:", error);
@@ -268,5 +291,87 @@ export const getPaymentStatus = async (req, res) => {
 	} catch (error) {
 		console.error("Error getting payment status:", error);
 		res.status(500).json({ message: "Failed to fetch payment status" });
+	}
+};
+
+export const createRefund = async (req, res) => {
+	try {
+		const { orderId } = req.params; // Merchant orderId
+		const { refundAmount, refundNote } = req.body;
+
+		console.log("=== REFUND REQUEST RECEIVED ===");
+		console.log("orderId (merchant):", orderId);
+		console.log("refundAmount:", refundAmount);
+		console.log("refundNote:", refundNote);
+
+		// Find the payment in your DB
+		const payment = await Payment.findOne({ orderId });
+		console.log("Payment record from DB:", payment);
+
+		if (!payment) {
+			console.error("No payment found for orderId:", orderId);
+			return res.status(404).json({ message: "Payment not found" });
+		}
+
+		// Ensure we are sending the CF's actual order ID to Cashfree
+		console.log("cfOrderId (Cashfree order_id):", payment.cfOrderId);
+
+		// Generate a unique refund ID
+		const refundId = `REF-${uuidv4()}`;
+		console.log("Generated refundId:", refundId);
+
+		// Make API call to Cashfree
+		const refundPayload = {
+			refund_amount: refundAmount || payment.amount,
+			refund_id: refundId,
+			refund_note: refundNote || "Refund initiated by admin",
+			refund_speed: "STANDARD",
+		};
+
+		console.log("Refund API Payload:", refundPayload);
+
+		const refundUrl = `${CASHFREE_API_URL}/orders/${payment.orderId}/refunds`;
+		console.log("Refund API URL:", refundUrl);
+
+		const response = await axios.post(refundUrl, refundPayload, {
+			headers: {
+				"Content-Type": "application/json",
+				"x-client-id": CASHFREE_CLIENT_ID,
+				"x-client-secret": CASHFREE_CLIENT_SECRET,
+				"x-api-version": "2025-01-01",
+			},
+		});
+
+		console.log("Cashfree API Response:", response.data);
+
+		res.status(200).json({
+			message: "Refund created successfully",
+			refundData: response.data,
+		});
+	} catch (error) {
+		console.error("Refund creation failed:", error?.response?.data || error.message);
+		res.status(500).json({
+			message: "Refund creation failed",
+			error: error?.response?.data || error.message,
+		});
+	}
+};
+
+export const getRefundDetails = async (req, res) => {
+	try {
+		const { orderId, refundId } = req.params;
+
+		const response = await axios.get(`${CASHFREE_API_URL}/orders/${orderId}/refunds/${refundId}`, {
+			headers: {
+				"x-client-id": CASHFREE_CLIENT_ID,
+				"x-client-secret": CASHFREE_CLIENT_SECRET,
+				"x-api-version": "2025-01-01",
+			},
+		});
+
+		res.status(200).json(response.data);
+	} catch (error) {
+		console.error("Get refund status failed:", error?.response?.data || error.message);
+		res.status(500).json({ message: "Failed to get refund status", error: error?.response?.data || error.message });
 	}
 };
