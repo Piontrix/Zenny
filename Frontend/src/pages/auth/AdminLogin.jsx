@@ -31,7 +31,7 @@ const AdminLogin = () => {
 	};
 
 	return (
-		<div className="max-w-md mx-auto mt-12 bg-white p-6 shadow-md rounded-md">
+		<div className="max-w-md mx-auto my-20 bg-white p-6 shadow-md rounded-md">
 			<h2 className="text-2xl font-bold mb-4 text-center">Admin Login</h2>
 			<form onSubmit={handleSubmit} className="space-y-4">
 				<input

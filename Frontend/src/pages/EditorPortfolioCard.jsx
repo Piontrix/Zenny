@@ -145,8 +145,11 @@ const EditorPortfolioCard = ({ editor }) => {
 									{/* Payment Button */}
 									<button
 										onClick={() => {
-											if (!user || user.role !== "creator") {
+											if (!user) {
 												toast.error("Please login or register to avail service");
+												return;
+											} else if (user.role !== "creator") {
+												toast.error("Please login or register as Creator to avail service");
 												return;
 											}
 											handlePaymentClick(tier.title, tier.pricing[0].priceMin);
