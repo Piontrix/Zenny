@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import axiosInstance from "../api/axios";
@@ -14,6 +14,9 @@ const AdminEditEditorPortfolio = () => {
 	const [submitting, setSubmitting] = useState(false);
 	const [uploadProgress, setUploadProgress] = useState(0);
 	const [isProcessing, setIsProcessing] = useState(false);
+
+	// Refs for file inputs to clear after upload
+	const fileInputRefs = useRef({});
 
 	// Read image/video max size from env (in MB)
 	const MAX_IMAGE_SIZE_MB = Number(import.meta.env.VITE_MAX_IMAGE_SIZE) || 10;
@@ -43,8 +46,7 @@ const AdminEditEditorPortfolio = () => {
 			} else if (file.type.startsWith("video/")) {
 				return file.size > MAX_VIDEO_SIZE_MB * 1024 * 1024;
 			}
-			// Reject other types by default
-			return true;
+			return true; // reject unsupported types
 		});
 
 		const allowedFiles = fileArray.filter((file) => {
@@ -98,6 +100,11 @@ const AdminEditEditorPortfolio = () => {
 			toast.success(res.data.message || "Uploaded!");
 			setFileInputs({});
 			setTagsInputs({});
+
+			// Clear actual file inputs
+			Object.values(fileInputRefs.current).forEach((input) => {
+				if (input) input.value = "";
+			});
 		} catch (err) {
 			console.error(err);
 			toast.error(err.response?.data?.message || "Upload failed.");
@@ -130,6 +137,7 @@ const AdminEditEditorPortfolio = () => {
 								type="file"
 								multiple
 								accept="image/*,video/*"
+								ref={(el) => (fileInputRefs.current[tier.title] = el)}
 								onChange={(e) => handleFileChange(tier.title, e.target.files, e)}
 								className="mb-3 block w-full text-sm"
 							/>
