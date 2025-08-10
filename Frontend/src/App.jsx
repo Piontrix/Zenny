@@ -36,6 +36,9 @@ const App = () => {
 				<ScrollToTop />
 				<Toaster
 					position="top-right"
+					containerStyle={{
+						top: 70,
+					}}
 					toastOptions={{
 						duration: 3000,
 						style: {
