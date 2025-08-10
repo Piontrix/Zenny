@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const connectDB = async () => {
 	try {
 		const conn = await mongoose.connect(process.env.MONGO_URI, {
-			dbName: "zenny-db", // optional: force a db name
+			dbName: process.env.MONGO_DB_NAME, // optional: force a db name
 		});
 		console.log(`✅ MongoDB connected: ${conn.connection.host}`);
 	} catch (err) {
