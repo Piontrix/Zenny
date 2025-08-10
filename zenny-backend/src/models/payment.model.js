@@ -38,7 +38,7 @@ const paymentSchema = new mongoose.Schema(
 		},
 		status: {
 			type: String,
-			enum: ["INITIATED", "SUCCESS", "FAILED"],
+			enum: ["INITIATED", "SUCCESS", "FAILED", "REFUNDED", "REFUND_PENDING"],
 			default: "INITIATED",
 		},
 		creatorNote: {

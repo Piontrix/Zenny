@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axiosInstance from "../api/axios";
 import LoaderSpinner from "./common/LoaderSpinner";
 import API from "../constants/api";
+import toast from "react-hot-toast";
 
 const AdminPayments = () => {
 	const [payments, setPayments] = useState([]);
@@ -36,11 +37,11 @@ const AdminPayments = () => {
 				refundNote: "Refund initiated by admin",
 			});
 
-			alert("Refund created successfully!");
+			toast.success("Refund created successfully!");
 			fetchPayments();
 		} catch (err) {
 			console.error("Refund failed:", err);
-			alert(err?.response?.data?.message || "Failed to create refund.");
+			toast.error(err?.response?.data?.message || "Failed to create refund.");
 		} finally {
 			setRefundLoading(null);
 		}

@@ -293,10 +293,9 @@ export const getPaymentStatus = async (req, res) => {
 		res.status(500).json({ message: "Failed to fetch payment status" });
 	}
 };
-
 export const createRefund = async (req, res) => {
 	try {
-		const { orderId } = req.params; // Merchant orderId
+		const { orderId } = req.params;
 		const { refundAmount, refundNote } = req.body;
 
 		console.log("=== REFUND REQUEST RECEIVED ===");
@@ -313,14 +312,13 @@ export const createRefund = async (req, res) => {
 			return res.status(404).json({ message: "Payment not found" });
 		}
 
-		// Ensure we are sending the CF's actual order ID to Cashfree
 		console.log("cfOrderId (Cashfree order_id):", payment.cfOrderId);
 
 		// Generate a unique refund ID
 		const refundId = `REF-${uuidv4()}`;
 		console.log("Generated refundId:", refundId);
 
-		// Make API call to Cashfree
+		// Refund API payload
 		const refundPayload = {
 			refund_amount: refundAmount || payment.amount,
 			refund_id: refundId,
@@ -343,6 +341,15 @@ export const createRefund = async (req, res) => {
 		});
 
 		console.log("Cashfree API Response:", response.data);
+
+		// Extract refund status from Cashfree
+		const refundStatus = response.data.refund_status || "PENDING";
+
+		// Update DB
+		payment.refundId = refundId;
+		payment.refundStatus = refundStatus;
+		payment.status = refundStatus === "SUCCESS" ? "REFUNDED" : "REFUND_PENDING";
+		await payment.save();
 
 		res.status(200).json({
 			message: "Refund created successfully",
