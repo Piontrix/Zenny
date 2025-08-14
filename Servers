@@ -1,0 +1,28 @@
+Shutdown All Services:
+Step 1: Stop PM2 Processes
+
+pm2 stop all
+
+Step 2: Stop Nginx
+
+sudo systemctl stop nginx
+
+Step 3: Verify Everything is Stopped
+
+pm2 status
+sudo systemctl status nginx
+
+
+
+
+
+
+# Start PM2 processes
+pm2 start ecosystem.config.js
+
+# Start Nginx
+sudo systemctl start nginx
+
+# Check status
+pm2 status
+./cost-dashboard.sh
