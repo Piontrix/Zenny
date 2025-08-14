@@ -1,6 +1,19 @@
-# Zenny Full-Stack Deployment Guide - DigitalOcean Droplet
+# Zenny Full-Stack Deployment Guide - DigitalOcean Droplet with Cost Control
 
-This guide will help you deploy your complete Zenny application (Frontend, Backend, and Mail Poller) to a single DigitalOcean droplet.
+This guide will help you deploy your complete Zenny application (Frontend, Backend, and Mail Poller) to a single DigitalOcean droplet with **strict cost controls** to prevent costs from exceeding $6/month.
+
+## 🚨 Cost Control Features
+
+This deployment includes comprehensive cost control mechanisms:
+
+- **Memory**: Alert at 900MB (90%), Shutdown at 950MB (95%)
+- **CPU**: Alert at 90%, Shutdown at 95%
+- **Disk**: Alert at 22.5GB (90%), Shutdown at 23.75GB (95%)
+- **Bandwidth**: Alert at 900GB (90%), Shutdown at 950GB (95%)
+- **Cost**: Alert at $5.40/month (90%), Shutdown at $5.70/month (95%)
+- **Automatic Shutdown**: Services halt when shutdown thresholds are exceeded
+- **Resource Monitoring**: Real-time monitoring of all resources
+- **Cost Tracking**: Daily and monthly cost estimation
 
 ## Prerequisites
 
@@ -18,14 +31,43 @@ This guide will help you deploy your complete Zenny application (Frontend, Backe
    - Choose Basic plan
    - Select a datacenter region close to your users
    - Choose authentication method (SSH key recommended)
-   - Choose a plan: Basic $6/month (1GB RAM, 1 vCPU) should be sufficient to start
+   - **Choose plan: Basic $6/month (1GB RAM, 1 vCPU, 25GB SSD, 1000GB transfer)**
 
 2. **Access your droplet:**
    ```bash
    ssh root@your-droplet-ip
    ```
 
-## Step 2: Server Setup
+## Step 2: Automated Deployment
+
+### Option A: Use the Automated Script (Recommended)
+
+```bash
+# Clone your repository
+git clone https://github.com/your-username/Zenny.git /var/www/zenny
+cd /var/www/zenny
+
+# Make the deployment script executable
+chmod +x deploy.sh
+
+# Run the automated deployment
+./deploy.sh
+```
+
+The automated script will:
+
+- Install all dependencies
+- Configure PM2 with resource limits
+- Set up Nginx with rate limiting
+- Install resource and cost monitoring
+- Configure automatic shutdown at 95% shutdown thresholds
+- Create monitoring dashboard
+
+### Option B: Manual Deployment
+
+If you prefer manual deployment, follow the steps below.
+
+## Step 3: Server Setup (Manual)
 
 ### Update system and install dependencies
 
@@ -61,7 +103,7 @@ sudo ufw allow 'Nginx Full'
 sudo ufw enable
 ```
 
-## Step 3: Clone and Setup Application
+## Step 4: Clone and Setup Application
 
 ### Create application directory
 
@@ -88,7 +130,7 @@ cd ../Frontend
 npm install
 ```
 
-## Step 4: Environment Configuration
+## Step 5: Environment Configuration
 
 ### Backend Environment Variables
 
@@ -135,16 +177,16 @@ VITE_API_BASE_URL=https://yourdomain.com/api
 VITE_SOCKET_URL=https://yourdomain.com
 ```
 
-## Step 5: Build Frontend
+## Step 6: Build Frontend
 
 ```bash
 cd /var/www/zenny/Frontend
 npm run build
 ```
 
-## Step 6: Configure PM2 for Process Management
+## Step 7: Configure PM2 with Cost Controls
 
-### Create PM2 ecosystem file
+### Create PM2 ecosystem file with resource limits
 
 Create `/var/www/zenny/ecosystem.config.js`:
 
@@ -158,11 +200,19 @@ module.exports = {
       instances: 1,
       autorestart: true,
       watch: false,
-      max_memory_restart: "1G",
+      max_memory_restart: "900M", // 90% of 1GB - alert threshold
+      max_restarts: 3, // Prevent infinite restart loops
+      min_uptime: "10s", // Minimum uptime before considering app stable
       env: {
         NODE_ENV: "production",
         PORT: 4000,
       },
+      error_file: "/var/log/zenny/backend-error.log",
+      out_file: "/var/log/zenny/backend-out.log",
+      log_file: "/var/log/zenny/backend-combined.log",
+      time: true,
+      // Resource monitoring
+      node_args: "--max-old-space-size=900", // Limit Node.js heap to 900MB
     },
     {
       name: "zenny-mail-poller",
@@ -171,10 +221,33 @@ module.exports = {
       instances: 1,
       autorestart: true,
       watch: false,
-      max_memory_restart: "512M",
+      max_memory_restart: "50M", // Very low limit for poller
+      max_restarts: 3,
+      min_uptime: "10s",
       env: {
         NODE_ENV: "production",
       },
+      error_file: "/var/log/zenny/poller-error.log",
+      out_file: "/var/log/zenny/poller-out.log",
+      log_file: "/var/log/zenny/poller-combined.log",
+      time: true,
+      node_args: "--max-old-space-size=50", // Limit Node.js heap to 50MB
+    },
+    {
+      name: "zenny-resource-monitor",
+      cwd: "/var/www/zenny",
+      script: "scripts/resourceMonitor.js",
+      instances: 1,
+      autorestart: true,
+      watch: false,
+      max_memory_restart: "10M", // Minimal memory for monitor
+      env: {
+        NODE_ENV: "production",
+      },
+      error_file: "/var/log/zenny/monitor-error.log",
+      out_file: "/var/log/zenny/monitor-out.log",
+      log_file: "/var/log/zenny/monitor-combined.log",
+      time: true,
     },
   ],
 };
@@ -189,9 +262,9 @@ pm2 save
 pm2 startup
 ```
 
-## Step 7: Configure Nginx
+## Step 8: Configure Nginx with Rate Limiting
 
-### Create Nginx configuration
+### Create Nginx configuration with resource limits
 
 Create `/etc/nginx/sites-available/zenny`:
 
@@ -199,6 +272,17 @@ Create `/etc/nginx/sites-available/zenny`:
 server {
     listen 80;
     server_name yourdomain.com www.yourdomain.com;
+
+    # Resource limits to prevent cost overruns
+    client_max_body_size 0;     # No limit - handled by application
+    client_body_timeout 300s;   # 5 minutes for large uploads
+    client_header_timeout 30s;
+    keepalive_timeout 65s;
+    send_timeout 300s;          # 5 minutes for large uploads
+
+    # Rate limiting to prevent abuse
+    limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
+    limit_req_zone $binary_remote_addr zone=login:10m rate=5r/m;
 
     # Frontend (React app)
     location / {
@@ -212,8 +296,38 @@ server {
         }
     }
 
-    # Backend API
+    # Backend API with rate limiting
     location /api {
+        limit_req zone=api burst=20 nodelay;
+        proxy_pass http://localhost:4000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    # File uploads (handled by application-level checks)
+    location /api/upload {
+        proxy_pass http://localhost:4000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        proxy_read_timeout 1800s;  # 30 minutes for large uploads
+        proxy_send_timeout 1800s;
+    }
+
+    # Authentication endpoints with stricter rate limiting
+    location /api/auth {
+        limit_req zone=login burst=5 nodelay;
         proxy_pass http://localhost:4000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
@@ -248,13 +362,74 @@ sudo nginx -t
 sudo systemctl restart nginx
 ```
 
-## Step 8: SSL Certificate (Optional but Recommended)
+## Step 9: Set Up Resource and Cost Monitoring
+
+### Create resource monitoring script
+
+Create `/var/www/zenny/scripts/resourceMonitor.js` (see the file in the repository)
+
+### Create cost monitoring script
+
+Create `/var/www/zenny/scripts/costGuard.js` (see the file in the repository)
+
+### Set up systemd services
+
+```bash
+# Create resource monitoring service
+sudo tee /etc/systemd/system/zenny-resource-monitor.service > /dev/null << 'EOF'
+[Unit]
+Description=Zenny Resource Monitor
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/var/www/zenny
+ExecStart=/usr/bin/node scripts/resourceMonitor.js
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Create cost monitoring service
+sudo tee /etc/systemd/system/zenny-cost-monitor.service > /dev/null << 'EOF'
+[Unit]
+Description=Zenny Cost Monitor
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/var/www/zenny
+ExecStart=/usr/bin/node scripts/costGuard.js
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Enable and start monitoring services
+sudo systemctl daemon-reload
+sudo systemctl enable zenny-resource-monitor
+sudo systemctl enable zenny-cost-monitor
+sudo systemctl start zenny-resource-monitor
+sudo systemctl start zenny-cost-monitor
+```
+
+## Step 10: SSL Certificate (Optional but Recommended)
 
 ```bash
 sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
 ```
 
-## Step 9: Database Setup
+## Step 11: Database Setup
 
 1. **MongoDB Atlas Setup:**
 
@@ -269,7 +444,81 @@ sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
    npm run seed:admin
    ```
 
-## Step 10: Monitoring and Maintenance
+## Step 12: Cost Monitoring Dashboard
+
+### Create monitoring dashboard
+
+```bash
+# Create the dashboard script
+sudo tee /var/www/zenny/cost-dashboard.sh > /dev/null << 'EOF'
+#!/bin/bash
+
+echo "=== Zenny Cost Control Dashboard ==="
+echo ""
+
+# Check if system was halted due to cost limit
+if [ -f "/var/www/zenny/COST_LIMIT_EXCEEDED" ]; then
+    echo "🚨 SYSTEM HALTED DUE TO COST LIMIT"
+    echo "Reason: $(cat /var/www/zenny/COST_LIMIT_EXCEEDED)"
+    echo ""
+fi
+
+# Show current resource usage
+echo "=== Current Resource Usage ==="
+echo "Memory: $(free -h | grep '^Mem:' | awk '{print $3"/"$2" ("$3/$2*100"%)"}')"
+echo "Disk: $(df -h / | tail -1 | awk '{print $3"/"$2" ("$5")"}')"
+echo "CPU: $(top -bn1 | grep 'Cpu(s)' | awk '{print $2}' | cut -d'%' -f1)%"
+echo ""
+
+# Show PM2 status
+echo "=== PM2 Process Status ==="
+pm2 status
+echo ""
+
+# Show monitoring service status
+echo "=== Monitoring Services ==="
+systemctl status zenny-resource-monitor --no-pager -l
+echo ""
+systemctl status zenny-cost-monitor --no-pager -l
+echo ""
+
+# Show recent logs
+echo "=== Recent Resource Alerts ==="
+if [ -f "/var/log/zenny/resource-alerts.log" ]; then
+    tail -10 /var/log/zenny/resource-alerts.log
+else
+    echo "No resource alerts found"
+fi
+echo ""
+
+echo "=== Recent Cost Alerts ==="
+if [ -f "/var/log/zenny/cost-monitor.log" ]; then
+    tail -10 /var/log/zenny/cost-monitor.log
+else
+    echo "No cost alerts found"
+fi
+echo ""
+
+echo "=== Cost Control Commands ==="
+echo "View dashboard: ./cost-dashboard.sh"
+echo "Check logs: tail -f /var/log/zenny/resource-monitor.log"
+echo "Check cost: tail -f /var/log/zenny/cost-monitor.log"
+echo "Restart services: pm2 restart all"
+echo "Emergency stop: pm2 stop all && systemctl stop nginx"
+echo "Clear cost limit flag: rm /var/www/zenny/COST_LIMIT_EXCEEDED"
+EOF
+
+chmod +x /var/www/zenny/cost-dashboard.sh
+```
+
+### View the dashboard
+
+```bash
+cd /var/www/zenny
+./cost-dashboard.sh
+```
+
+## Step 13: Monitoring and Maintenance
 
 ### PM2 Commands
 
@@ -306,6 +555,25 @@ sudo systemctl restart nginx
 sudo systemctl status nginx
 ```
 
+### Cost Control Commands
+
+```bash
+# View cost dashboard
+./cost-dashboard.sh
+
+# Check resource alerts
+tail -f /var/log/zenny/resource-alerts.log
+
+# Check cost alerts
+tail -f /var/log/zenny/cost-monitor.log
+
+# Emergency stop (if needed)
+pm2 stop all && systemctl stop nginx
+
+# Clear cost limit flag (after manual intervention)
+rm /var/www/zenny/COST_LIMIT_EXCEEDED
+```
+
 ### System Monitoring
 
 ```bash
@@ -322,21 +590,31 @@ htop
 sudo journalctl -f
 ```
 
-## Step 11: Backup Strategy
+## Step 14: Backup Strategy with Cost Controls
 
-### Create backup script
-
-Create `/var/www/zenny/backup.sh`:
+### Create backup script with disk usage check
 
 ```bash
+sudo tee /var/www/zenny/backup.sh > /dev/null << 'EOF'
 #!/bin/bash
 DATE=$(date +%Y%m%d_%H%M%S)
 BACKUP_DIR="/var/backups/zenny"
 
+# Check disk usage before backup
+DISK_USAGE=$(df / | tail -1 | awk '{print $5}' | cut -d'%' -f1)
+if [ "$DISK_USAGE" -gt 90 ]; then
+    echo "WARNING: Disk usage is ${DISK_USAGE}%. Skipping backup to prevent cost overrun."
+    exit 1
+fi
+
 mkdir -p $BACKUP_DIR
 
-# Backup application files
-tar -czf $BACKUP_DIR/app_$DATE.tar.gz /var/www/zenny
+# Backup application files (excluding large directories)
+tar -czf $BACKUP_DIR/app_$DATE.tar.gz \
+    --exclude='node_modules' \
+    --exclude='.git' \
+    --exclude='dist' \
+    /var/www/zenny
 
 # Backup PM2 configuration
 pm2 save
@@ -345,15 +623,14 @@ cp ~/.pm2/dump.pm2 $BACKUP_DIR/pm2_$DATE.pm2
 # Keep only last 7 days of backups
 find $BACKUP_DIR -name "*.tar.gz" -mtime +7 -delete
 find $BACKUP_DIR -name "*.pm2" -mtime +7 -delete
-```
 
-### Make it executable and schedule
+echo "Backup completed: $DATE"
+EOF
 
-```bash
 chmod +x /var/www/zenny/backup.sh
-crontab -e
-# Add this line for daily backups at 2 AM:
-0 2 * * * /var/www/zenny/backup.sh
+
+# Set up cron job for backups
+(crontab -l 2>/dev/null; echo "0 2 * * * /var/www/zenny/backup.sh") | crontab -
 ```
 
 ## Troubleshooting
@@ -379,8 +656,31 @@ crontab -e
    - Check backend logs: `pm2 logs zenny-backend`
 
 4. **SSL issues:**
+
    ```bash
    sudo certbot renew --dry-run
+   ```
+
+5. **Cost limit exceeded:**
+
+   ```bash
+   # Check the reason
+   cat /var/www/zenny/COST_LIMIT_EXCEEDED
+
+   # Clear the flag and restart (after manual intervention)
+   rm /var/www/zenny/COST_LIMIT_EXCEEDED
+   pm2 restart all
+   systemctl start nginx
+   ```
+
+6. **Resource limits exceeded:**
+
+   ```bash
+   # Check resource usage
+   ./cost-dashboard.sh
+
+   # Check monitoring logs
+   tail -f /var/log/zenny/resource-alerts.log
    ```
 
 ## Security Considerations
@@ -391,6 +691,8 @@ crontab -e
 4. **Firewall configuration**
 5. **Strong passwords for all services**
 6. **Regular backups**
+7. **Rate limiting to prevent abuse**
+8. **Resource limits to prevent cost overruns**
 
 ## Performance Optimization
 
@@ -398,6 +700,17 @@ crontab -e
 2. **Use CDN for static assets**
 3. **Implement caching strategies**
 4. **Monitor resource usage**
-5. **Scale up droplet if needed**
+5. **Scale up droplet if needed (but be aware of cost implications)**
 
-Your Zenny application should now be fully deployed and running on your DigitalOcean droplet!
+## Cost Control Best Practices
+
+1. **Monitor the dashboard regularly**: `./cost-dashboard.sh`
+2. **Set up alerts**: Check logs for warnings
+3. **Optimize resource usage**: Monitor memory and CPU usage
+4. **Limit file uploads**: Use the 10MB limit in Nginx
+5. **Implement caching**: Reduce server load
+6. **Use CDN**: Offload static assets
+7. **Regular cleanup**: Remove old logs and backups
+8. **Monitor bandwidth**: Watch for unusual traffic patterns
+
+Your Zenny application should now be fully deployed with comprehensive cost controls to ensure you never exceed your $6/month budget!
