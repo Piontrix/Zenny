@@ -16,7 +16,7 @@ sudo systemctl status nginx
 
 
 
-
+ cd /var/www/zenny
 # Start PM2 processes
 pm2 start ecosystem.config.js
 

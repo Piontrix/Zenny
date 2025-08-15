@@ -6,7 +6,7 @@ This guide will help you deploy your complete Zenny application (Frontend, Backe
 
 This deployment includes comprehensive cost control mechanisms:
 
-- **Memory**: Alert at 900MB (90%), Shutdown at 950MB (95%)
+- **Memory**: Alert at 800MB (80%), Shutdown at 950MB (95%)
 - **CPU**: Alert at 90%, Shutdown at 95%
 - **Disk**: Alert at 22.5GB (90%), Shutdown at 23.75GB (95%)
 - **Bandwidth**: Alert at 900GB (90%), Shutdown at 950GB (95%)
@@ -188,6 +188,13 @@ npm run build
 
 ### Create PM2 ecosystem file with resource limits
 
+**Note:** Memory limits are balanced to stay under 1GB total:
+
+- Backend: 800MB (80% of 1GB)
+- Mail Poller: 100MB
+- Resource Monitor: 75MB
+- **Total: 975MB (safely under 1GB limit)**
+
 Create `/var/www/zenny/ecosystem.config.js`:
 
 ```javascript
@@ -200,7 +207,7 @@ module.exports = {
       instances: 1,
       autorestart: true,
       watch: false,
-      max_memory_restart: "900M", // 90% of 1GB - alert threshold
+      max_memory_restart: "800M", // 80% of 1GB - alert threshold
       max_restarts: 3, // Prevent infinite restart loops
       min_uptime: "10s", // Minimum uptime before considering app stable
       env: {
@@ -212,7 +219,7 @@ module.exports = {
       log_file: "/var/log/zenny/backend-combined.log",
       time: true,
       // Resource monitoring
-      node_args: "--max-old-space-size=900", // Limit Node.js heap to 900MB
+      node_args: "--max-old-space-size=800", // Limit Node.js heap to 800MB
     },
     {
       name: "zenny-mail-poller",
@@ -221,7 +228,7 @@ module.exports = {
       instances: 1,
       autorestart: true,
       watch: false,
-      max_memory_restart: "50M", // Very low limit for poller
+      max_memory_restart: "100M", // Increased for mail poller stability
       max_restarts: 3,
       min_uptime: "10s",
       env: {
@@ -231,7 +238,7 @@ module.exports = {
       out_file: "/var/log/zenny/poller-out.log",
       log_file: "/var/log/zenny/poller-combined.log",
       time: true,
-      node_args: "--max-old-space-size=50", // Limit Node.js heap to 50MB
+      node_args: "--max-old-space-size=100", // Limit Node.js heap to 100MB
     },
     {
       name: "zenny-resource-monitor",
@@ -240,7 +247,9 @@ module.exports = {
       instances: 1,
       autorestart: true,
       watch: false,
-      max_memory_restart: "10M", // Minimal memory for monitor
+      max_memory_restart: "75M", // Reduced from 100M for better balance
+      max_restarts: 5, // Allow more restarts
+      min_uptime: "60s", // Wait longer before considering stable
       env: {
         NODE_ENV: "production",
       },
@@ -248,6 +257,7 @@ module.exports = {
       out_file: "/var/log/zenny/monitor-out.log",
       log_file: "/var/log/zenny/monitor-combined.log",
       time: true,
+      node_args: "--max-old-space-size=75", // Limit Node.js heap to 75MB
     },
   ],
 };
@@ -683,6 +693,35 @@ chmod +x /var/www/zenny/backup.sh
    tail -f /var/log/zenny/resource-alerts.log
    ```
 
+7. **PM2 memory limit issues (frequent restarts):**
+
+   ```bash
+   # Check PM2 status for restart counts
+   pm2 status
+
+   # If processes are restarting frequently, check memory usage
+   pm2 monit
+
+   # Check specific process logs
+   pm2 logs zenny-backend
+   pm2 logs zenny-mail-poller
+   pm2 logs zenny-resource-monitor
+   ```
+
+8. **Resource monitor restart loop:**
+
+   ```bash
+   # Check if resource monitor is causing high CPU usage
+   htop
+
+   # Check resource monitor logs
+   tail -f /var/log/zenny/monitor-error.log
+
+   # If restarting too frequently, the memory limit might be too low
+   # Check current memory usage vs limit
+   pm2 show zenny-resource-monitor
+   ```
+
 ## Security Considerations
 
 1. **Change default SSH port**
@@ -707,10 +746,40 @@ chmod +x /var/www/zenny/backup.sh
 1. **Monitor the dashboard regularly**: `./cost-dashboard.sh`
 2. **Set up alerts**: Check logs for warnings
 3. **Optimize resource usage**: Monitor memory and CPU usage
-4. **Limit file uploads**: Use the 10MB limit in Nginx
+4. **File uploads**: Handled by application-level checks (Admin only)
 5. **Implement caching**: Reduce server load
 6. **Use CDN**: Offload static assets
 7. **Regular cleanup**: Remove old logs and backups
 8. **Monitor bandwidth**: Watch for unusual traffic patterns
+
+## Manual Deployment Experience & Lessons Learned
+
+### Key Issues Encountered and Resolved:
+
+1. **Resource Monitor Restart Loop:**
+
+   - **Issue**: Resource monitor was restarting every 30 seconds due to low memory limit (10MB)
+   - **Solution**: Increased memory limit to 75MB and added restart controls
+
+2. **Mail Poller Memory Issues:**
+
+   - **Issue**: Mail poller was exceeding 50MB limit and restarting frequently
+   - **Solution**: Increased memory limit to 100MB for stability
+
+3. **Memory Limit Balancing:**
+
+   - **Issue**: Combined memory limits exceeded 1GB droplet capacity
+   - **Solution**: Balanced limits: Backend (800MB) + Poller (100MB) + Monitor (75MB) = 975MB
+
+4. **Nginx Configuration Error:**
+   - **Issue**: `limit_req_zone` directive not allowed in server block
+   - **Solution**: Moved rate limiting zones to main nginx.conf file
+
+### Recommended Deployment Approach:
+
+1. **First Time**: Use manual deployment for better debugging
+2. **Subsequent**: Use automated script once configuration is stable
+3. **Always**: Monitor PM2 status and logs during initial deployment
+4. **Verify**: Check that all services start without frequent restarts
 
 Your Zenny application should now be fully deployed with comprehensive cost controls to ensure you never exceed your $6/month budget!
