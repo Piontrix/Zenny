@@ -65,12 +65,13 @@ You should see a beautiful dashboard with:
 
 - **Beautiful UI** with colored output and borders
 - **Real-time resource monitoring** (Memory, CPU, Disk, Bandwidth)
-- **Cost estimation** based on DigitalOcean pricing
+- **Accurate cost estimation** based on DigitalOcean $6/month plan
 - **PM2 process status** display
 - **Monitoring logs** viewer
 - **Resource limits summary** with alert/shutdown thresholds
 - **Cost limit status** checker
 - **Automatic bc installation** if missing
+- **Fixed cost calculation** (corrected from previous version)
 
 ## 🚀 **Prevention for Future**
 

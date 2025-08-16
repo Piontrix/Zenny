@@ -84,11 +84,10 @@ estimate_cost() {
     local memory_mb=$(free -m | grep '^Mem:' | awk '{print $3}')
     local memory_gb=$(echo "scale=3; $memory_mb / 1024" | bc -l)
     
-    # DigitalOcean $6/month plan breakdown
-    local base_hourly_cost=$(echo "0.0089 + 0.0089 + 0.0006" | bc -l)  # vCPU + RAM + SSD
-    local memory_hourly_cost=$(echo "$memory_gb * 0.0089" | bc -l)
-    local hourly_cost=$(echo "$base_hourly_cost + $memory_hourly_cost" | bc -l)
-    local daily_cost=$(echo "$hourly_cost * 24" | bc -l)
+    # DigitalOcean $6/month plan breakdown (fixed calculation)
+    # Base cost includes 1GB RAM, 1 vCPU, 25GB SSD
+    local base_hourly_cost=$(echo "0.0089" | bc -l)  # $6/month = $0.0089/hour
+    local daily_cost=$(echo "$base_hourly_cost * 24" | bc -l)
     local monthly_cost=$(echo "$daily_cost * 30" | bc -l)
     
     echo "$daily_cost $monthly_cost"
@@ -157,6 +156,7 @@ show_dashboard() {
     
     print_cost "Daily Cost: \$${daily_cost} (Limit: \$${DAILY_LIMIT})"
     print_cost "Monthly Cost: \$${monthly_cost} (Limit: \$${MONTHLY_LIMIT})"
+    print_status "Note: Cost is based on DigitalOcean $6/month plan (1GB RAM, 1 vCPU, 25GB SSD)"
     
     # Check thresholds
     local daily_warning=$(echo "$DAILY_LIMIT * $WARNING_THRESHOLD" | bc -l)
