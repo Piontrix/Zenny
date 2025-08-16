@@ -79,8 +79,10 @@ function estimateCurrentCost() {
       const memoryMB = parseInt(stdout.trim()) || 0;
       const memoryGB = memoryMB / 1024;
 
-      // Calculate hourly cost
-      const hourlyCost = memoryGB * 0.0089 + 0.0089 + 0.0006;
+      // Calculate hourly cost (base cost + memory usage)
+      const baseHourlyCost = 0.0089 + 0.0089 + 0.0006; // vCPU + RAM + SSD
+      const memoryHourlyCost = memoryGB * 0.0089;
+      const hourlyCost = baseHourlyCost + memoryHourlyCost;
 
       // Estimate daily cost (assuming 24 hours)
       const dailyCost = hourlyCost * 24;

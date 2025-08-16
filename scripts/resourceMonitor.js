@@ -16,7 +16,7 @@ const LIMITS = {
   SHUTDOWN_MEMORY_PERCENT: 95, // 95% of 1GB = 950MB (Shutdown threshold)
   SHUTDOWN_CPU_PERCENT: 95, // 95% of 1 vCPU (Shutdown threshold)
   SHUTDOWN_DISK_PERCENT: 95, // 95% of 25GB = 23.75GB (Shutdown threshold)
-  SHUTDOWN_BANDWIDTH_GB: 950, // 95% of 1000GB = 950GB (Shutdown threshold)
+  SHUTDOWN_BANDWIDTH_GB: 950, // 95% of 1TB = 950GB (Shutdown threshold)
 };
 
 // Monitoring intervals
@@ -58,6 +58,7 @@ function getMemoryUsage() {
   const usedMem = totalMem - freeMem;
   const memoryPercent = (usedMem / totalMem) * 100;
 
+  // Note: Alert at 90% (900MB), Shutdown at 95% (950MB) of 1GB total
   return {
     total: totalMem,
     used: usedMem,
