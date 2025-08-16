@@ -70,21 +70,16 @@ function saveCostData(data) {
 function estimateCurrentCost() {
   return new Promise((resolve) => {
     // DigitalOcean $6/month plan breakdown:
-    // - 1GB RAM: ~$0.0089/hour
-    // - 1 vCPU: ~$0.0089/hour
-    // - 25GB SSD: ~$0.0006/hour
-    // - 1000GB transfer: ~$0.01/GB (after free tier)
+    // - Fixed rate: $6/month = $0.0089/hour
+    // - Includes: 1GB RAM, 1 vCPU, 25GB SSD, 1000GB transfer
 
     exec("free -m | grep '^Mem:' | awk '{print $3}'", (error, stdout) => {
       const memoryMB = parseInt(stdout.trim()) || 0;
       const memoryGB = memoryMB / 1024;
 
-      // Calculate hourly cost (base cost + memory usage)
-      const baseHourlyCost = 0.0089 + 0.0089 + 0.0006; // vCPU + RAM + SSD
-      const memoryHourlyCost = memoryGB * 0.0089;
-      const hourlyCost = baseHourlyCost + memoryHourlyCost;
-
-      // Estimate daily cost (assuming 24 hours)
+      // Calculate hourly cost (fixed calculation)
+      // DigitalOcean $6/month plan = $0.0089/hour
+      const hourlyCost = 0.0089; // Fixed rate for $6/month plan
       const dailyCost = hourlyCost * 24;
 
       resolve(dailyCost);
