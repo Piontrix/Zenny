@@ -1,5 +1,5 @@
-Shutdown All Services:
-Step 1: Stop PM2 Processes
+# Shutdown All Services:
+# Step 1: Stop PM2 Processes
 
 pm2 stop all
 
@@ -8,11 +8,11 @@ pm2 stop all
 pm2 delete all
 
 
-Step 2: Stop Nginx
+# Step 2: Stop Nginx
 
 sudo systemctl stop nginx
 
-Step 3: Verify Everything is Stopped
+# Step 3: Verify Everything is Stopped
 
 pm2 status
 sudo systemctl status nginx
