@@ -28,94 +28,96 @@ import AdminEditEditorPortfolioStructure from "./pages/Admin/AdminEditEditorPort
 import AdminSupportTickets from "./pages/Admin/AdminSupportTickets";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import AdminPayments from "./components/AdminPayments";
+import UpdatePassword from "./pages/Admin/UpdatePassword";
 
 const App = () => {
-	return (
-		<Router>
-			<Layout>
-				<ScrollToTop />
-				<Toaster
-					position="top-right"
-					containerStyle={{
-						top: 70,
-					}}
-					toastOptions={{
-						duration: 3000,
-						style: {
-							background: "#fff8f7", // roseclub.paper
-							color: "#9e2a2b", // roseclub.dark
-							border: "1px solid #f4b6b6", // roseclub.light
-							fontFamily: "Inter, sans-serif",
-						},
-						success: {
-							iconTheme: {
-								primary: "#e63946", // roseclub.accent
-								secondary: "#fff",
-							},
-						},
-						error: {
-							iconTheme: {
-								primary: "#d76767", // roseclub.medium
-								secondary: "#fff",
-							},
-						},
-					}}
-				/>
-				<Routes>
-					<Route path="/" element={<Home />} />
-					<Route path="/about" element={<About />} />
-					<Route path="/contact" element={<Contact />} />
-					<Route path="/portfolio" element={<Portfolio />} />
-					<Route path="/portfolio/:editorId" element={<EditorPortfolioDetail />} />
-					<Route
-						path="/profile"
-						element={
-							<ProtectedRoute allowedRoles={["creator", "editor"]}>
-								<Profile />
-							</ProtectedRoute>
-						}
-					/>
+  return (
+    <Router>
+      <Layout>
+        <ScrollToTop />
+        <Toaster
+          position="top-right"
+          containerStyle={{
+            top: 70,
+          }}
+          toastOptions={{
+            duration: 3000,
+            style: {
+              background: "#fff8f7", // roseclub.paper
+              color: "#9e2a2b", // roseclub.dark
+              border: "1px solid #f4b6b6", // roseclub.light
+              fontFamily: "Inter, sans-serif",
+            },
+            success: {
+              iconTheme: {
+                primary: "#e63946", // roseclub.accent
+                secondary: "#fff",
+              },
+            },
+            error: {
+              iconTheme: {
+                primary: "#d76767", // roseclub.medium
+                secondary: "#fff",
+              },
+            },
+          }}
+        />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/portfolio" element={<Portfolio />} />
+          <Route path="/portfolio/:editorId" element={<EditorPortfolioDetail />} />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute allowedRoles={["creator", "editor"]}>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
 
-					<Route path="/faqs" element={<FAQSection />} />
-					<Route path="/zenny-perks" element={<ZennyPerks />} />
-					<Route path="/login" element={<CreatorLogin />} />
-					<Route path="/editor-login" element={<EditorLogin />} />
-					<Route path="/admin-login" element={<AdminLogin />} />
-					<Route path="/verify-otp" element={<VerifyOtp />} />
-					<Route path="/register" element={<CreatorRegister />} />
-					<Route path="/payment-success" element={<PaymentSuccess />} />
-					<Route
-						path="/chat"
-						element={
-							<ProtectedRoute allowedRoles={["creator", "editor"]}>
-								<ChatPage />
-							</ProtectedRoute>
-						}
-					/>
+          <Route path="/faqs" element={<FAQSection />} />
+          <Route path="/zenny-perks" element={<ZennyPerks />} />
+          <Route path="/login" element={<CreatorLogin />} />
+          <Route path="/editor-login" element={<EditorLogin />} />
+          <Route path="/admin-login" element={<AdminLogin />} />
+          <Route path="/verify-otp" element={<VerifyOtp />} />
+          <Route path="/register" element={<CreatorRegister />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route
+            path="/chat"
+            element={
+              <ProtectedRoute allowedRoles={["creator", "editor"]}>
+                <ChatPage />
+              </ProtectedRoute>
+            }
+          />
 
-					<Route
-						path="/admin/dashboard"
-						element={
-							<ProtectedRoute allowedRoles={["admin"]}>
-								<AdminDashboard />
-							</ProtectedRoute>
-						}
-					>
-						<Route path="register-editor" element={<AdminRegisterEditor />} />
-						<Route path="chat-rooms" element={<AdminChatRooms />} />
-						<Route path="chat-rooms/:roomId" element={<AdminChatView />} />
-						<Route path="all-editors" element={<AdminAllEditors />} />
-						<Route path="edit-editor/:editorId" element={<AdminEditEditorPortfolio />} />
-						<Route path="/admin/dashboard/edit-structure/:editorId" element={<AdminEditEditorPortfolioStructure />} />
-						<Route path="/admin/dashboard/all-payments" element={<AdminPayments />} />
-						<Route path="/admin/dashboard/support-tickets" element={<AdminSupportTickets />} />
-					</Route>
+          <Route
+            path="/admin/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="register-editor" element={<AdminRegisterEditor />} />
+            <Route path="chat-rooms" element={<AdminChatRooms />} />
+            <Route path="chat-rooms/:roomId" element={<AdminChatView />} />
+            <Route path="all-editors" element={<AdminAllEditors />} />
+            <Route path="edit-editor/:editorId" element={<AdminEditEditorPortfolio />} />
+            <Route path="/admin/dashboard/edit-structure/:editorId" element={<AdminEditEditorPortfolioStructure />} />
+            <Route path="/admin/dashboard/all-payments" element={<AdminPayments />} />
+            <Route path="/admin/dashboard/support-tickets" element={<AdminSupportTickets />} />
+            <Route path="/admin/dashboard/update-password" element={<UpdatePassword />} />
+          </Route>
 
-					<Route path="*" element={<PageNotFound />} />
-				</Routes>
-			</Layout>
-		</Router>
-	);
+          <Route path="*" element={<PageNotFound />} />
+        </Routes>
+      </Layout>
+    </Router>
+  );
 };
 
 export default App;

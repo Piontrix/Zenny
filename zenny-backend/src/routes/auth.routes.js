@@ -1,12 +1,13 @@
 import express from "express";
 import {
-	adminLogin,
-	registerCreator,
-	verifyCreator,
-	creatorLogin,
-	registerEditor,
-	editorLogin,
-	logout,
+  adminLogin,
+  registerCreator,
+  verifyCreator,
+  creatorLogin,
+  registerEditor,
+  editorLogin,
+  logout,
+  adminUpdatePassword,
 } from "../controllers/auth.controller.js";
 import { allowRoles, protect } from "../middleware/auth.middleware.js";
 
@@ -22,4 +23,6 @@ router.post("/creator/login", creatorLogin);
 router.post("/admin/register-editor", protect, allowRoles("admin"), registerEditor);
 router.post("/editor/login", editorLogin);
 router.post("/logout", logout);
+router.post("/admin/update-password", protect, allowRoles("admin"), adminUpdatePassword);
+
 export default router;
