@@ -68,6 +68,9 @@ cd /var/www/zenny
 
 # Restart all services
 pm2 restart all
+
+sudo systemctl restart nginx
+
 ```
 
 ### Step 4: Verify the Update

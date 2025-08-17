@@ -13,7 +13,6 @@ async function pollReminders() {
       dbName: `${process.env.MONGO_DB_NAME}`,
     });
   }
-  console.log("MONGO_URI:", process.env.MONGO_URI);
   while (true) {
     try {
       const now = new Date();
