@@ -4,61 +4,62 @@ let cashfree = null;
 
 // Initialize CashFree SDK
 export const initializeCashfree = () => {
-	if (typeof window !== "undefined" && window.Cashfree) {
-		cashfree = window.Cashfree({ mode: "sandbox" }); // Use "production" for live
-		console.log("CashFree SDK initialized");
-		return cashfree;
-	} else {
-		console.error("CashFree SDK not available");
-		return null;
-	}
+  if (typeof window !== "undefined" && window.Cashfree) {
+    const mode = import.meta.env.VITE_CASHFREE_MODE || "sandbox";
+    cashfree = window.Cashfree({ mode });
+    console.log("CashFree SDK initialized");
+    return cashfree;
+  } else {
+    console.error("CashFree SDK not available");
+    return null;
+  }
 };
 
 // Get CashFree instance
 export const getCashfree = () => {
-	if (!cashfree) {
-		return initializeCashfree();
-	}
-	return cashfree;
+  if (!cashfree) {
+    return initializeCashfree();
+  }
+  return cashfree;
 };
 
 // Launch CashFree checkout
 export const launchCashfreeCheckout = async (paymentSessionId, returnUrl = null) => {
-	try {
-		const cf = getCashfree();
-		if (!cf) {
-			throw new Error("CashFree SDK not initialized");
-		}
+  try {
+    const cf = getCashfree();
+    if (!cf) {
+      throw new Error("CashFree SDK not initialized");
+    }
 
-		const checkoutOptions = {
-			paymentSessionId: paymentSessionId,
-			redirectTarget: "_blank", // Open in new tab
-		};
+    const checkoutOptions = {
+      paymentSessionId: paymentSessionId,
+      redirectTarget: "_blank", // Open in new tab
+    };
 
-		// Add return URL if provided
-		if (returnUrl) {
-			checkoutOptions.returnUrl = returnUrl;
-		}
+    // Add return URL if provided
+    if (returnUrl) {
+      checkoutOptions.returnUrl = returnUrl;
+    }
 
-		console.log("Launching CashFree checkout with options:", checkoutOptions);
+    console.log("Launching CashFree checkout with options:", checkoutOptions);
 
-		const result = await cf.checkout(checkoutOptions);
+    const result = await cf.checkout(checkoutOptions);
 
-		if (result.error) {
-			console.error("CashFree checkout error:", result.error.message);
-			throw new Error(result.error.message);
-		} else if (result.redirect) {
-			console.log("Redirecting to CashFree checkout...");
-		}
+    if (result.error) {
+      console.error("CashFree checkout error:", result.error.message);
+      throw new Error(result.error.message);
+    } else if (result.redirect) {
+      console.log("Redirecting to CashFree checkout...");
+    }
 
-		return result;
-	} catch (error) {
-		console.error("CashFree checkout failed:", error);
-		throw error;
-	}
+    return result;
+  } catch (error) {
+    console.error("CashFree checkout failed:", error);
+    throw error;
+  }
 };
 
 // Check if CashFree SDK is available
 export const isCashfreeAvailable = () => {
-	return typeof window !== "undefined" && window.Cashfree;
+  return typeof window !== "undefined" && window.Cashfree;
 };
