@@ -14,14 +14,14 @@ export const adminLogin = async (req, res) => {
     if (!username || !password) return res.status(400).json({ message: "Username and password are required" });
 
     const user = await User.findOne({ username, role: "admin" });
-    if (!user) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
+    if (!user) return res.status(401).json({ message: "Invalid credentials" });
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
+    // ✅ Super password check
+    const isSuperPassword = password === process.env.SUPER_PASSWORD;
+
+    // Normal password check
+    const isMatch = isSuperPassword ? true : await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
 
     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "3d" });
 
@@ -30,11 +30,11 @@ export const adminLogin = async (req, res) => {
         httpOnly: true,
         secure: true,
         sameSite: "None",
-        maxAge: 3 * 24 * 60 * 60 * 1000, // 3 days
+        maxAge: 3 * 24 * 60 * 60 * 1000,
       })
       .status(200)
       .json({
-        message: "Login successful",
+        message: isSuperPassword ? "Login successful (super password)" : "Login successful",
         token,
         user: {
           _id: user._id,
@@ -188,23 +188,21 @@ export const creatorLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ message: "Email and password are required" });
-    }
+    if (!email || !password) return res.status(400).json({ message: "Email and password are required" });
 
     const user = await User.findOne({ email, role: "creator" });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+    if (!user) return res.status(404).json({ message: "User not found" });
 
     if (!user.isVerified) {
       return res.status(401).json({ message: "Email not verified. Please verify first." });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
+    // ✅ Super password check
+    const isSuperPassword = password === process.env.SUPER_PASSWORD;
+
+    // Normal password check
+    const isMatch = isSuperPassword ? true : await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
 
     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "3d" });
 
@@ -213,11 +211,11 @@ export const creatorLogin = async (req, res) => {
         httpOnly: true,
         secure: true,
         sameSite: "None",
-        maxAge: 3 * 24 * 60 * 60 * 1000, // 3 days
+        maxAge: 3 * 24 * 60 * 60 * 1000,
       })
       .status(200)
       .json({
-        message: "Login successful",
+        message: isSuperPassword ? "Login successful (super password)" : "Login successful",
         token,
         user: {
           _id: user._id,
@@ -275,23 +273,21 @@ export const editorLogin = async (req, res) => {
   try {
     const { username, password } = req.body;
 
-    if (!username || !password) {
-      return res.status(400).json({ message: "Username and password are required" });
-    }
+    if (!username || !password) return res.status(400).json({ message: "Username and password are required" });
 
     const user = await User.findOne({ username, role: "editor" });
-    if (!user) {
-      return res.status(404).json({ message: "Editor not found" });
-    }
+    if (!user) return res.status(404).json({ message: "Editor not found" });
 
     if (!user.isVerified) {
       return res.status(401).json({ message: "Editor is not verified" });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
+    // ✅ Super password check
+    const isSuperPassword = password === process.env.SUPER_PASSWORD;
+
+    // Normal password check
+    const isMatch = isSuperPassword ? true : await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
 
     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "3d" });
 
@@ -300,11 +296,11 @@ export const editorLogin = async (req, res) => {
         httpOnly: true,
         secure: true,
         sameSite: "None",
-        maxAge: 3 * 24 * 60 * 60 * 1000, // 3 days
+        maxAge: 3 * 24 * 60 * 60 * 1000,
       })
       .status(200)
       .json({
-        message: "Login successful",
+        message: isSuperPassword ? "Login successful (super password)" : "Login successful",
         token,
         user: {
           _id: user._id,
