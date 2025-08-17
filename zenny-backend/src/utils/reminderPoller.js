@@ -10,7 +10,7 @@ dotenv.config();
 async function pollReminders() {
   if (mongoose.connection.readyState === 0) {
     await mongoose.connect(process.env.MONGO_URI, {
-      dbName: "zenny-prod",
+      dbName: `${process.env.MONGO_DB_NAME}`,
     });
   }
   console.log("MONGO_URI:", process.env.MONGO_URI);
