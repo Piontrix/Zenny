@@ -142,6 +142,7 @@ const AdminEditEditorPortfolioStructure = () => {
           {/* Pricing */}
           <div className="grid grid-cols-3 gap-4">
             <input
+              min="1"
               type="number"
               value={tier.pricing[0]?.reelCount || ""}
               onChange={(e) => handlePricingChange(idx, "reelCount", e.target.value)}
@@ -149,6 +150,7 @@ const AdminEditEditorPortfolioStructure = () => {
               placeholder="Reel Count"
             />
             <input
+              min="1"
               type="number"
               value={tier.pricing[0]?.priceMin || ""}
               onChange={(e) => handlePricingChange(idx, "priceMin", e.target.value)}
@@ -156,6 +158,7 @@ const AdminEditEditorPortfolioStructure = () => {
               placeholder="Price Min"
             />
             <input
+              min="1"
               type="number"
               value={tier.pricing[0]?.priceMax || ""}
               onChange={(e) => handlePricingChange(idx, "priceMax", e.target.value)}
