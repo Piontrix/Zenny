@@ -66,6 +66,11 @@ const EditorLogin = () => {
         <button type="submit" className="w-full bg-roseclub-accent text-white py-2 rounded-md">
           Login
         </button>
+        <p className="text-sm text-center mt-2">
+          <span className="text-roseclub-accent cursor-pointer underline" onClick={() => navigate("/forgot-password")}>
+            Forgot Password?
+          </span>
+        </p>
       </form>
     </div>
   );

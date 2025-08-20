@@ -5,6 +5,11 @@ const API = {
   BASE_URL,
 
   // Auth
+
+  FORGOT_PASSWORD: `${BASE_URL}/api/auth/forgot-password`,
+  VERIFY_OTP: `${BASE_URL}/api/auth/verify-otp`,
+  RESET_PASSWORD: `${BASE_URL}/api/auth/reset-password`,
+
   CREATOR_REGISTER: BASE_URL + "/api/auth/creator/register",
   CREATOR_LOGIN: BASE_URL + "/api/auth/creator/login",
   CREATOR_VERIFY_OTP: BASE_URL + "/api/auth/creator/verify",

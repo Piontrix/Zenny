@@ -8,6 +8,9 @@ import {
   editorLogin,
   logout,
   adminUpdatePassword,
+  resetPassword,
+  forgotPassword,
+  verifyOTP,
 } from "../controllers/auth.controller.js";
 import { allowRoles, protect } from "../middleware/auth.middleware.js";
 
@@ -24,5 +27,7 @@ router.post("/admin/register-editor", protect, allowRoles("admin"), registerEdit
 router.post("/editor/login", editorLogin);
 router.post("/logout", logout);
 router.post("/admin/update-password", protect, allowRoles("admin"), adminUpdatePassword);
-
+router.post("/forgot-password", forgotPassword);
+router.post("/verify-otp", verifyOTP);
+router.post("/reset-password", resetPassword);
 export default router;

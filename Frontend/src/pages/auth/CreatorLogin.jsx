@@ -77,6 +77,12 @@ const CreatorLogin = () => {
         >
           {loading ? "Logging in..." : "Login"}
         </button>
+        <p className="text-sm text-center mt-2">
+          <span className="text-roseclub-accent cursor-pointer underline" onClick={() => navigate("/forgot-password")}>
+            Forgot Password?
+          </span>
+        </p>
+
         {error && <p className="text-red-500 text-sm text-center">{error}</p>}
       </form>
 

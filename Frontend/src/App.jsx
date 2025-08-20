@@ -29,6 +29,7 @@ import AdminSupportTickets from "./pages/Admin/AdminSupportTickets";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import AdminPayments from "./components/AdminPayments";
 import UpdatePassword from "./pages/Admin/UpdatePassword";
+import ForgotPassword from "./pages/ForgotPassword";
 
 const App = () => {
   return (
@@ -112,7 +113,7 @@ const App = () => {
             <Route path="/admin/dashboard/support-tickets" element={<AdminSupportTickets />} />
             <Route path="/admin/dashboard/update-password" element={<UpdatePassword />} />
           </Route>
-
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="*" element={<PageNotFound />} />
         </Routes>
       </Layout>
