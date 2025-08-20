@@ -3,6 +3,7 @@ import API from "../../constants/api";
 import toast from "react-hot-toast";
 import axiosInstance from "../../api/axios";
 import LoaderSpinner from "../../components/common/LoaderSpinner";
+import { Eye, EyeOff } from "lucide-react";
 
 const AdminRegisterEditor = () => {
   const [username, setUsername] = useState("");
@@ -11,6 +12,7 @@ const AdminRegisterEditor = () => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false); // ✅ loader state
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -57,14 +59,27 @@ const AdminRegisterEditor = () => {
           className="w-full px-4 py-2 border rounded-md"
           required
         />
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
-          className="w-full px-4 py-2 border rounded-md"
-          required
-        />
+
+        {/* Password field with eye toggle */}
+        <div className="relative">
+          <input
+            type={showPassword ? "text" : "password"}
+            value={password}
+            minLength={6}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+            className="w-full px-4 py-2 border rounded-md pr-10"
+            required
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute inset-y-0 right-3 flex items-center text-gray-500"
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        </div>
+
         <input
           type="email"
           value={email}

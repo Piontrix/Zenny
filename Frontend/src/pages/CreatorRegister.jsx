@@ -3,68 +3,81 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import axiosInstance from "../api/axios"; // ✅ using configured instance
 import API from "../constants/api";
+import { Eye, EyeOff } from "lucide-react";
 
 const CreatorRegister = () => {
-	const [email, setEmail] = useState("");
-	const [password, setPassword] = useState("");
-	const [loading, setLoading] = useState(false);
-	const [error, setError] = useState("");
-	const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-	const handleRegister = async (e) => {
-		e.preventDefault();
-		setLoading(true);
-		setError("");
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
-		try {
-			const res = await axiosInstance.post(API.CREATOR_REGISTER, {
-				email,
-				password,
-			});
-			// console.log(res);
-			toast.success(res?.data?.message ? res?.data?.message : "OTP sent to your email. Please verify.");
-			navigate(`/verify-otp?email=${encodeURIComponent(email)}`);
-		} catch (err) {
-			console.error(err);
-			const msg = err.response?.data?.message || "Something went wrong";
-			setError(msg);
-			toast.error(msg);
-		} finally {
-			setLoading(false);
-		}
-	};
+    try {
+      const res = await axiosInstance.post(API.CREATOR_REGISTER, {
+        email,
+        password,
+      });
+      toast.success(res?.data?.message ? res?.data?.message : "OTP sent to your email. Please verify.");
+      navigate(`/verify-otp?email=${encodeURIComponent(email)}`);
+    } catch (err) {
+      console.error(err);
+      const msg = err.response?.data?.message || "Something went wrong";
+      setError(msg);
+      toast.error(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-	return (
-		<div className="max-w-md mx-auto my-20 p-6 shadow-lg bg-white rounded">
-			<h2 className="text-2xl font-bold mb-4 text-center">Creator Register</h2>
-			<form onSubmit={handleRegister} className="space-y-4">
-				<input
-					type="email"
-					placeholder="Email"
-					value={email}
-					onChange={(e) => setEmail(e.target.value)}
-					className="w-full px-4 py-2 border rounded"
-					required
-				/>
-				<input
-					type="password"
-					placeholder="Password"
-					value={password}
-					onChange={(e) => setPassword(e.target.value)}
-					className="w-full px-4 py-2 border rounded"
-					required
-				/>
-				<button
-					type="submit"
-					disabled={loading}
-					className="w-full bg-roseclub-accent text-white py-2 rounded hover:bg-roseclub-dark"
-				>
-					{loading ? "Registering..." : "Register"}
-				</button>
-				{error && <p className="text-red-500 text-sm text-center">{error}</p>}
-			</form>
-		</div>
-	);
+  return (
+    <div className="max-w-md mx-auto my-20 p-6 shadow-lg bg-white rounded">
+      <h2 className="text-2xl font-bold mb-4 text-center">Creator Register</h2>
+      <form onSubmit={handleRegister} className="space-y-4">
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full px-4 py-2 border rounded"
+          required
+        />
+
+        <div className="relative">
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            minLength={6}
+            className="w-full px-4 py-2 border rounded pr-10"
+            required
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute inset-y-0 right-3 flex items-center text-gray-500"
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-roseclub-accent text-white py-2 rounded hover:bg-roseclub-dark"
+        >
+          {loading ? "Registering..." : "Register"}
+        </button>
+        {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+      </form>
+    </div>
+  );
 };
 
 export default CreatorRegister;
