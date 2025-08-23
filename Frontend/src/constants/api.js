@@ -41,6 +41,11 @@ const API = {
 
   ADMIN_DELETE_EDITOR: (editorId) => `${BASE_URL}/api/admin/editors/delete/${editorId}`,
 
+  ADMIN_DELETE_EDITOR_PORTFOLIO_SAMPLE: (editorId, tier) =>
+    `${BASE_URL}/api/admin/editors/${editorId}/portfolio/${tier}`,
+
+  ADMIN_UPDATE_EDITOR_NAME: (editorId) => `${BASE_URL}/api/admin/editors/${editorId}/updateName`,
+
   ADMIN_GET_ALL_PAYMENTS: BASE_URL + "/api/payment/admin",
 
   // Users

@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import toast from "react-hot-toast";
+import { Trash2 } from "lucide-react";
 import axiosInstance from "../api/axios";
 import API from "../constants/api";
 import LoaderSpinner from "../components/common/LoaderSpinner";
@@ -15,25 +16,24 @@ const AdminEditEditorPortfolio = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Refs for file inputs to clear after upload
   const fileInputRefs = useRef({});
 
-  // Read image/video max size from env (in MB)
   const MAX_IMAGE_SIZE_MB = Number(import.meta.env.VITE_MAX_IMAGE_SIZE) || 10;
   const MAX_VIDEO_SIZE_MB = Number(import.meta.env.VITE_MAX_VIDEO_SIZE) || 100;
 
+  const fetchEditor = async () => {
+    try {
+      const res = await axiosInstance.get(API.GET_EDITOR_BY_ID(editorId));
+      setEditor(res.data.data);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch editor.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchEditor = async () => {
-      try {
-        const res = await axiosInstance.get(API.GET_EDITOR_BY_ID(editorId));
-        setEditor(res.data.data);
-      } catch (err) {
-        console.error(err);
-        toast.error("Failed to fetch editor.");
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchEditor();
   }, [editorId]);
 
@@ -46,7 +46,7 @@ const AdminEditEditorPortfolio = () => {
       } else if (file.type.startsWith("video/")) {
         return file.size > MAX_VIDEO_SIZE_MB * 1024 * 1024;
       }
-      return true; // reject unsupported types
+      return true;
     });
 
     const allowedFiles = fileArray.filter((file) => {
@@ -67,7 +67,10 @@ const AdminEditEditorPortfolio = () => {
       if (e?.target) e.target.value = "";
     }
 
-    setFileInputs((prev) => ({ ...prev, [tier]: allowedFiles.length ? allowedFiles : undefined }));
+    setFileInputs((prev) => ({
+      ...prev,
+      [tier]: allowedFiles.length ? allowedFiles : undefined,
+    }));
   };
 
   const handleUpload = async () => {
@@ -100,11 +103,10 @@ const AdminEditEditorPortfolio = () => {
       toast.success(res.data.message || "Uploaded!");
       setFileInputs({});
       setTagsInputs({});
-
-      // Clear actual file inputs
       Object.values(fileInputRefs.current).forEach((input) => {
         if (input) input.value = "";
       });
+      fetchEditor(); // refresh portfolio
     } catch (err) {
       console.error(err);
       toast.error(err.response?.data?.message || "Upload failed.");
@@ -115,14 +117,30 @@ const AdminEditEditorPortfolio = () => {
     }
   };
 
+  const handleDeleteSample = async (tierTitle, sampleUrl) => {
+    if (!window.confirm("Are you sure you want to delete this file?")) return;
+
+    try {
+      await axiosInstance.delete(
+        API.ADMIN_DELETE_EDITOR_PORTFOLIO_SAMPLE(editor._id, tierTitle),
+        { data: { sampleUrl } } // ✅ send in body
+      );
+      toast.success("Deleted successfully!");
+      fetchEditor(); // refresh after deletion
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Delete failed.");
+    }
+  };
+
   if (loading) return <LoaderSpinner size="lg" className="mt-10" />;
 
   const hasTiers = editor?.portfolio?.tiers?.length > 0;
 
   return (
     <div className="relative">
-      <div className="max-w-3xl mx-auto p-6 bg-white shadow rounded-md">
-        <h2 className="text-2xl font-bold mb-6">Upload Portfolio Samples - {editor.username}</h2>
+      <div className="max-w-4xl mx-auto p-6 bg-white shadow rounded-md">
+        <h2 className="text-2xl font-bold mb-6">Manage Portfolio - {editor.username}</h2>
 
         {!hasTiers ? (
           <p className="text-center text-gray-500 py-10 border rounded bg-gray-50">
@@ -130,9 +148,10 @@ const AdminEditEditorPortfolio = () => {
           </p>
         ) : (
           editor.portfolio.tiers.map((tier) => (
-            <div key={tier.title} className="mb-8">
-              <h3 className="text-lg font-semibold capitalize mb-2 text-roseclub-accent">{tier.title} Tier</h3>
+            <div key={tier.title} className="mb-10">
+              <h3 className="text-lg font-semibold capitalize mb-3 text-roseclub-accent">{tier.title} Tier</h3>
 
+              {/* Upload new files */}
               <input
                 type="file"
                 multiple
@@ -142,6 +161,27 @@ const AdminEditEditorPortfolio = () => {
                 className="mb-3 block w-full text-sm"
               />
 
+              {/* Show existing uploaded files */}
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {tier.samples?.map((sample) => (
+                  <div key={sample._id} className="relative border rounded-md p-2 bg-gray-50">
+                    {sample.type.startsWith("image") ? (
+                      <img src={sample.url} alt="portfolio" className="w-full h-40 object-cover rounded" />
+                    ) : (
+                      <video src={sample.url} controls className="w-full h-40 object-cover rounded" />
+                    )}
+
+                    <button
+                      onClick={() => handleDeleteSample(tier.title, sample.url)}
+                      className="absolute top-2 right-2 bg-white p-1 rounded-full shadow hover:bg-red-100"
+                    >
+                      <Trash2 className="w-5 h-5 text-red-500" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Pending new files with tags */}
               {fileInputs[tier.title] &&
                 Array.from(fileInputs[tier.title]).map((file, i) => {
                   const tagKey = `${tier.title}_sample_${i}_tags`;
@@ -169,8 +209,8 @@ const AdminEditEditorPortfolio = () => {
                   };
 
                   return (
-                    <div key={i} className="mb-4 border p-4 rounded-md bg-gray-50">
-                      <p className="text-sm font-medium text-gray-700 mb-2">File: {file.name}</p>
+                    <div key={i} className="mt-4 border p-4 rounded-md bg-gray-50">
+                      <p className="text-sm font-medium text-gray-700 mb-2">New File: {file.name}</p>
 
                       <div className="flex flex-wrap gap-2 mb-2">
                         {tags.map((tag, idx) => (
@@ -208,7 +248,7 @@ const AdminEditEditorPortfolio = () => {
             disabled={submitting}
             className="bg-roseclub-accent text-white px-5 py-2 rounded hover:bg-roseclub-dark disabled:opacity-50"
           >
-            Upload Samples
+            Upload New Samples
           </button>
         )}
       </div>

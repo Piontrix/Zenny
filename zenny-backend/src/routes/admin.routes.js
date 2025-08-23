@@ -10,7 +10,12 @@ import {
   updateSupportTicket,
   deleteEditor,
 } from "../controllers/admin.controller.js";
-import { updateEditorPortfolioStructure, uploadEditorPortfolioSamples } from "../controllers/editor.controller.js";
+import {
+  deleteEditorPortfolioSample,
+  editEditorName,
+  updateEditorPortfolioStructure,
+  uploadEditorPortfolioSamples,
+} from "../controllers/editor.controller.js";
 import { uploadMedia } from "../middleware/multer.middleware.js";
 
 const router = express.Router();
@@ -30,5 +35,8 @@ router.patch("/editors/:editorId/portfolio/samples", uploadMedia.any(), uploadEd
 router.get("/support-tickets", getAllSupportTickets);
 router.patch("/support-tickets/:id", updateSupportTicket);
 router.delete("/editors/delete/:editorId", deleteEditor);
+
+router.delete("/editors/:editorId/portfolio/:tier", deleteEditorPortfolioSample);
+router.post("/editors/:editorId/updateName", editEditorName);
 
 export default router;

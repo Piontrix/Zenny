@@ -1,5 +1,5 @@
 import User from "../models/User.model.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { deleteFromCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
 import path from "path";
 
 export const updateEditorPortfolioStructure = async (req, res) => {
@@ -157,6 +157,72 @@ export const uploadEditorPortfolioSamples = async (req, res) => {
     });
   } catch (err) {
     console.error("❌ Error uploading portfolio samples:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const deleteEditorPortfolioSample = async (req, res) => {
+  try {
+    const { editorId, tier } = req.params;
+    const { sampleUrl } = req.body; // ✅ take from body
+
+    if (!sampleUrl) {
+      return res.status(400).json({ message: "sampleUrl is required" });
+    }
+
+    const editor = await User.findOne({
+      _id: editorId,
+      role: "editor",
+      $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }],
+    });
+    if (!editor) return res.status(404).json({ message: "Editor not found" });
+
+    const targetTier = editor.portfolio?.tiers?.find((t) => t.title === tier);
+    if (!targetTier) return res.status(404).json({ message: "Tier not found" });
+
+    const sampleIndex = targetTier.samples.findIndex((s) => s.url === sampleUrl);
+    if (sampleIndex === -1) return res.status(404).json({ message: "Sample not found" });
+
+    const sample = targetTier.samples[sampleIndex];
+
+    // delete from Cloudinary
+    await deleteFromCloudinary(sample.url);
+
+    // remove from array
+    targetTier.samples.splice(sampleIndex, 1);
+
+    await editor.save();
+
+    res.status(200).json({ message: "Sample deleted successfully", data: editor });
+  } catch (err) {
+    console.error("❌ Error deleting portfolio sample:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const editEditorName = async (req, res) => {
+  try {
+    const { editorId } = req.params;
+    const { username } = req.body;
+
+    if (!username) {
+      return res.status(400).json({ message: "Name is required to be updated" });
+    }
+
+    const editor = await User.findOne({
+      _id: editorId,
+      role: "editor",
+      $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }],
+    });
+    if (!editor) return res.status(404).json({ message: "Editor not found" });
+
+    editor.username = username;
+
+    await editor.save();
+
+    res.status(200).json({ message: "Editor Name Successfully Updated", data: editor });
+  } catch (err) {
+    console.error("Error editing name:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
