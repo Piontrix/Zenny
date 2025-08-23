@@ -30,8 +30,10 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import AdminPayments from "./components/AdminPayments";
 import UpdatePassword from "./pages/Admin/UpdatePassword";
 import ForgotPassword from "./pages/ForgotPassword";
+import useAnalytics from "./hooks/useAnalytics";
 
 const App = () => {
+  useAnalytics();
   return (
     <Router>
       <Layout>
