@@ -83,6 +83,10 @@ const userSchema = new mongoose.Schema(
     portfolio: {
       type: portfolioSchema,
     },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

@@ -247,7 +247,7 @@ export const registerEditor = async (req, res) => {
       return res.status(400).json({ message: "Password must be at least 6 characters long" });
     }
 
-    const existing = await User.findOne({ username });
+    const existing = await User.findOne({ username, $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }] });
     if (existing) {
       return res.status(409).json({ message: "Username already taken" });
     }
@@ -284,7 +284,11 @@ export const editorLogin = async (req, res) => {
 
     if (!username || !password) return res.status(400).json({ message: "Username and password are required" });
 
-    const user = await User.findOne({ username, role: "editor" });
+    const user = await User.findOne({
+      username,
+      role: "editor",
+      $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }],
+    });
     if (!user) return res.status(404).json({ message: "Editor not found" });
 
     if (!user.isVerified) {

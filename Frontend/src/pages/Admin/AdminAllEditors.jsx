@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axiosInstance from "../../api/axios";
 import API from "../../constants/api";
+import toast from "react-hot-toast";
 
 const AdminAllEditors = () => {
   const [editors, setEditors] = useState([]);
@@ -24,6 +25,21 @@ const AdminAllEditors = () => {
 
     fetchEditors();
   }, []);
+
+  const handleDeleteEditor = async (editorId) => {
+    try {
+      const response = await axiosInstance.delete(API.ADMIN_DELETE_EDITOR(editorId));
+      if (response.status === 200) {
+        toast.success("Editor Deleted Successfully");
+
+        // remove deleted editor from list
+        setEditors((prev) => prev.filter((editor) => editor._id !== editorId));
+      }
+    } catch (err) {
+      console.error("Failed to delete editor", err);
+      toast.error("Failed to delete editor");
+    }
+  };
 
   const filteredEditors = editors.filter((editor) => editor.username?.toLowerCase().includes(search.toLowerCase()));
 
@@ -53,7 +69,10 @@ const AdminAllEditors = () => {
               className="bg-white border border-gray-200 shadow-md rounded-2xl p-5 flex flex-col justify-between hover:shadow-lg transition"
             >
               <div>
-                <h3 className="text-xl font-semibold text-rose-700">{editor.username}</h3>
+                <div>
+                  <h3 className="text-xl font-semibold text-rose-700">{editor.username}</h3>
+                  <button onClick={() => handleDeleteEditor(editor._id)}>Delete</button>
+                </div>
                 {editor.email && <p className="text-sm text-gray-500 mt-1">{editor.email}</p>}
                 {editor.portfolio?.tiers?.length > 0 && (
                   <p className="text-xs text-rose-500 mt-2">Portfolio tiers: {editor.portfolio.tiers.length}</p>

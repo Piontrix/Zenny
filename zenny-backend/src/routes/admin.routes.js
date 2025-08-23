@@ -1,13 +1,14 @@
 import express from "express";
 import { protect, allowRoles } from "../middleware/auth.middleware.js";
 import {
-	getAllChatRooms,
-	freezeChatRoom,
-	endChatRoom,
-	unfreezeChatRoom,
-	unendChatRoom,
-	getAllSupportTickets,
-	updateSupportTicket,
+  getAllChatRooms,
+  freezeChatRoom,
+  endChatRoom,
+  unfreezeChatRoom,
+  unendChatRoom,
+  getAllSupportTickets,
+  updateSupportTicket,
+  deleteEditor,
 } from "../controllers/admin.controller.js";
 import { updateEditorPortfolioStructure, uploadEditorPortfolioSamples } from "../controllers/editor.controller.js";
 import { uploadMedia } from "../middleware/multer.middleware.js";
@@ -28,5 +29,6 @@ router.patch("/editors/:editorId/portfolio/samples", uploadMedia.any(), uploadEd
 
 router.get("/support-tickets", getAllSupportTickets);
 router.patch("/support-tickets/:id", updateSupportTicket);
+router.delete("/editors/delete/:editorId", deleteEditor);
 
 export default router;

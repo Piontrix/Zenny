@@ -32,22 +32,34 @@ const EditorPortfolioCard = ({ editor }) => {
       navigate(`/chat?roomId=${res.data.roomId}`);
     } catch (err) {
       console.error("Chat initiation failed", err);
-      toast.error("Failed to start chat.");
+      toast.error("Failed to start chat. Please Try Again after Some Time");
     } finally {
       setLoading(false);
     }
   };
 
-  const handlePaymentClick = (plan, amount) => {
+  const handlePaymentClick = async (plan, amount) => {
     if (!user || user.role !== "creator") {
       toast.error("Only creators can make payments");
       return;
     }
-    setPaymentModal({
-      isOpen: true,
-      plan,
-      amount,
-    });
+
+    try {
+      const { data } = await axiosInstance.get(API.GET_EDITOR_BY_ID(editor._id));
+      if (!data?.data) {
+        toast.error("This editor is no longer available");
+        return;
+      }
+
+      setPaymentModal({
+        isOpen: true,
+        plan,
+        amount,
+      });
+    } catch (err) {
+      console.error("Editor check failed:", err);
+      toast.error("Editor not found or deleted");
+    }
   };
 
   const closePaymentModal = () => {
