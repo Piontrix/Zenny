@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import axiosInstance from "../../api/axios";
 import API from "../../constants/api";
 import toast from "react-hot-toast";
-import { Trash2 } from "lucide-react";
+import { Trash2, Loader2 } from "lucide-react";
 
 const AdminAllEditors = () => {
   const [editors, setEditors] = useState([]);
@@ -11,12 +11,13 @@ const AdminAllEditors = () => {
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, editorId: null });
+  const [isDeleting, setIsDeleting] = useState(false); // full screen loader
 
   useEffect(() => {
     const fetchEditors = async () => {
       try {
         const { data } = await axiosInstance.get(API.GET_ALL_EDITORS);
-        setEditors(data.data || []); // Based on your API response shape
+        setEditors(data.data || []);
       } catch (err) {
         console.error("Failed to fetch editors", err);
         setError("Something went wrong while fetching editors.");
@@ -29,6 +30,8 @@ const AdminAllEditors = () => {
   }, []);
 
   const handleDeleteEditor = async (editorId) => {
+    setConfirmModal({ isOpen: false, editorId: null }); // close modal immediately
+    setIsDeleting(true); // show overlay loader
     try {
       const response = await axiosInstance.delete(API.ADMIN_DELETE_EDITOR(editorId));
       if (response.status === 200) {
@@ -39,7 +42,7 @@ const AdminAllEditors = () => {
       console.error("Failed to delete editor", err);
       toast.error("Failed to delete editor");
     } finally {
-      setConfirmModal({ isOpen: false, editorId: null }); // close modal
+      setIsDeleting(false); // hide overlay loader
     }
   };
 
@@ -49,7 +52,7 @@ const AdminAllEditors = () => {
   if (error) return <p className="p-6 text-red-500">{error}</p>;
 
   return (
-    <div className="p-6">
+    <div className="p-6 relative">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-3xl font-extrabold text-rose-600">📂 All Editors</h2>
         <input
@@ -119,6 +122,16 @@ const AdminAllEditors = () => {
                 Yes, Delete
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Full Screen Loader Overlay */}
+      {isDeleting && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000]">
+          <div className="flex flex-col items-center gap-3">
+            <Loader2 className="w-10 h-10 text-white animate-spin" />
+            <p className="text-white text-sm">Deleting editor, please wait...</p>
           </div>
         </div>
       )}

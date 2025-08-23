@@ -42,22 +42,39 @@ const uploadOnCloudinary = async (localFilePath) => {
 };
 export const deleteFromCloudinary = async (fileUrl) => {
   try {
-    // Extract public_id properly
-    const url = new URL(fileUrl);
-    const parts = url.pathname.split("/"); // e.g. [ '', 'your-cloud-name', 'image', 'upload', 'v12345', 'folder', 'file.jpg' ]
+    if (!fileUrl) return;
 
-    // Remove the first 4 segments: /<cloud>/<resource_type>/upload/v12345/
-    const publicIdWithExt = parts.slice(5).join("/"); // -> "folder/file.jpg"
+    const url = new URL(fileUrl);
+    const parts = url.pathname.split("/");
+
+    // Find index of "upload"
+    const uploadIndex = parts.findIndex((p) => p === "upload");
+    if (uploadIndex === -1) {
+      console.warn("⚠️ Invalid Cloudinary URL, no 'upload' found:", fileUrl);
+      return;
+    }
+
+    // Everything after "upload/"
+    let publicIdParts = parts.slice(uploadIndex + 1);
+
+    // If first part is version (e.g. v12345), remove it
+    if (/^v[0-9]+$/.test(publicIdParts[0])) {
+      publicIdParts = publicIdParts.slice(1);
+    }
+
+    // Join remaining as public_id
+    const publicIdWithExt = publicIdParts.join("/");
     const publicId = publicIdWithExt.replace(/\.[^/.]+$/, ""); // remove extension
 
-    // Detect resource type
+    // Detect resource type from URL
     const resourceType = fileUrl.includes("/video/") ? "video" : "image";
 
     const result = await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
 
     if (result.result !== "ok") {
-      console.warn("⚠️ Cloudinary delete response:", result);
+      console.warn("⚠️ Cloudinary delete response:", result, "for", fileUrl, "with public_id:", publicId);
     }
+
     return result;
   } catch (err) {
     console.error("❌ Cloudinary delete error:", err);

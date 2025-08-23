@@ -2,6 +2,7 @@ import { getIO } from "../../socket.js";
 import ChatRoom from "../models/ChatRoom.model.js";
 import { SupportTicket } from "../models/SupportTicket.model.js";
 import User from "../models/User.model.js";
+import { deleteFromCloudinary } from "../utils/cloudinary.js";
 // GET all chat rooms with creator/editor info
 export const getAllChatRooms = async (req, res) => {
   try {
@@ -118,21 +119,37 @@ export const updateSupportTicket = async (req, res) => {
 };
 export const deleteEditor = async (req, res) => {
   try {
-    console.log("firstsffdljnsfjsn");
     const { editorId } = req.params;
-    const editor = await User.findOneAndUpdate(
-      { _id: editorId, role: "editor", $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }] },
-      { isDeleted: true },
-      { new: true }
-    );
 
-    if (!editor) {
-      return res.status(404).json({ message: "Editor not found or already deleted." });
+    const editor = await User.findOne({
+      _id: editorId,
+      role: "editor",
+      $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }],
+    });
+    if (!editor) return res.status(404).json({ message: "Editor not found" });
+
+    // 1. Delete all portfolio items from Cloudinary
+    if (editor.portfolio?.tiers?.length) {
+      for (const tier of editor.portfolio.tiers) {
+        for (const sample of tier.samples || []) {
+          try {
+            await deleteFromCloudinary(sample.url);
+          } catch (err) {
+            console.error("⚠️ Failed to delete sample from Cloudinary:", err.message);
+          }
+        }
+      }
     }
 
-    res.json({ message: "Editor Deleted Successfully" });
-  } catch (error) {
-    console.error("Delete Editor Error:", error);
-    res.status(500).json({ message: "Failed to Delete Editor." });
+    // 2. Clear portfolio & soft delete
+    editor.portfolio.tiers = [];
+    editor.isDeleted = true;
+
+    await editor.save();
+
+    res.status(200).json({ message: "Editor soft deleted successfully", data: editor });
+  } catch (err) {
+    console.error("❌ Error soft deleting editor:", err);
+    res.status(500).json({ message: "Server error" });
   }
 };
