@@ -42,7 +42,7 @@ const App = () => {
             top: 70,
           }}
           toastOptions={{
-            duration: 3000,
+            duration: 5000,
             style: {
               background: "#fff8f7", // roseclub.paper
               color: "#9e2a2b", // roseclub.dark
