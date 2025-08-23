@@ -264,7 +264,7 @@ const AdminEditEditorPortfolio = () => {
 
                   return (
                     <div key={i} className="mt-4 border p-4 rounded-md bg-gray-50">
-                      <p className="text-sm font-medium text-gray-700 mb-2">New File: {file.name}</p>
+                      <div className="text-sm font-medium text-gray-700 mb-2">New File: {file.name}</div>
 
                       <div className="flex flex-wrap gap-2 mb-2">
                         {tags.map((tag, idx) => (

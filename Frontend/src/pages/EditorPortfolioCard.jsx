@@ -176,7 +176,7 @@ const EditorPortfolioCard = ({ editor }) => {
               {/* Features */}
               {tier.features && tier.features.length > 0 && (
                 <div className="mb-3">
-                  <p className="text-sm text-gray-600 mb-2">Features:</p>
+                  <div className="text-sm text-gray-600 mb-2">Features:</div>
                   <div className="flex flex-wrap gap-2">
                     {tier.features.map((feature, idx) => (
                       <span key={idx} className="px-2 py-1 bg-roseclub-paper text-roseclub-dark text-xs rounded">
@@ -294,7 +294,7 @@ const EditorPortfolioCard = ({ editor }) => {
                 {/* Tags */}
                 {selectedTier.sample.tags?.length > 0 && (
                   <div className="mt-2">
-                    <p className="text-sm text-gray-600 mb-2">Tags:</p>
+                    <div className="text-sm text-gray-600 mb-2">Tags:</div>
                     <div className="flex flex-wrap gap-2">
                       {selectedTier.sample.tags.map((tag, idx) => (
                         <span key={idx} className="px-2 py-1 bg-roseclub-paper text-roseclub-dark text-sm rounded">

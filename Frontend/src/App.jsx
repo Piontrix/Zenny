@@ -30,14 +30,16 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import AdminPayments from "./components/AdminPayments";
 import UpdatePassword from "./pages/Admin/UpdatePassword";
 import ForgotPassword from "./pages/ForgotPassword";
-import useAnalytics from "./hooks/useAnalytics";
+// import useAnalytics from "./hooks/useAnalytics";
+import AnalyticsWrapper from "./AnalyticsWrapper";
 
 const App = () => {
-  useAnalytics();
+  // useAnalytics();
   return (
     <Router>
       <Layout>
         <ScrollToTop />
+        <AnalyticsWrapper />
         <Toaster
           position="top-right"
           containerStyle={{
