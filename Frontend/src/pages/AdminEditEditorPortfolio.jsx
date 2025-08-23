@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import toast from "react-hot-toast";
-import { Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import axiosInstance from "../api/axios";
 import API from "../constants/api";
 import LoaderSpinner from "../components/common/LoaderSpinner";
@@ -15,6 +15,8 @@ const AdminEditEditorPortfolio = () => {
   const [submitting, setSubmitting] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [newName, setNewName] = useState("");
 
   const fileInputRefs = useRef({});
 
@@ -133,6 +135,28 @@ const AdminEditEditorPortfolio = () => {
     }
   };
 
+  useEffect(() => {
+    if (editor?.username) setNewName(editor.username);
+  }, [editor]);
+
+  const handleUpdateName = async () => {
+    if (!newName.trim()) {
+      toast.error("Name cannot be empty");
+      return;
+    }
+    try {
+      await axiosInstance.post(API.ADMIN_UPDATE_EDITOR_NAME(editor._id), {
+        username: newName.trim(),
+      });
+      toast.success("Editor name updated successfully!");
+      setIsEditingName(false);
+      fetchEditor(); // refresh with updated name
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Update failed");
+    }
+  };
+
   if (loading) return <LoaderSpinner size="lg" className="mt-10" />;
 
   const hasTiers = editor?.portfolio?.tiers?.length > 0;
@@ -140,7 +164,37 @@ const AdminEditEditorPortfolio = () => {
   return (
     <div className="relative">
       <div className="max-w-4xl mx-auto p-6 bg-white shadow rounded-md">
-        <h2 className="text-2xl font-bold mb-6">Manage Portfolio - {editor.username}</h2>
+        <div className="flex items-center gap-3 mb-6">
+          {isEditingName ? (
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                className="border rounded px-2 py-1 text-sm"
+              />
+              <button onClick={handleUpdateName} className="bg-green-500 text-white px-3 py-1 rounded text-sm">
+                Save
+              </button>
+              <button
+                onClick={() => {
+                  setIsEditingName(false);
+                  setNewName(editor.username);
+                }}
+                className="bg-gray-300 px-3 py-1 rounded text-sm"
+              >
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <>
+              <h2 className="text-2xl font-bold">Manage Portfolio - {editor.username}</h2>
+              <button onClick={() => setIsEditingName(true)} className="text-gray-600 hover:text-roseclub-accent">
+                <Pencil className="w-5 h-5" />
+              </button>
+            </>
+          )}
+        </div>
 
         {!hasTiers ? (
           <p className="text-center text-gray-500 py-10 border rounded bg-gray-50">
