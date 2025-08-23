@@ -3,12 +3,14 @@ import { Link } from "react-router-dom";
 import axiosInstance from "../../api/axios";
 import API from "../../constants/api";
 import toast from "react-hot-toast";
+import { Trash2 } from "lucide-react";
 
 const AdminAllEditors = () => {
   const [editors, setEditors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, editorId: null });
 
   useEffect(() => {
     const fetchEditors = async () => {
@@ -31,13 +33,13 @@ const AdminAllEditors = () => {
       const response = await axiosInstance.delete(API.ADMIN_DELETE_EDITOR(editorId));
       if (response.status === 200) {
         toast.success("Editor Deleted Successfully");
-
-        // remove deleted editor from list
         setEditors((prev) => prev.filter((editor) => editor._id !== editorId));
       }
     } catch (err) {
       console.error("Failed to delete editor", err);
       toast.error("Failed to delete editor");
+    } finally {
+      setConfirmModal({ isOpen: false, editorId: null }); // close modal
     }
   };
 
@@ -69,9 +71,14 @@ const AdminAllEditors = () => {
               className="bg-white border border-gray-200 shadow-md rounded-2xl p-5 flex flex-col justify-between hover:shadow-lg transition"
             >
               <div>
-                <div>
+                <div className="flex items-center justify-between">
                   <h3 className="text-xl font-semibold text-rose-700">{editor.username}</h3>
-                  <button onClick={() => handleDeleteEditor(editor._id)}>Delete</button>
+                  <button
+                    onClick={() => setConfirmModal({ isOpen: true, editorId: editor._id })}
+                    className="text-sm text-red-500 hover:text-red-700"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
                 </div>
                 {editor.email && <p className="text-sm text-gray-500 mt-1">{editor.email}</p>}
                 {editor.portfolio?.tiers?.length > 0 && (
@@ -92,6 +99,29 @@ const AdminAllEditors = () => {
           ))
         )}
       </div>
+
+      {/* Confirm Delete Modal */}
+      {confirmModal.isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl shadow-lg max-w-sm w-full">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Are you sure you want to delete this editor?</h3>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setConfirmModal({ isOpen: false, editorId: null })}
+                className="px-4 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDeleteEditor(confirmModal.editorId)}
+                className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600"
+              >
+                Yes, Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
