@@ -1,5 +1,5 @@
 import { v2 as cloudinary } from "cloudinary";
-import fs from "fs/promises"; // Use promises API
+import fs from "fs/promises";
 import path from "path";
 
 cloudinary.config({
@@ -8,11 +8,12 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Helper to check if a file path is valid and local
+// ✅ Helper to check if file path is valid & local
 const isValidFilePath = (filePath) => {
   return typeof filePath === "string" && path.isAbsolute(filePath) && !filePath.startsWith("data:");
 };
 
+// ✅ Upload file to Cloudinary
 const uploadOnCloudinary = async (localFilePath) => {
   if (!isValidFilePath(localFilePath)) {
     console.warn("❌ Invalid file path:", localFilePath);
@@ -20,17 +21,22 @@ const uploadOnCloudinary = async (localFilePath) => {
   }
 
   try {
+    // Generate a safe unique public_id
+    const safePublicId = `zenny_${Date.now()}_${Math.round(Math.random() * 1e9)}`;
+
     const response = await cloudinary.uploader.upload(localFilePath, {
       resource_type: "auto",
+      public_id: safePublicId,
     });
 
+    // Clean up local temp file
     await fs.unlink(localFilePath);
 
     return response;
   } catch (error) {
     console.error("❌ Cloudinary upload failed:", error);
 
-    // Always try to clean up even if upload fails
+    // Always clean up even if upload fails
     try {
       await fs.unlink(localFilePath);
     } catch (unlinkErr) {
@@ -40,6 +46,8 @@ const uploadOnCloudinary = async (localFilePath) => {
     return null;
   }
 };
+
+// ✅ Delete file from Cloudinary using URL
 export const deleteFromCloudinary = async (fileUrl) => {
   try {
     if (!fileUrl) return;
@@ -54,7 +62,7 @@ export const deleteFromCloudinary = async (fileUrl) => {
       return;
     }
 
-    // Everything after "upload/"
+    // Extract everything after "upload/"
     let publicIdParts = parts.slice(uploadIndex + 1);
 
     // If first part is version (e.g. v12345), remove it
@@ -69,10 +77,14 @@ export const deleteFromCloudinary = async (fileUrl) => {
     // Detect resource type from URL
     const resourceType = fileUrl.includes("/video/") ? "video" : "image";
 
-    const result = await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
+    const result = await cloudinary.uploader.destroy(publicId, {
+      resource_type: resourceType,
+    });
 
     if (result.result !== "ok") {
       console.warn("⚠️ Cloudinary delete response:", result, "for", fileUrl, "with public_id:", publicId);
+    } else {
+      console.log("✅ Cloudinary file deleted:", publicId);
     }
 
     return result;
