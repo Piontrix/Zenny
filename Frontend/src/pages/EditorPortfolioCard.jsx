@@ -140,7 +140,7 @@ const EditorPortfolioCard = ({ editor }) => {
         <div className="space-y-4">
           <h4 className="text-lg font-semibold text-roseclub-dark mb-3">Editing Tiers</h4>
           {editor.portfolio.tiers.map((tier, index) => (
-            <div key={index} className="border border-roseclub-light rounded-lg p-4">
+            <div key={index} className="border border-roseclub-light rounded-lg p-2 px-4">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3">
                   <span className={`px-3 py-1 rounded-full text-xs font-medium ${getTierColor(tier.title)}`}>
