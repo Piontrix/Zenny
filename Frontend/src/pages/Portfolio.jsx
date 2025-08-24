@@ -105,9 +105,11 @@ const Portfolio = () => {
             </div>
 
             {/* Editor Cards */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+            <div className="columns-1 lg:columns-2 gap-8">
               {editors.map((editor) => (
-                <EditorPortfolioCard key={editor._id} editor={editor} />
+                <div key={editor._id} className="mb-8 break-inside-avoid">
+                  <EditorPortfolioCard editor={editor} />
+                </div>
               ))}
             </div>
           </div>
