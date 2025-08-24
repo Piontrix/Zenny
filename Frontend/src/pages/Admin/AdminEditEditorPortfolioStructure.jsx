@@ -1,10 +1,48 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import toast from "react-hot-toast";
-import { X } from "lucide-react";
+import { X, Plus } from "lucide-react";
 import axiosInstance from "../../api/axios";
 import API from "../../constants/api";
 import LoaderSpinner from "../../components/common/LoaderSpinner";
+
+const FEATURE_SUGGESTIONS = [
+  // Basic
+  "1 revision",
+  "Trimming & cutting",
+  "Basic transitions",
+  "Basic color correction",
+  "Audio leveling",
+  "Basic subtitles",
+  "Background noise removal",
+  "Aspect ratio adjustment for one platform",
+
+  // Intermediate
+  "Up to 2 revisions",
+  "Advanced transitions",
+  "Basic motion graphics",
+  "Creative color grading",
+  "Intermediate sound design",
+  "Stylized subtitles",
+  "Background music syncing",
+  "Light effects",
+  "Crop & reframe for multiple platforms",
+
+  // Pro
+  "Advanced motion graphics & animation",
+  "VFX & compositing",
+  "3D elements integration",
+  "Advanced color grading",
+  "Multi-camera syncing",
+  "Audio mixing & mastering",
+  "High-end visual effects",
+  "Storyboard-to-final edit service",
+  "Thumbnail creation",
+  "Project file delivery",
+  "Express delivery",
+];
+
+const INCLUDED_SUGGESTIONS = ["Background Music", "Voice Over", "Stock Footage", "Revisions"];
 
 const defaultTiers = [
   { title: "basic", description: "", features: [], pricing: [{ reelCount: 0, priceMin: 0, priceMax: 0 }] },
@@ -125,6 +163,27 @@ const AdminEditEditorPortfolioStructure = () => {
                 </span>
               ))}
             </div>
+
+            {/* Suggestion Badges */}
+            <div className="flex flex-wrap gap-2 mb-2">
+              {FEATURE_SUGGESTIONS.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => handleFeatureAdd(idx, s)}
+                  disabled={tier.features.includes(s)}
+                  className={`flex items-center gap-1 px-2 py-1 rounded-full text-sm border 
+                    ${
+                      tier.features.includes(s)
+                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                        : "bg-green-100 text-green-700 hover:bg-green-200"
+                    }`}
+                >
+                  <Plus className="w-4 h-4" /> {s}
+                </button>
+              ))}
+            </div>
+
             <input
               type="text"
               placeholder="Add feature and press Enter"
@@ -170,7 +229,6 @@ const AdminEditEditorPortfolioStructure = () => {
       ))}
 
       {/* What's Included */}
-      {/* What's Included */}
       <div className="mb-6">
         <h3 className="text-lg font-semibold text-roseclub-accent mb-2">What's Included</h3>
 
@@ -188,6 +246,30 @@ const AdminEditEditorPortfolioStructure = () => {
                 }}
               />
             </span>
+          ))}
+        </div>
+
+        {/* Suggestion Badges */}
+        <div className="flex flex-wrap gap-2 mb-2">
+          {INCLUDED_SUGGESTIONS.map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => {
+                if (!whatsIncluded.includes(s)) {
+                  setWhatsIncluded((prev) => [...prev, s]);
+                }
+              }}
+              disabled={whatsIncluded.includes(s)}
+              className={`flex items-center gap-1 px-2 py-1 rounded-full text-sm border 
+                ${
+                  whatsIncluded.includes(s)
+                    ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                    : "bg-blue-100 text-blue-700 hover:bg-blue-200"
+                }`}
+            >
+              <Plus className="w-4 h-4" /> {s}
+            </button>
           ))}
         </div>
 
