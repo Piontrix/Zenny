@@ -126,7 +126,10 @@ export const deleteEditor = async (req, res) => {
       role: "editor",
       $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }],
     });
-    if (!editor) return res.status(404).json({ message: "Editor not found" });
+
+    if (!editor) {
+      return res.status(404).json({ message: "Editor not found" });
+    }
 
     // 1. Delete all portfolio items from Cloudinary
     if (editor.portfolio?.tiers?.length) {
@@ -142,12 +145,20 @@ export const deleteEditor = async (req, res) => {
     }
 
     // 2. Clear portfolio & soft delete
-    editor.portfolio.tiers = [];
+    if (!editor.portfolio) {
+      editor.portfolio = { tiers: [] }; // ensure it's at least an object
+    } else {
+      editor.portfolio.tiers = [];
+    }
+
     editor.isDeleted = true;
 
     await editor.save();
 
-    res.status(200).json({ message: "Editor soft deleted successfully", data: editor });
+    res.status(200).json({
+      message: "Editor soft deleted successfully",
+      data: editor,
+    });
   } catch (err) {
     console.error("❌ Error soft deleting editor:", err);
     res.status(500).json({ message: "Server error" });
