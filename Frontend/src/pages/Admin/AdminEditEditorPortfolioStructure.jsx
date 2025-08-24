@@ -66,7 +66,7 @@ const AdminEditEditorPortfolioStructure = () => {
         setEditor(res.data.data);
 
         // Normalize the 3 tiers if missing
-        const existingTiers = portfolio.tiers || [];
+        const existingTiers = portfolio?.tiers || [];
         const updatedTiers = defaultTiers.map((def) => {
           const match = existingTiers.find((t) => t.title === def.title);
           return match || def;

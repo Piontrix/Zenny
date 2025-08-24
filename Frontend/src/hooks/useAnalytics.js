@@ -12,7 +12,7 @@ export default function useAnalytics() {
         page_path: location.pathname + location.search,
       });
       // Optional: log to console for debugging
-      console.log("📊 GA Page View:", location.pathname + location.search);
+      // console.log("📊 GA Page View:", location.pathname + location.search);
     }
   }, [location]);
 }
