@@ -153,11 +153,10 @@ export const deleteEditor = async (req, res) => {
 
     editor.isDeleted = true;
 
-    await editor.save();
+    await User.deleteOne({ _id: editorId });
 
     res.status(200).json({
-      message: "Editor soft deleted successfully",
-      data: editor,
+      message: "Editor deleted permanently",
     });
   } catch (err) {
     console.error("❌ Error soft deleting editor:", err);
